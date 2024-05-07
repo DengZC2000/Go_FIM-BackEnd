@@ -13,6 +13,7 @@ type UserConfModel struct {
 	SearchUser           int8                  `json:"search_user"`         //允许别人查找到你的方式,0:不允许别人查找到我，1：通过用户号找到我 2：昵称搜索找到我
 	FriendVerification   int8                  `json:"friend_verification"` //好友验证,0 不允许任何人 1允许任何人 2 需要验证消息 3 需要回答问题 4 需要正确回答设置的问题
 	VerificationQuestion *VerificationQuestion `json:"friend_question"`     //验证问题,不一定需要，验证方式为3和4的时候需要
+	Online               bool                  `json:"online"`              //是否在线
 }
 type VerificationQuestion struct {
 	Problem1 *string `json:"problem1"`
