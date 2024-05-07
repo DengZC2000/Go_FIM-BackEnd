@@ -1,4 +1,4 @@
-package models
+package chat_models
 
 import (
 	"FIM/common/models"

@@ -1,4 +1,4 @@
-package models
+package group_models
 
 import (
 	"FIM/common/models"
