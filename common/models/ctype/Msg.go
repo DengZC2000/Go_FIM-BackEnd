@@ -17,6 +17,7 @@ type Msg struct {
 	WithdrawMsg  *WithdrawMsg  `json:"withdraw_msg"`   //撤回消息
 	ReplyMsg     *ReplyMsg     `json:"reply_msg"`      //回复消息
 	QuoteMsg     *QuoteMsg     `json:"quote_msg"`      //引用消息
+	AtMsg        *AtMsg        `json:"at_msg"`         //at消息，只有群聊有
 }
 type ImageMsg struct {
 	Title string `json:"title"`
@@ -59,5 +60,10 @@ type ReplyMsg struct {
 type QuoteMsg struct {
 	MsgID   uint   `json:"msg_id"`  //消息id
 	Content string `json:"content"` //回复的文本消息，目前只能回复图片
+	Msg     *Msg   `json:"msg"`
+}
+type AtMsg struct {
+	UserID  uint   `json:"user_id"`
+	Content string `json:"content"`
 	Msg     *Msg   `json:"msg"`
 }
