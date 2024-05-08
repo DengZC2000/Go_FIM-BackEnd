@@ -8,8 +8,8 @@ import (
 
 type JwtPayLoad struct {
 	UserID   uint   `json:"user_id"`
-	Username string `json:"username"` //用户名
-	Role     int    `json:"role"`
+	Nickname string `json:"nickname"` //用户名
+	Role     int8   `json:"role"`     // 1 管理员 2 普通用户
 }
 
 type CustomClaims struct {
@@ -34,6 +34,7 @@ func ParseToken(tokenStr string, accessSecret string) (*CustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(accessSecret), nil
 	})
+
 	if err != nil {
 		return nil, err
 	}

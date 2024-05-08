@@ -36,7 +36,7 @@ func (l *AuthenticationLogic) Authentication(token string) (resp string, err err
 	}
 	_, err = l.svcCtx.Redis.Get(context.Background(), fmt.Sprintf("logout_%d", claims.UserID)).Result()
 	if err == nil {
-		err = errors.New("认证失败")
+		err = errors.New("用户已注销，认证失败")
 		return
 	}
 	resp = "认证成功"

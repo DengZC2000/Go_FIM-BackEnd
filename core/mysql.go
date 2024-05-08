@@ -14,7 +14,7 @@ func InitGorm(MysqlDataSource string) *gorm.DB {
 		log.Fatal(fmt.Sprintf("[%s] 连接失败！", MysqlDataSource))
 		return nil
 	}
-	fmt.Println(fmt.Sprintf("[%s] 连接成功！", MysqlDataSource))
+	fmt.Println(fmt.Sprintf("[%s] mysql连接成功！", MysqlDataSource))
 	sqlDB, _ := db.DB()
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
