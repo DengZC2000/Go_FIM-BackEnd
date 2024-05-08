@@ -1,0 +1,8 @@
+Name: auth
+Host: 0.0.0.0
+Port: 20021
+Mysql:
+  DataSource: root:1310138359@tcp(127.0.0.1:3306)/fim_server_db?charset=utf8mb4&parseTime=True&loc=Local
+Auth:
+  AccessSecret: Dzc2000
+  AccessExpire: 3600

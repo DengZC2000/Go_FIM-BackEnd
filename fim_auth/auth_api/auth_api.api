@@ -1,0 +1,59 @@
+type LoginRequest {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type Response {
+	Code int    `json:"code"`
+	Data string `json:"data"`
+	Msg  string `json:"msg"`
+}
+
+type Authentication {}
+
+type AuthenticationResponse {
+	Code int    `json:"code"`
+	Data string `json:"data"`
+	Msg  string `json:"msg"`
+}
+
+type LoginInfo {
+	Token string `json:"token"`
+}
+
+type LoginResponse {
+	Code int       `json:"code"`
+	Data LoginInfo `json:"data"`
+	Msg  string    `json:"msg"`
+}
+
+type OpenLoginInfo {
+	Name string `json:"name"`
+	Icon string `json:"icon"`
+	Href string `json:"href"` //��ת��ַ
+}
+
+type OpenLoginInfoResponse {
+	Code int             `json:"code"`
+	Data []OpenLoginInfo `json:"data"`
+	Msg  string          `json:"msg"`
+}
+
+service auth {
+	@handler login
+	post /api/auth/login (LoginRequest) returns (LoginResponse) //��¼�ӿ�
+
+	@handler authentication
+	post /api/auth/authentication returns (Response) //��֤�ӿ�
+
+	@handler logout
+	post /api/auth/logout returns (Response) //ע��
+
+	@handler open_login_info
+	get /api/auth/open_login returns (OpenLoginInfoResponse) //��������¼����Ϣ
+
+	@handler open_login
+	post /api/auth/open_login returns (LoginResponse) //��������¼����Ϣ
+}
+
+// goctl api go -api xxx.api -dir .
