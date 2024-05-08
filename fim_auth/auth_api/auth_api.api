@@ -3,57 +3,31 @@ type LoginRequest {
 	Password string `json:"password"`
 }
 
-type Response {
-	Code int    `json:"code"`
-	Data string `json:"data"`
-	Msg  string `json:"msg"`
-}
-
-type Authentication {}
-
-type AuthenticationResponse {
-	Code int    `json:"code"`
-	Data string `json:"data"`
-	Msg  string `json:"msg"`
-}
-
-type LoginInfo {
+type LoginResponse {
 	Token string `json:"token"`
 }
 
-type LoginResponse {
-	Code int       `json:"code"`
-	Data LoginInfo `json:"data"`
-	Msg  string    `json:"msg"`
-}
-
-type OpenLoginInfo {
+type OpenLoginInfoResponse {
 	Name string `json:"name"`
 	Icon string `json:"icon"`
-	Href string `json:"href"` //��ת��ַ
-}
-
-type OpenLoginInfoResponse {
-	Code int             `json:"code"`
-	Data []OpenLoginInfo `json:"data"`
-	Msg  string          `json:"msg"`
+	Href string `json:"href"` //跳转地址
 }
 
 service auth {
 	@handler login
-	post /api/auth/login (LoginRequest) returns (LoginResponse) //��¼�ӿ�
+	post /api/auth/login (LoginRequest) returns (LoginResponse) //登录接口
 
 	@handler authentication
-	post /api/auth/authentication returns (Response) //��֤�ӿ�
+	post /api/auth/authentication returns (string) //认证接口
 
 	@handler logout
-	post /api/auth/logout returns (Response) //ע��
+	post /api/auth/logout returns (string) //注销
 
 	@handler open_login_info
-	get /api/auth/open_login returns (OpenLoginInfoResponse) //��������¼����Ϣ
+	get /api/auth/open_login returns ([]OpenLoginInfoResponse) //第三方登录的信息
 
 	@handler open_login
-	post /api/auth/open_login returns (LoginResponse) //��������¼����Ϣ
+	post /api/auth/open_login returns (LoginResponse) //第三方登录
 }
 
 // goctl api go -api xxx.api -dir .
