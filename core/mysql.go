@@ -8,13 +8,13 @@ import (
 	"time"
 )
 
-func InitGorm() *gorm.DB {
-	dsn := "root:1310138359@tcp(127.0.0.1:3306)/fim_server_db?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+func InitGorm(MysqlDataSource string) *gorm.DB {
+	db, err := gorm.Open(mysql.Open(MysqlDataSource), &gorm.Config{})
 	if err != nil {
-		log.Fatal(fmt.Sprintf("%s 连接失败", dsn))
+		log.Fatal(fmt.Sprintf("[%s] 连接失败！", MysqlDataSource))
 		return nil
 	}
+	fmt.Println(fmt.Sprintf("[%s] 连接成功！", MysqlDataSource))
 	sqlDB, _ := db.DB()
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
