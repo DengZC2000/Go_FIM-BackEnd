@@ -1,6 +1,9 @@
 package logic
 
 import (
+	"FIM/fim_auth/auth_models"
+	"FIM/utils/jwt"
+	"FIM/utils/pwd"
 	"context"
 	"errors"
 
@@ -25,7 +28,23 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 }
 
 func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, err error) {
-	// todo: add your logic here and delete this line
-
-	return &types.LoginResponse{Token: "Dzc"}, errors.New("嘿嘿")
+	var user auth_models.UserModel
+	if err = l.svcCtx.DB.Take(&user, "id = ?", req.Username).Error; err != nil {
+		err = errors.New("用户名或密码错误")
+		return
+	}
+	if !pwd.CheckPwd(user.Password, req.Password) {
+		err = errors.New("用户名或密码错误")
+		return
+	}
+	token, err := jwt.GenToken(jwt.JwtPayLoad{
+		UserID:   user.ID,
+		Nickname: user.NickName,
+		Role:     user.Role,
+	}, l.svcCtx.Config.Auth.AccessSecret, l.svcCtx.Config.Auth.AccessExpire)
+	if err != nil {
+		err = errors.New("生成token失败")
+		return
+	}
+	return &types.LoginResponse{Token: token}, nil
 }
