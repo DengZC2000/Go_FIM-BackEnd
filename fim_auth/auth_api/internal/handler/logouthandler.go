@@ -12,6 +12,7 @@ func logoutHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		l := logic.NewLogoutLogic(r.Context(), svcCtx)
 		token := r.Header.Get("token")
+
 		resp, err := l.Logout(token)
 		//if err != nil {
 		//	httpx.ErrorCtx(r.Context(), w, err)
