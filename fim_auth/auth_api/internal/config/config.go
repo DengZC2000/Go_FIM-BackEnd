@@ -19,4 +19,9 @@ type Config struct {
 		DB       int
 		PoolSize int
 	}
+	OpenLoginList []struct {
+		Name string
+		Icon string
+		Href string
+	}
 }
