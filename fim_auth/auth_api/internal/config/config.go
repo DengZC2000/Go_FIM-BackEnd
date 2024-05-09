@@ -24,4 +24,9 @@ type Config struct {
 		Icon string
 		Href string
 	}
+	QQ struct {
+		AppID    string
+		AppKey   string
+		Redirect string
+	}
 }

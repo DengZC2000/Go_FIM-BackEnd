@@ -19,3 +19,7 @@ OpenLoginList:
   - name: QQ登录
     icon: https://www.blog.dzcs.online/_next/image?url=https%3A%2F%2Fwww.notion.so%2Fimage%2Fhttps%253A%252F%252Fwiki.connect.qq.com%252Fwp-content%252Fuploads%252F2016%252F12%252FConnect_logo_5.png%3Ftable%3Dblock%26id%3D1fe86715-e4f5-4c7b-beae-a9d382d0e6ce%26cache%3Dv2&w=2048&q=75
     href: https://graph.qq.com/oauth2.0/show?which=Login&display=pc&response_type=code&client_id=102107572&redirect_uri=https://www.blog.dzcs.online/login/callback/qq
+QQ:
+  AppID: "102107572"
+  AppKey: kXBfClIgv05AFKID
+  Redirect: https://www.blog.dzcs.online/login/callback/qq

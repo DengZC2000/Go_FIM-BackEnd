@@ -15,3 +15,8 @@ type OpenLoginInfoResponse struct {
 	Icon string `json:"icon"`
 	Href string `json:"href"` //跳转地址
 }
+
+type OpenLoginRequest struct {
+	Code string `json:"code"`
+	Flag string `json:"flag"` //登陆标志，标志是什么登录
+}
