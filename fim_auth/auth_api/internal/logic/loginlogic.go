@@ -37,6 +37,7 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 		err = errors.New("用户名或密码错误")
 		return
 	}
+	//判断用户的注册来源，第三方登录来的不能通过用户名和密码登录
 	token, err := jwt.GenToken(jwt.JwtPayLoad{
 		UserID:   user.ID,
 		Nickname: user.NickName,

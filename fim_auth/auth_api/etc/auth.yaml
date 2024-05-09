@@ -23,3 +23,8 @@ QQ:
   AppID: "102107572"
   AppKey: kXBfClIgv05AFKID
   Redirect: https://www.blog.dzcs.online/login/callback/qq
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: userrpc.rpc
