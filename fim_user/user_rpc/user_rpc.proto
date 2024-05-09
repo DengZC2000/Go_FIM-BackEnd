@@ -17,6 +17,7 @@ message UserCreateRequest {
   int32  role = 3;
   string avatar = 4;
   string openid = 5;
+  string register_source = 6;
 }
 message UserCreateResponse{
   int32 user_id = 1;

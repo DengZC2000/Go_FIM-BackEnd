@@ -28,10 +28,11 @@ func NewUserCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserCr
 // rpc UserInfo(UserInfoRequest)returns(UserInfoResponse);
 func (l *UserCreateLogic) UserCreate(in *user_rpc.UserCreateRequest) (*user_rpc.UserCreateResponse, error) {
 	user := user_models.UserModel{
-		NickName: in.Nickname,
-		Avatar:   in.Avatar,
-		Role:     int8(in.Role),
-		OpenID:   in.Openid,
+		NickName:       in.Nickname,
+		Avatar:         in.Avatar,
+		Role:           int8(in.Role),
+		OpenID:         in.Openid,
+		RegisterSource: in.RegisterSource,
 	}
 	err := l.svcCtx.DB.Create(&user).Error
 	if err != nil {
