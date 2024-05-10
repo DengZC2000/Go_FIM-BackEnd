@@ -30,5 +30,6 @@ type Config struct {
 		AppKey   string
 		Redirect string
 	}
+	Etcd    string
 	UserRpc zrpc.RpcClientConf
 }

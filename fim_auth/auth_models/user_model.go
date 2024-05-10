@@ -9,7 +9,7 @@ type UserModel struct {
 	Password       string `gorm:"size:128" json:"password"`
 	Profile        string `gorm:"size:128" json:"profile"` //个人简介
 	Avatar         string `gorm:"size:256" json:"avatar"`  //头像
-	IP             string `gorm:"size:32" json:"ip"`
+	IP             string `gorm:"size:32" json:"ips"`
 	Address        string `gorm:"size:64" json:"address"`
 	Role           int8   `json:"role"`                           //1 管理员 2 普通用户
 	OpenID         string `gorm:"size:128" json:"open_id"`        //第三方平台登陆的凭证，唯一
