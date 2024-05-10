@@ -35,7 +35,7 @@ func (l *LogoutLogic) Logout(token string) (resp string, err error) {
 		err = errors.New("token错误")
 		return
 	}
-	key := fmt.Sprintf("logout_%d", claims.UserID)
+	key := fmt.Sprintf("logout_%s", token)
 	now := time.Now()
 	expiration := claims.ExpiresAt.Sub(now)
 	l.svcCtx.Redis.SetNX(context.Background(), key, "", expiration)

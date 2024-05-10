@@ -2,9 +2,12 @@ package main
 
 import (
 	"FIM/common/etcd"
+	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/logx"
 	"io"
 	"net/http"
 	"regexp"
@@ -24,22 +27,57 @@ func gateway(res http.ResponseWriter, req *http.Request) {
 		res.Write([]byte("err"))
 		return
 	}
-	service := addrList[1]
 
+	service := addrList[1]
 	addr := etcd.GetServiceAddr(config.Etcd, service+"_api")
 	if addr == "" {
 		fmt.Printf("不匹配的服务%s", service)
 		res.Write([]byte("err"))
 		return
 	}
-
 	remoteAddr := strings.Split(req.RemoteAddr, ":")
-	url := fmt.Sprintf("http://%s%s", addr, req.URL.String())
-	proxyReq, _ := http.NewRequest(req.Method, url, req.Body)
-	proxyReq.Header.Set("X-Forwarded-For", remoteAddr[0])
-	response, err := http.DefaultClient.Do(proxyReq)
+	fmt.Println(remoteAddr)
+
+	// 请求认证服务地址
+	authAddr := etcd.GetServiceAddr(config.Etcd, "auth_api")
+	authUrl := fmt.Sprintf("http://%s/api/auth/authentication", authAddr)
+	authRequest, _ := http.NewRequest("POST", authUrl, nil)
+	authRequest.Header = req.Header
+	authRequest.Header.Set("valid_path", req.URL.Path)
+	authRes, err := http.DefaultClient.Do(authRequest)
 	if err != nil {
-		fmt.Println(err.Error())
+		res.Write([]byte("认证服务错误"))
+		return
+	}
+
+	type Response struct {
+		Code int    `json:"code"`
+		Msg  string `json:"msg"`
+	}
+	var authResponse Response
+	byteData, _ := io.ReadAll(authRes.Body)
+	authErr := json.Unmarshal(byteData, &authResponse)
+	if authErr != nil {
+		logx.Error(authErr)
+		res.Write([]byte("认证服务错误"))
+		return
+	}
+	//认证不通过
+	if authResponse.Code != 0 {
+		res.Write(byteData)
+		return
+	}
+
+	url := fmt.Sprintf("http://%s%s", addr, req.URL.String())
+	fmt.Println(url)
+	byteData, _ = io.ReadAll(req.Body)
+	proxyReq, _ := http.NewRequest(req.Method, url, bytes.NewBuffer(byteData))
+
+	proxyReq.Header = req.Header
+	proxyReq.Header.Del("valid_path")
+	response, ProxyErr := http.DefaultClient.Do(proxyReq)
+	if ProxyErr != nil {
+		fmt.Println(ProxyErr.Error())
 		res.Write([]byte("服务异常"))
 		return
 	}

@@ -30,6 +30,7 @@ type Config struct {
 		AppKey   string
 		Redirect string
 	}
-	Etcd    string
-	UserRpc zrpc.RpcClientConf
+	Etcd      string
+	UserRpc   zrpc.RpcClientConf
+	WhiteList []string //白名单
 }

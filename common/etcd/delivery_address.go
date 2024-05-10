@@ -2,9 +2,9 @@ package etcd
 
 import (
 	"FIM/core"
-	"FIM/utils/ips"
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/netx"
 	"strings"
 )
 
@@ -16,7 +16,7 @@ func DeliveryAddress(etcdAddr, serviceName, addr string) {
 		return
 	}
 	if list[0] == "0.0.0.0" {
-		ip, _ := ips.GetOutBoundIP()
+		ip := netx.InternalIp()
 		addr = strings.ReplaceAll(addr, "0.0.0.0", ip)
 	}
 	client := core.InitEtcd(etcdAddr)

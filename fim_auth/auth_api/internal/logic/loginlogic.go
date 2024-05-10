@@ -6,6 +6,7 @@ import (
 	"FIM/utils/pwd"
 	"context"
 	"errors"
+	"fmt"
 
 	"FIM/fim_auth/auth_api/internal/svc"
 	"FIM/fim_auth/auth_api/internal/types"
@@ -29,10 +30,13 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 
 func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, err error) {
 	var user auth_models.UserModel
-	if err = l.svcCtx.DB.Take(&user, "id = ?", req.Username).Error; err != nil {
+
+	count := l.svcCtx.DB.Take(&user, "id = ?", req.Username).RowsAffected
+	if count != 1 {
 		err = errors.New("用户名或密码错误")
 		return
 	}
+	fmt.Println(user)
 	if !pwd.CheckPwd(user.Password, req.Password) {
 		err = errors.New("用户名或密码错误")
 		return
