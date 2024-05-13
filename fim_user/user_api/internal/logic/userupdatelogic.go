@@ -28,7 +28,7 @@ func NewUser_updateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *User_
 }
 
 func (l *User_updateLogic) User_update(req *types.UserInfoUpdateRequest) (resp *types.UserInfoUpdateResponse, err error) {
-	// todo: add your logic here and delete this line
+
 	fmt.Println(req.UserID)
 
 	var user user_models.UserModel
@@ -56,8 +56,9 @@ func (l *User_updateLogic) User_update(req *types.UserInfoUpdateRequest) (resp *
 	}
 	verificationQuestion, ok := userConfMaps["verification_question"]
 	if ok {
-		delete(userConfMaps, "verification_question")
 		data := ctype.VerificationQuestion{}
+		delete(userConfMaps, "verification_question")
+		maps.MapToStruct(verificationQuestion.(map[string]any), &data)
 		if val, ok := verificationQuestion.(map[string]any)["problem1"]; ok {
 			s := val.(string)
 			data.Problem1 = &s
