@@ -42,12 +42,28 @@ func (l *User_infoLogic) User_info(req *types.UserInfoRequest) (resp *types.User
 	}
 
 	fmt.Println(string(userInfo.Data))
-	return &types.UserInfoResponse{
-		UserID:         user.ID,
-		Nickname:       user.NickName,
-		Role:           user.Role,
-		Profile:        user.Profile,
-		Avatar:         user.Avatar,
-		RegisterSource: user.RegisterSource,
-	}, nil
+	resp = &types.UserInfoResponse{
+		UserID:        user.ID,
+		Nickname:      user.NickName,
+		Profile:       user.Profile,
+		Avatar:        user.Avatar,
+		RecallMessage: user.UserConfModel.RecallMessage,
+		FriendOnline:  user.UserConfModel.FriendOnline,
+		Sound:         user.UserConfModel.Sound,
+		SecureLink:    user.UserConfModel.SecureLink,
+		SavePwd:       user.UserConfModel.SavePwd,
+		SearchUser:    user.UserConfModel.SearchUser,
+		Verification:  user.UserConfModel.Verification,
+	}
+	if user.UserConfModel.VerificationQuestion != nil {
+		resp.VerificationQuestion = &types.VerificationQuestion{
+			Problem1: user.UserConfModel.VerificationQuestion.Problem1,
+			Problem2: user.UserConfModel.VerificationQuestion.Problem2,
+			Problem3: user.UserConfModel.VerificationQuestion.Problem3,
+			Answer1:  user.UserConfModel.VerificationQuestion.Answer1,
+			Answer2:  user.UserConfModel.VerificationQuestion.Answer2,
+			Answer3:  user.UserConfModel.VerificationQuestion.Answer3,
+		}
+	}
+	return resp, nil
 }

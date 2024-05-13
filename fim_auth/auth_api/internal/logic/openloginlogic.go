@@ -4,13 +4,13 @@ import (
 	"FIM/fim_auth/auth_api/internal/svc"
 	"FIM/fim_auth/auth_api/internal/types"
 	"FIM/fim_auth/auth_models"
+	"FIM/fim_user/user_models"
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"FIM/utils/jwt"
 	"FIM/utils/open_login"
 	"context"
 	"errors"
 	"fmt"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -78,6 +78,18 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 		user.Model.ID = uint(res.UserId)
 		user.Role = 2
 		user.NickName = info.Nickname
+
+		l.svcCtx.DB.Create(&user_models.UserConfModel{
+			UserID:        user.ID,
+			RecallMessage: nil, //撤回消息的提示
+			FriendOnline:  false,
+			Sound:         true,
+			SecureLink:    false,
+			SavePwd:       false,
+			SearchUser:    2, //允许别人找到你的方式
+			Verification:  2, //需要验证问题
+			Online:        true,
+		})
 	}
 
 	//登录逻辑
@@ -92,5 +104,5 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 		return
 	}
 	return &types.LoginResponse{Token: token}, nil
-	return
+
 }
