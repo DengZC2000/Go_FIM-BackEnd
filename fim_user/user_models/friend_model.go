@@ -2,6 +2,7 @@ package user_models
 
 import (
 	"FIM/common/models"
+	"gorm.io/gorm"
 )
 
 // FriendModel 好友表
@@ -13,4 +14,12 @@ type FriendModel struct {
 	RevUserModel  UserModel `gorm:"foreignKey:RevUserID" json:"-"`
 	Notice        string    `gorm:"size:128" json:"notice"` //备注
 
+}
+
+func (f *FriendModel) IsFriend(db *gorm.DB, A, B uint) bool {
+	err := db.Take(&f, "(send_user_id = ? and rev_user_id = ?) or (send_user_id = ? and rev_user_id = ?)", A, B, B, A).Error
+	if err != nil {
+		return false
+	}
+	return true
 }
