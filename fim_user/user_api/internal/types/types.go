@@ -8,7 +8,7 @@ type UserInfoRequest struct {
 
 type UserInfoResponse struct {
 	UserID               uint                  `json:"user_id"`
-	Nickname             string                `json:"nickname"`
+	Nickname             string                `json:"nick_name"`
 	Profile              string                `json:"profile"` //���˼���
 	Avatar               string                `json:"avatar"`  //ͷ��
 	RecallMessage        *string               `json:"recall_message"`
@@ -24,7 +24,7 @@ type UserInfoResponse struct {
 
 type UserInfoUpdateRequest struct {
 	UserID               uint                  `header:"User-ID"`
-	Nickname             *string               `json:"nickname,optional" user:"nickname"`
+	Nickname             *string               `json:"nick_name,optional" user:"nickname"`
 	Profile              *string               `json:"profile,optional" user:"profile"` //���˼���
 	Avatar               *string               `json:"avatar,optional" user:"avatar"`   //ͷ��
 	RecallMessage        *string               `json:"recall_message,optional" user_conf:"recall_message"`
@@ -41,10 +41,10 @@ type UserInfoUpdateResponse struct {
 }
 
 type VerificationQuestion struct {
-	Problem1 *string `json:"problem1"`
-	Problem2 *string `json:"problem2"`
-	Problem3 *string `json:"problem3"`
-	Answer1  *string `json:"answer1"`
-	Answer2  *string `json:"answer2"`
-	Answer3  *string `json:"answer3"`
+	Problem1 *string `json:"problem1,optional" user_conf:"problem1"`
+	Problem2 *string `json:"problem2,optional" user_conf:"problem2"`
+	Problem3 *string `json:"problem3,optional" user_conf:"problem3"`
+	Answer1  *string `json:"answer1,optional" user_conf:"answer1"`
+	Answer2  *string `json:"answer2,optional" user_conf:"answer2"`
+	Answer3  *string `json:"answer3,optional" user_conf:"answer3"`
 }
