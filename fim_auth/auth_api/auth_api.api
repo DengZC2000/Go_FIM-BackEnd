@@ -23,12 +23,17 @@ type AuthenticationRequest {
 	ValidPath string `header:"valid_path,optional"`
 }
 
+type AuthenticationResponse {
+	UserID uint `json:"user_id"`
+	Role   int  `json:"role"`
+}
+
 service auth {
 	@handler login
 	post /api/auth/login (LoginRequest) returns (LoginResponse) //登录接口
 
 	@handler authentication
-	post /api/auth/authentication (AuthenticationRequest) returns (string) //认证接口
+	post /api/auth/authentication (AuthenticationRequest) returns (AuthenticationResponse) //认证接口
 
 	@handler logout
 	post /api/auth/logout returns (string) //注销
@@ -40,4 +45,4 @@ service auth {
 	post /api/auth/open_login (OpenLoginRequest) returns (LoginResponse) //第三方登录
 }
 
-// goctl api go -api xxx.api -dir .
+// goctl api go -api auth_api.api -dir .

@@ -22,7 +22,11 @@ func NewUsersServer(svcCtx *svc.ServiceContext) *UsersServer {
 	}
 }
 
-// rpc UserInfo(UserInfoRequest)returns(UserInfoResponse);
+func (s *UsersServer) UserInfo(ctx context.Context, in *user_rpc.UserInfoRequest) (*user_rpc.UserInfoResponse, error) {
+	l := logic.NewUserInfoLogic(ctx, s.svcCtx)
+	return l.UserInfo(in)
+}
+
 func (s *UsersServer) UserCreate(ctx context.Context, in *user_rpc.UserCreateRequest) (*user_rpc.UserCreateResponse, error) {
 	l := logic.NewUserCreateLogic(ctx, s.svcCtx)
 	return l.UserCreate(in)

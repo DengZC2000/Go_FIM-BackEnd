@@ -6,6 +6,11 @@ type AuthenticationRequest struct {
 	ValidPath string `header:"valid_path,optional"`
 }
 
+type AuthenticationResponse struct {
+	UserID uint `json:"user_id"`
+	Role   int  `json:"role"`
+}
+
 type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

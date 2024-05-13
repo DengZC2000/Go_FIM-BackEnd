@@ -42,6 +42,10 @@ func auth(authAddr string, res http.ResponseWriter, req *http.Request) bool {
 	type Response struct {
 		Code int    `json:"code"`
 		Msg  string `json:"msg"`
+		Data *struct {
+			UserID uint `json:"user_id"`
+			Role   int  `json:"role"`
+		} `json:"data"`
 	}
 	var authResponse Response
 	byteData, _ := io.ReadAll(authRes.Body)
@@ -56,6 +60,11 @@ func auth(authAddr string, res http.ResponseWriter, req *http.Request) bool {
 		res.Write(byteData)
 		return false
 	}
+	if authResponse.Data != nil {
+		req.Header.Set("User-ID", fmt.Sprintf("%d", authResponse.Data.UserID))
+		req.Header.Set("User-Role", fmt.Sprintf("%d", authResponse.Data.Role))
+	}
+
 	return true
 }
 func proxy(proxyAddr string, res http.ResponseWriter, req *http.Request) {

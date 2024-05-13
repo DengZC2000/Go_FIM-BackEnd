@@ -26,11 +26,10 @@ func NewAuthenticationLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Au
 	}
 }
 
-func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (resp string, err error) {
-
+func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (resp *types.AuthenticationResponse, err error) {
 	if utils.InList(l.svcCtx.Config.WhiteList, req.ValidPath) {
 		logx.Infof("%s 在白名单中", req.ValidPath)
-		return "ok", nil
+		return
 	}
 
 	if req.Token == "" {
@@ -38,7 +37,7 @@ func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (
 		return
 	}
 
-	_, err = jwt.ParseToken(req.Token, l.svcCtx.Config.Auth.AccessSecret)
+	claims, err := jwt.ParseToken(req.Token, l.svcCtx.Config.Auth.AccessSecret)
 	if err != nil {
 		err = errors.New("认证失败")
 		return
@@ -50,7 +49,7 @@ func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (
 		return
 	}
 
-	resp = "认证成功"
+	resp = &types.AuthenticationResponse{UserID: claims.UserID, Role: int(claims.Role)}
 	err = nil
 	return
 }
