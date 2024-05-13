@@ -8,12 +8,17 @@ import (
 // FriendModel 好友表
 type FriendModel struct {
 	models.Model
-	SendUserID    uint      `json:"send_user_id"` //发起验证方
-	SendUserModel UserModel `gorm:"foreignKey:SendUserID" json:"-"`
-	RevUserID     uint      `json:"rev_user_id"` //接收验证方
-	RevUserModel  UserModel `gorm:"foreignKey:RevUserID" json:"-"`
-	Notice        string    `gorm:"size:128" json:"notice"` //备注
-
+	SendUserID     uint      `json:"send_user_id"` //发起验证方
+	SendUserModel  UserModel `gorm:"foreignKey:SendUserID" json:"-"`
+	RevUserID      uint      `json:"rev_user_id"` //接收验证方
+	RevUserModel   UserModel `gorm:"foreignKey:RevUserID" json:"-"`
+	SendUserNotice string    `gorm:"size:128" json:"send_user_notice"` //备注
+	RevUserNotice  string    `gorm:"size:128" json:"rev_user_notice"`  //备注
+	/*
+	   A --> B
+	   SendUserNotice 是A对B的备注
+	   RevUserNotice  是B对A的备注
+	*/
 }
 
 func (f *FriendModel) IsFriend(db *gorm.DB, A, B uint) bool {
@@ -22,4 +27,13 @@ func (f *FriendModel) IsFriend(db *gorm.DB, A, B uint) bool {
 		return false
 	}
 	return true
+}
+func (f *FriendModel) FriendNotice(UserID uint) string {
+	if UserID == f.SendUserID {
+		return f.SendUserNotice
+	}
+	if UserID == f.RevUserID {
+		return f.RevUserNotice
+	}
+	return ""
 }

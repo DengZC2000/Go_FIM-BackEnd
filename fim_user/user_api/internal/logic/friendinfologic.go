@@ -1,15 +1,13 @@
 package logic
 
 import (
+	"FIM/fim_user/user_api/internal/svc"
+	"FIM/fim_user/user_api/internal/types"
 	"FIM/fim_user/user_models"
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
-
-	"FIM/fim_user/user_api/internal/svc"
-	"FIM/fim_user/user_api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,7 +28,7 @@ func NewFriend_infoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Frien
 
 func (l *Friend_infoLogic) Friend_info(req *types.FriendInfoRequest) (resp *types.FriendInfoResponse, err error) {
 	var friend user_models.FriendModel
-	fmt.Println("denmgzhi")
+
 	if !friend.IsFriend(l.svcCtx.DB, req.UserID, req.FriendID) {
 		return nil, errors.New("你不是他(她)的好友哦!")
 	}
@@ -48,7 +46,7 @@ func (l *Friend_infoLogic) Friend_info(req *types.FriendInfoRequest) (resp *type
 		Nickname: friendInfo.NickName,
 		Profile:  friendInfo.Profile,
 		Avatar:   friendInfo.Avatar,
-		Notice:   friend.Notice,
+		Notice:   friend.FriendNotice(req.UserID),
 	}
 
 	return
