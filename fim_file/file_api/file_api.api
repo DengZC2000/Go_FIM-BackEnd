@@ -4,9 +4,17 @@ type ImageResponse {
 	Url string `json:"url"`
 }
 
+type ImageShowRequest {
+	ImageType string `path:"imageType"`
+	ImageName string `path:"imageName"`
+}
+
 service file {
 	@handler image
-	post /api/file/image (ImageRequest) returns (ImageResponse) //��ȡ�û���Ϣ
+	post /api/file/image (ImageRequest) returns (ImageResponse) //图片上传
+
+	@handler image_show
+	get /api/file/uploads/:imageType/:imageName (ImageShowRequest)
 }
 
 // goctl api go -api file_api.api -dir .
