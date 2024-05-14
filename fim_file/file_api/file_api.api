@@ -1,0 +1,12 @@
+type ImageRequest {}
+
+type ImageResponse {
+	Url string `json:"url"`
+}
+
+service file {
+	@handler image
+	post /api/file/image (ImageRequest) returns (ImageResponse) //��ȡ�û���Ϣ
+}
+
+// goctl api go -api file_api.api -dir .
