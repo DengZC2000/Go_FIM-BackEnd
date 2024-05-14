@@ -73,6 +73,7 @@ func proxy(proxyAddr string, res http.ResponseWriter, req *http.Request) {
 
 	proxyReq.Header = req.Header
 	proxyReq.Header.Del("valid_path")
+
 	response, ProxyErr := http.DefaultClient.Do(proxyReq)
 	if ProxyErr != nil {
 		logx.Error(ProxyErr.Error())

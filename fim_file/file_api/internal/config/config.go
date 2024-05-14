@@ -10,4 +10,7 @@ type Config struct {
 	Mysql struct {
 		DataSource string
 	}
+	FileSize  float64
+	WriteList []string //图片文件名白名单
+	UpLoadDir string   //文件上传保存的目录
 }
