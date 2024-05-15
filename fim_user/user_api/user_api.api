@@ -59,6 +59,18 @@ type FriendInfoResponse {
 	Notice   string `json:"notice"`
 }
 
+type FriendListRequest {
+	UserID uint `header:"User-ID"`
+	Role   int8 `header:"User-Role"`
+	Page   int  `form:"page,optional"`
+	Limit  int  `form:"limit,optional"`
+}
+
+type FriendListResponse {
+	List  []FriendInfoResponse `json:"list"`
+	Count int                  `json:"count"`
+}
+
 service user {
 	@handler user_info
 	get /api/user/user_info (UserInfoRequest) returns (UserInfoResponse) //获取用户信息
@@ -68,6 +80,9 @@ service user {
 
 	@handler friend_info
 	get /api/user/friend_info (FriendInfoRequest) returns (FriendInfoResponse) //获取好友信息
+
+	@handler friend_list
+	get /api/user/friend_list (FriendListRequest) returns (FriendListResponse) //获取好友信息
 }
 
 // goctl api go -api user_api.api -dir .
