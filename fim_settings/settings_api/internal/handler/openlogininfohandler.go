@@ -2,10 +2,9 @@ package handler
 
 import (
 	"FIM/common/response"
+	"FIM/fim_settings/settings_api/internal/logic"
+	"FIM/fim_settings/settings_api/internal/svc"
 	"net/http"
-
-	"FIM/fim_auth/auth_api/internal/logic"
-	"FIM/fim_auth/auth_api/internal/svc"
 )
 
 func open_login_infoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -13,10 +12,11 @@ func open_login_infoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := logic.NewOpen_login_infoLogic(r.Context(), svcCtx)
 		resp, err := l.Open_login_info()
 		//if err != nil {
-		//	httpx.ErrorCtx(r.Context(), w, err)
+		//httpx.ErrorCtx(r.Context(), w, err)
 		//} else {
-		//	httpx.OkJsonCtx(r.Context(), w, resp)
+		//httpx.OkJsonCtx(r.Context(), w, resp)
 		//}
+
 		response.Response(r, w, resp, err)
 	}
 }

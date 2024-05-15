@@ -1,0 +1,19 @@
+info (
+	title:   "type title here"
+	desc:    "type desc here"
+	author:  "type author here"
+	email:   "type email here"
+	version: "type version here"
+)
+
+type OpenLoginInfoResponse {
+	Name string `json:"name"` //用什么第三方登录
+	Icon string `json:"icon"`//第三方登录图标
+	Href string `json:"href"`//跳转地址
+}
+
+service settings {
+	@handler open_login_info
+	get /api/settings/open_login returns ([]OpenLoginInfoResponse)
+} //goctl api go -api settings_api.api -dir .
+

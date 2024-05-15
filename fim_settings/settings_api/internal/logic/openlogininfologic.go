@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 
-	"FIM/fim_auth/auth_api/internal/svc"
-	"FIM/fim_auth/auth_api/internal/types"
+	"FIM/fim_settings/settings_api/internal/svc"
+	"FIM/fim_settings/settings_api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +24,6 @@ func NewOpen_login_infoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *O
 }
 
 func (l *Open_login_infoLogic) Open_login_info() (resp []types.OpenLoginInfoResponse, err error) {
-
 	for _, s := range l.svcCtx.Config.OpenLoginList {
 		resp = append(resp, types.OpenLoginInfoResponse{
 			Name: s.Name,
@@ -32,5 +31,6 @@ func (l *Open_login_infoLogic) Open_login_info() (resp []types.OpenLoginInfoResp
 			Href: s.Href,
 		})
 	}
+
 	return
 }

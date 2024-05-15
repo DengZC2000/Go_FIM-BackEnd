@@ -26,8 +26,14 @@ func imageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		imageType := r.FormValue("imageType")
-		if imageType == "" {
+
+		switch imageType {
+		case "avatar", "group_avatar", "chat":
+		case "":
 			response.Response(r, w, nil, errors.New("imageType不能为空"))
+			return
+		default:
+			response.Response(r, w, nil, errors.New("imageType只能为avatar,group_avatar,chat"))
 			return
 		}
 		file, fileHead, err := r.FormFile("image")
