@@ -1,6 +1,8 @@
 package logic
 
 import (
+	"FIM/common/list_query"
+	"FIM/common/models"
 	"FIM/fim_user/user_models"
 	"context"
 
@@ -25,17 +27,24 @@ func NewFriend_listLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Frien
 }
 
 func (l *Friend_listLogic) Friend_list(req *types.FriendListRequest) (resp *types.FriendListResponse, err error) {
-	var friends []user_models.FriendModel
-	var count int64
-	l.svcCtx.DB.Model(user_models.FriendModel{}).Where("send_user_id = ? or rev_user_id = ?", req.UserID, req.UserID).Count(&count)
-	if req.Limit <= 0 {
-		req.Limit = 10
-	}
-	if req.Page <= 0 {
-		req.Page = 1
-	}
-	offset := (req.Page - 1) * req.Limit
-	l.svcCtx.DB.Preload("SendUserModel").Preload("RevUserModel").Limit(req.Limit).Offset(offset).Find(&friends, "send_user_id = ? or rev_user_id = ?", req.UserID, req.UserID)
+
+	//var count int64
+	//l.svcCtx.DB.Model(user_models.FriendModel{}).Where("send_user_id = ? or rev_user_id = ?", req.UserID, req.UserID).Count(&count)
+	//if req.Limit <= 0 {
+	//	req.Limit = 10
+	//}
+	//if req.Page <= 0 {
+	//	req.Page = 1
+	//}
+	//offset := (req.Page - 1) * req.Limit
+	//l.svcCtx.DB.Preload("SendUserModel").Preload("RevUserModel").Limit(req.Limit).Offset(offset).Find(&friends, "send_user_id = ? or rev_user_id = ?", req.UserID, req.UserID)
+	friends, count, _ := list_query.ListQuery(l.svcCtx.DB, user_models.FriendModel{}, list_query.Option{
+		PageInfo: models.PageInfo{
+			Page:  req.Page,
+			Limit: req.Limit,
+		},
+		Preloads: []string{"SendUserModel", "RevUserModel"},
+	})
 	var list []types.FriendInfoResponse
 	for _, friend := range friends {
 		info := types.FriendInfoResponse{}
