@@ -20,11 +20,6 @@ func friend_notice_updateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewFriend_notice_updateLogic(r.Context(), svcCtx)
 		resp, err := l.Friend_notice_update(&req)
-		//if err != nil {
-		//httpx.ErrorCtx(r.Context(), w, err)
-		//} else {
-		//httpx.OkJsonCtx(r.Context(), w, resp)
-		//}
 
 		response.Response(r, w, resp, err)
 	}

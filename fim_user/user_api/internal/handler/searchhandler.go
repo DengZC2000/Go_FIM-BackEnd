@@ -9,17 +9,22 @@ import (
 	"net/http"
 )
 
-func user_updateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func searchHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.UserInfoUpdateRequest
+		var req types.SearchRequest
 		if err := httpx.Parse(r, &req); err != nil {
 			//httpx.ErrorCtx(r.Context(), w, err)
 			response.Response(r, w, nil, err)
 			return
 		}
 
-		l := logic.NewUser_updateLogic(r.Context(), svcCtx)
-		resp, err := l.User_update(&req)
+		l := logic.NewSearchLogic(r.Context(), svcCtx)
+		resp, err := l.Search(&req)
+		//if err != nil {
+		//httpx.ErrorCtx(r.Context(), w, err)
+		//} else {
+		//httpx.OkJsonCtx(r.Context(), w, resp)
+		//}
 
 		response.Response(r, w, resp, err)
 	}

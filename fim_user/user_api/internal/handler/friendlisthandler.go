@@ -20,11 +20,6 @@ func friend_listHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewFriend_listLogic(r.Context(), svcCtx)
 		resp, err := l.Friend_list(&req)
-		//if err != nil {
-		//httpx.ErrorCtx(r.Context(), w, err)
-		//} else {
-		//httpx.OkJsonCtx(r.Context(), w, resp)
-		//}
 
 		response.Response(r, w, resp, err)
 	}

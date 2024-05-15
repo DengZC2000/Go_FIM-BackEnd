@@ -20,11 +20,6 @@ func user_infoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := logic.NewUser_infoLogic(r.Context(), svcCtx)
 		resp, err := l.User_info(&req)
-		//if err != nil {
-		//httpx.ErrorCtx(r.Context(), w, err)
-		//} else {
-		//httpx.OkJsonCtx(r.Context(), w, resp)
-		//}
 
 		response.Response(r, w, resp, err)
 	}
