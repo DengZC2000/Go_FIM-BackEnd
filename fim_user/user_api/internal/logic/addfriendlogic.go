@@ -40,7 +40,7 @@ func (l *Add_friendLogic) Add_friend(req *types.AddFriendRequest) (resp *types.A
 	var verifyModel = user_models.FriendVerifyModel{
 		SendUserID:         req.UserID,
 		RevUserID:          req.FriendID,
-		AdditionalMessages: req.VerifyMessage,
+		AdditionalMessages: req.AdditionalMessages,
 	}
 
 	switch userConf.Verification {

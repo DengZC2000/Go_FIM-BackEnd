@@ -4,7 +4,7 @@ package types
 type AddFriendRequest struct {
 	UserID               uint                  `header:"User-ID"`
 	FriendID             uint                  `json:"friend_id"`
-	VerifyMessage        string                `json:"verify_message,optional"`
+	AdditionalMessages   string                `json:"additional_messages,optional"`
 	VerificationQuestion *VerificationQuestion `json:"verification_question,optional"` //问题和答案
 }
 
@@ -44,6 +44,27 @@ type FriendNoticeUpdateRequest struct {
 }
 
 type FriendNoticeUpdateResponse struct {
+}
+
+type FriendValidInfo struct {
+	Nickname             string                `json:"nick_name"`
+	UserID               uint                  `json:"user_id"`
+	Avatar               string                `json:"avatar"`
+	AdditionalMessages   string                `json:"additional_messages,optional"`
+	VerificationQuestion *VerificationQuestion `json:"verification_question,optional"` //问题和答案
+	Status               int8                  `json:"status"`                         //0 未操作 1 同意 2 拒绝 3 忽略
+	Verification         int8                  `json:"verification"`                   //好友验证,0 不允许任何人 1允许任何人 2 需要验证消息 3 需要回答问题 4 需要正确回答设置的问题
+}
+
+type FriendValidResponse struct {
+	List  []FriendValidInfo `json:"list"`
+	Count int64             `json:"count"`
+}
+
+type FriendValidResquest struct {
+	UserID uint `header:"User-ID"`
+	Page   int  `form:"page,optional"`
+	Limit  int  `form:"limit,optional"`
 }
 
 type SearchInfo struct {
