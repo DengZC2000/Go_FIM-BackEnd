@@ -13,6 +13,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				Method:  http.MethodPost,
+				Path:    "/api/user/add_friend",
+				Handler: add_friendHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodGet,
 				Path:    "/api/user/friend_info",
 				Handler: friend_infoHandler(serverCtx),
@@ -41,6 +46,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPut,
 				Path:    "/api/user/user_update",
 				Handler: user_updateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/api/user/user_valid",
+				Handler: user_validHandler(serverCtx),
 			},
 		},
 	)

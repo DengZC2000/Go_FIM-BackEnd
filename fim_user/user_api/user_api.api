@@ -81,8 +81,8 @@ type FriendNoticeUpdateResponse {}
 
 type SearchRequest {
 	UserID uint   `header:"User-ID"`
-	Key    string `form:"key"` //用户id或昵称
-	Online bool   `form:"online"` //搜索在线的用户
+	Key    string `form:"key,optional"` //用户id或昵称
+	Online bool   `form:"online,optional"` //搜索在线的用户
 	Page   int    `form:"page,optional"`
 	Limit  int    `form:"limit,optional"`
 }
@@ -99,6 +99,25 @@ type SearchResponse {
 	List  []SearchInfo `json:"list"`
 	count int64        `json:"count"`
 }
+
+type UserValidRequest {
+	UserID   uint `header:"User-ID"`
+	FriendID uint `json:"friend_id"`
+}
+
+type UserValidResponse {
+	Verification         int8                 `json:"verification"` //好友验证,0 不允许任何人 1允许任何人 2 需要验证消息 3 需要回答问题 4 需要正确回答设置的问题
+	VerificationQuestion VerificationQuestion `json:"verification_question"` //这是问题和答案，记得答案就别返回了
+}
+
+type AddFriendRequest {
+	UserID               uint                  `header:"User-ID"`
+	FriendID             uint                  `json:"friend_id"`
+	VerifyMessage        string                `json:"verify_message,optional"`
+	VerificationQuestion *VerificationQuestion `json:"verification_question,optional"` //问题和答案
+}
+
+type AddFriendResponse {}
 
 service user {
 	@handler user_info
@@ -118,6 +137,12 @@ service user {
 
 	@handler search
 	get /api/user/search (SearchRequest) returns (SearchResponse)
+
+	@handler user_valid
+	post /api/user/user_valid (UserValidRequest) returns (UserValidResponse)
+
+	@handler add_friend
+	post /api/user/add_friend (AddFriendRequest) returns (AddFriendResponse)
 }
 
 // goctl api go -api user_api.api -dir .
