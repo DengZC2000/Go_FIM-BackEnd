@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type UsersClient interface {
 	UserInfo(ctx context.Context, in *UserInfoRequest, opts ...grpc.CallOption) (*UserInfoResponse, error)
 	UserCreate(ctx context.Context, in *UserCreateRequest, opts ...grpc.CallOption) (*UserCreateResponse, error)
+	UserListInfo(ctx context.Context, in *UserListInfoRequest, opts ...grpc.CallOption) (*UserListInfoResponse, error)
 }
 
 type usersClient struct {
@@ -52,12 +53,22 @@ func (c *usersClient) UserCreate(ctx context.Context, in *UserCreateRequest, opt
 	return out, nil
 }
 
+func (c *usersClient) UserListInfo(ctx context.Context, in *UserListInfoRequest, opts ...grpc.CallOption) (*UserListInfoResponse, error) {
+	out := new(UserListInfoResponse)
+	err := c.cc.Invoke(ctx, "/user_rpc.Users/UserListInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
 type UsersServer interface {
 	UserInfo(context.Context, *UserInfoRequest) (*UserInfoResponse, error)
 	UserCreate(context.Context, *UserCreateRequest) (*UserCreateResponse, error)
+	UserListInfo(context.Context, *UserListInfoRequest) (*UserListInfoResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedUsersServer) UserInfo(context.Context, *UserInfoRequest) (*Us
 }
 func (UnimplementedUsersServer) UserCreate(context.Context, *UserCreateRequest) (*UserCreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserCreate not implemented")
+}
+func (UnimplementedUsersServer) UserListInfo(context.Context, *UserListInfoRequest) (*UserListInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserListInfo not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -120,6 +134,24 @@ func _Users_UserCreate_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_UserListInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserListInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).UserListInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user_rpc.Users/UserListInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).UserListInfo(ctx, req.(*UserListInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Users_ServiceDesc is the grpc.ServiceDesc for Users service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UserCreate",
 			Handler:    _Users_UserCreate_Handler,
+		},
+		{
+			MethodName: "UserListInfo",
+			Handler:    _Users_UserListInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

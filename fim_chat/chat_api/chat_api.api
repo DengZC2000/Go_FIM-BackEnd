@@ -1,0 +1,20 @@
+type ChatHistoryRequest {
+	UserID uint `header:"User-ID"`
+	Page   int  `form:"page"`
+	Limit  int  `form:"limit"`
+}
+
+type ChatHistoryResponse {
+	ID       uint   `json:"id"`
+	UserID   uint   `json:"user_id"`
+	Avatar   string `json:"avatar"`
+	Nickname string `json:"nick_name"`
+	CreateAt string `json:"create_at"`
+}
+
+service chat {
+	@handler chat_history
+	get /api/chat/chat_history (ChatHistoryRequest) returns (ChatHistoryResponse) //������¼
+}
+
+//goctl api go -api chat_api.api -dir .
