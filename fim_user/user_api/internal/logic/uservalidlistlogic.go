@@ -32,18 +32,31 @@ func (l *User_valid_listLogic) User_valid_list(req *types.FriendValidResquest) (
 			Limit: req.Limit,
 		},
 		Where:    l.svcCtx.DB.Where("send_user_id = ? or rev_user_id", req.UserID, req.UserID),
-		Preloads: []string{"RevUserModel.UserConfModel"},
+		Preloads: []string{"RevUserModel.UserConfModel", "SendUserModel.UserConfModel"},
 	})
 	var list []types.FriendValidInfo
 	for _, fvl := range fvls {
 		info := types.FriendValidInfo{
-			UserID:             fvl.RevUserID,
-			Nickname:           fvl.RevUserModel.NickName,
-			Avatar:             fvl.RevUserModel.Avatar,
 			AdditionalMessages: fvl.AdditionalMessages,
-			Status:             fvl.Status,
-			Verification:       fvl.RevUserModel.UserConfModel.Verification,
 			ID:                 fvl.ID,
+		}
+		if fvl.SendUserID == req.UserID {
+			//我是发送方
+			info.UserID = fvl.RevUserID
+			info.Nickname = fvl.RevUserModel.NickName
+			info.Avatar = fvl.RevUserModel.Avatar
+			info.Verification = fvl.RevUserModel.UserConfModel.Verification
+			info.Flag = "send"
+			info.Status = fvl.SendStatus
+		}
+		if fvl.RevUserID == req.UserID {
+			//我是接收方
+			info.UserID = fvl.SendUserID
+			info.Nickname = fvl.SendUserModel.NickName
+			info.Avatar = fvl.SendUserModel.Avatar
+			info.Verification = fvl.SendUserModel.UserConfModel.Verification
+			info.Flag = "rev"
+			info.Status = fvl.RevStatus
 		}
 		if fvl.VerificationQuestion != nil {
 			info.VerificationQuestion = &types.VerificationQuestion{

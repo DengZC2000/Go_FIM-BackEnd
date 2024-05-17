@@ -16,5 +16,6 @@ type FriendVerifyModel struct {
 	Status               int8                        `json:"status"`                              //0 未操作 1 同意 2 拒绝 3 忽略 4删除
 	AdditionalMessages   string                      `gorm:"size:128" json:"additional_messages"` //附加消息
 	VerificationQuestion *ctype.VerificationQuestion `json:"friend_question"`                     //验证问题,不一定需要，验证方式为3和4的时候需要
-
+	SendStatus           int8                        `json:"send_status"`                         //发送方状态 4删除
+	RevStatus            int8                        `json:"rev_status"`                          //接受方状态0 未操作 1 同意 2 拒绝 3 忽略 4删除
 }

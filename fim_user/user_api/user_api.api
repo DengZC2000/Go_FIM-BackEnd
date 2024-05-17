@@ -134,6 +134,7 @@ type FriendValidInfo {
 	Status               int8                  `json:"status"` //0 未操作 1 同意 2 拒绝 3 忽略
 	Verification         int8                  `json:"verification"` //好友验证,0 不允许任何人 1允许任何人 2 需要验证消息 3 需要回答问题 4 需要正确回答设置的问题
 	ID                   uint                  `json:"id"` //验证记录的id
+	Flag                 string                `json:"flag"` //send 我是发送方，rev我是接收方
 }
 
 type FriendValidResponse {
@@ -148,6 +149,13 @@ type FriendValidStatusRequest {
 }
 
 type FriendValidStatusResponse {}
+
+type DeleteFriendRequest {
+	UserID   uint `header:"User-ID"`
+	FriendID uint `json:"friend_id"`
+}
+
+type DeleteFriendResponse {}
 
 service user {
 	@handler user_info
@@ -179,6 +187,9 @@ service user {
 
 	@handler valid_status
 	put /api/user/valid_status (FriendValidStatusRequest) returns (FriendValidStatusResponse) //验证状态更改
+
+	@handler delete_friend
+	delete /api/user/delete_friend (DeleteFriendRequest) returns (DeleteFriendResponse) //验证状态更改
 }
 
 // goctl api go -api user_api.api -dir .

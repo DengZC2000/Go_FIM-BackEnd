@@ -32,21 +32,21 @@ func (l *Valid_statusLogic) Valid_status(req *types.FriendValidStatusRequest) (r
 	if err != nil {
 		return nil, errors.New("验证记录不存在")
 	}
-	if friendVerify.Status != 0 {
+	if friendVerify.RevStatus != 0 {
 		return nil, errors.New("不可更改状态")
 	}
 	switch req.Status {
 	case 1: //同意
-		friendVerify.Status = 1
+		friendVerify.RevStatus = 1
 		//往好友表里去加
 		l.svcCtx.DB.Create(&user_models.FriendModel{
 			SendUserID: friendVerify.SendUserID,
 			RevUserID:  friendVerify.RevUserID,
 		})
 	case 2: //拒绝
-		friendVerify.Status = 2
+		friendVerify.RevStatus = 2
 	case 3: //忽略
-		friendVerify.Status = 3
+		friendVerify.RevStatus = 3
 	case 4: //删除
 		//一条验证记录，是两个人看的
 		l.svcCtx.DB.Delete(&friendVerify)

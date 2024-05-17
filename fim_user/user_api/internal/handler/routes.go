@@ -18,6 +18,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: add_friendHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodDelete,
+				Path:    "/api/user/delete_friend",
+				Handler: delete_friendHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodGet,
 				Path:    "/api/user/friend_info",
 				Handler: friend_infoHandler(serverCtx),
