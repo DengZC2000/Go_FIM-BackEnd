@@ -3,11 +3,10 @@ package logic
 import (
 	"FIM/common/list_query"
 	"FIM/common/models"
-	"FIM/fim_user/user_models"
-	"context"
-
 	"FIM/fim_user/user_api/internal/svc"
 	"FIM/fim_user/user_api/internal/types"
+	"FIM/fim_user/user_models"
+	"context"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,13 +26,12 @@ func NewUser_valid_listLogic(ctx context.Context, svcCtx *svc.ServiceContext) *U
 }
 
 func (l *User_valid_listLogic) User_valid_list(req *types.FriendValidResquest) (resp *types.FriendValidResponse, err error) {
-	fvls, count, _ := list_query.ListQuery(l.svcCtx.DB, user_models.FriendVerifyModel{
-		SendUserID: req.UserID,
-	}, list_query.Option{
+	fvls, count, _ := list_query.ListQuery(l.svcCtx.DB, user_models.FriendVerifyModel{}, list_query.Option{
 		PageInfo: models.PageInfo{
 			Page:  req.Page,
 			Limit: req.Limit,
 		},
+		Where:    l.svcCtx.DB.Where("send_user_id = ? or rev_user_id", req.UserID, req.UserID),
 		Preloads: []string{"RevUserModel.UserConfModel"},
 	})
 	var list []types.FriendValidInfo
@@ -45,6 +43,7 @@ func (l *User_valid_listLogic) User_valid_list(req *types.FriendValidResquest) (
 			AdditionalMessages: fvl.AdditionalMessages,
 			Status:             fvl.Status,
 			Verification:       fvl.RevUserModel.UserConfModel.Verification,
+			ID:                 fvl.ID,
 		}
 		if fvl.VerificationQuestion != nil {
 			info.VerificationQuestion = &types.VerificationQuestion{
