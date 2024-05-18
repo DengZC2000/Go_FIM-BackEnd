@@ -7,6 +7,7 @@ import (
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"context"
 	"errors"
+	"fmt"
 
 	"FIM/fim_chat/chat_api/internal/svc"
 	"FIM/fim_chat/chat_api/internal/types"
@@ -47,7 +48,8 @@ func (l *Chat_sessionLogic) Chat_session(req *types.ChatSessionRequest) (resp *t
 				Select("least(send_user_id, rev_user_id) as sU",
 					" greatest(send_user_id, rev_user_id) as rU",
 					"max(created_at) as maxDate",
-					"max(msg_preview) as maxPreview").Where("send_user_id = ? or rev_user_id = ?", req.UserID, req.UserID).
+					"(select msg_preview from chat_models where (send_user_id = sU and rev_user_id = rU) or (send_user_id = rU and rev_user_id = sU) order by created_at desc limit 1 ) as maxPreview").
+				Where("send_user_id = ? or rev_user_id = ?", req.UserID, req.UserID).
 				Group("least(send_user_id, rev_user_id)").
 				Group("greatest(send_user_id, rev_user_id)")
 		},
@@ -74,6 +76,7 @@ func (l *Chat_sessionLogic) Chat_session(req *types.ChatSessionRequest) (resp *t
 			CreateAt:   data.MaxDate,
 			MsgPreview: data.MaxPreview,
 		}
+		fmt.Println(data)
 		if data.RU != req.UserID {
 			s.UserID = data.RU
 			s.Avatar = response.UserInfo[uint32(s.UserID)].Avatar
