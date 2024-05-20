@@ -35,3 +35,11 @@ type ChatSessionResponse struct {
 	List  []ChatSession `json:"list"`
 	Count int64         `json:"count"`
 }
+
+type UserTopRequest struct {
+	UserID   uint `header:"User-ID"`
+	FriendID uint `json:"friend_id"`
+}
+
+type UserTopResponse struct {
+}

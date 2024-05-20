@@ -33,12 +33,22 @@ type ChatSessionResponse {
 	Count int64         `json:"count"`
 }
 
+type UserTopRequest {
+	UserID   uint `header:"User-ID"`
+	FriendID uint `json:"friend_id"`
+}
+
+type UserTopResponse {}
+
 service chat {
 	@handler chat_history
-	get /api/chat/chat_history (ChatHistoryRequest) returns (ChatHistoryResponse) //������¼
+	get /api/chat/chat_history (ChatHistoryRequest) returns (ChatHistoryResponse) //消息记录
 
 	@handler chat_session
 	get /api/chat/chat_session (ChatSessionRequest) returns (ChatSessionResponse) //最近会话列表
+
+	@handler user_top
+	post /api/chat/user_top (UserTopRequest) returns (UserTopResponse) //好友置顶
 }
 
 //goctl api go -api chat_api.api -dir .
