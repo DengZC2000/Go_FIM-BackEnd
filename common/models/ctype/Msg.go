@@ -8,7 +8,7 @@ import (
 
 type Msg struct {
 	Type         int8          `json:"type"`           //消息类型
-	Content      *string       `json:"content"`        //为1的时候使用
+	TextMsg      *TextMsg      `json:"text_msg"`       //文本消息
 	ImageMsg     *ImageMsg     `json:"image_msg"`      //图片
 	VideoMsg     *VideoMsg     `json:"video_msg"`      //视频
 	FileMsg      *FileMsg      `json:"file_msg"`       //文件
@@ -32,6 +32,9 @@ func (c *Msg) Value() (driver.Value, error) {
 	return string(b), err
 }
 
+type TextMsg struct {
+	Content string `json:"content"`
+}
 type ImageMsg struct {
 	Title string `json:"title"`
 	Src   string `json:"src"`

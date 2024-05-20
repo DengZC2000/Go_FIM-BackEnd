@@ -42,14 +42,14 @@ func (l *UserChatCreateLogic) UserChatCreate(in *chat_rpc.UserChatRequest) (*cha
 			return nil, err
 		}
 	}
-	err = l.svcCtx.DB.Create(&chat_models.ChatModel{
+	chat := chat_models.ChatModel{
 		SendUserID: uint(in.SendUserId),
 		RevUserID:  uint(in.RevUserId),
 		MsgType:    msg.Type,
-		MsgPreview: "",
 		Msg:        msg,
-		SystemMsg:  systemMsg,
-	}).Error
+		SystemMsg:  systemMsg}
+	chat.MsgPreview = chat.MsgPreviewMethod()
+	err = l.svcCtx.DB.Create(&chat).Error
 
 	return &chat_rpc.UserChatResponse{}, err
 }
