@@ -2,9 +2,10 @@
 package types
 
 type ChatHistoryRequest struct {
-	UserID uint `header:"User-ID"`
-	Page   int  `form:"page,optional"`
-	Limit  int  `form:"limit,optional"`
+	UserID   uint `header:"User-ID"`
+	Page     int  `form:"page,optional"`
+	Limit    int  `form:"limit,optional"`
+	FriendID uint `form:"friend_id"` //好友id
 }
 
 type ChatHistoryResponse struct {

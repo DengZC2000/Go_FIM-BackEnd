@@ -2,7 +2,9 @@ package logic
 
 import (
 	"FIM/fim_chat/chat_models"
+	"FIM/fim_user/user_rpc/types/user_rpc"
 	"context"
+	"errors"
 
 	"FIM/fim_chat/chat_api/internal/svc"
 	"FIM/fim_chat/chat_api/internal/types"
@@ -26,7 +28,16 @@ func NewUser_topLogic(ctx context.Context, svcCtx *svc.ServiceContext) *User_top
 
 func (l *User_topLogic) User_top(req *types.UserTopRequest) (resp *types.UserTopResponse, err error) {
 	//是否是好友
-
+	res, err := l.svcCtx.UserRpc.IsFriend(context.Background(), &user_rpc.IsFriendRequest{
+		User1: uint32(req.UserID),
+		User2: uint32(req.FriendID),
+	})
+	if err != nil {
+		return nil, err
+	}
+	if !res.IsFriend {
+		return nil, errors.New("你们还不是好友呢")
+	}
 	var topUser chat_models.TopUserModel
 	err1 := l.svcCtx.DB.Take(&topUser, "user_id = ? and top_user_id = ?", req.UserID, req.FriendID).Error
 	if err1 != nil {
