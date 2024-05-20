@@ -29,7 +29,7 @@ func main() {
 			&user_models.FriendVerifyModel{},
 
 			&chat_models.ChatModel{},
-
+			&chat_models.TopUserModel{},
 			&group_models.GroupModel{},
 			&group_models.GroupVerifyModel{},
 			&group_models.GroupMsgModel{},

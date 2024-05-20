@@ -21,6 +21,7 @@ type ChatSession struct {
 	Nickname   string `json:"nick_name"`
 	CreateAt   string `json:"create_at"`   //消息时间
 	MsgPreview string `json:"msg_preview"` //消息预览
+	IsTop      bool   `json:"is_top"`      //是否置顶
 }
 
 type ChatSessionRequest struct {
