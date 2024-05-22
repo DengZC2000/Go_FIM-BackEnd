@@ -41,6 +41,19 @@ type UserTopRequest {
 
 type UserTopResponse {}
 
+type ChatDeleteRequest {
+	UserID uint   `header:"User-ID"`
+	IdList []uint `json:"id_list"`
+}
+
+type ChatDeleteResponse {}
+
+type ChatRequest {
+	UserID uint `form:"User-ID"`
+}
+
+type ChatResponse {}
+
 service chat {
 	@handler chat_history
 	get /api/chat/chat_history (ChatHistoryRequest) returns (ChatHistoryResponse) //消息记录
@@ -50,6 +63,12 @@ service chat {
 
 	@handler user_top
 	post /api/chat/user_top (UserTopRequest) returns (UserTopResponse) //好友置顶
+
+	@handler chat_delete
+	delete /api/chat/chat_delete (ChatDeleteRequest) returns (ChatDeleteResponse) //聊天记录删除
+
+	@handler chat_handler
+	get /api/chat/ws/chat (ChatRequest) returns (ChatResponse) //ws的对话
 }
 
 //goctl api go -api chat_api.api -dir .

@@ -30,6 +30,7 @@ func main() {
 
 			&chat_models.ChatModel{},
 			&chat_models.TopUserModel{},
+			&chat_models.UserChatDeleteModel{},
 			&group_models.GroupModel{},
 			&group_models.GroupVerifyModel{},
 			&group_models.GroupMsgModel{},

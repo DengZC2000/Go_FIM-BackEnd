@@ -40,10 +40,19 @@ message UserInfo{
 message UserListInfoResponse{
   map<uint32,UserInfo> user_info = 1;//用户信息
 }
+
+message IsFriendRequest {
+  uint32 user1 = 1;
+  uint32 user2 = 2;
+}
+message IsFriendResponse {
+ bool  is_friend = 1;
+}
 service Users{
   rpc UserInfo(UserInfoRequest)returns(UserInfoResponse);//用户信息
   rpc UserCreate(UserCreateRequest)returns(UserCreateResponse);//用户创建
   rpc UserListInfo(UserListInfoRequest)returns(UserListInfoResponse);//用户列表信息
+  rpc IsFriend(IsFriendRequest)returns(IsFriendResponse);//是否是好友
 }
 
 // goctl rpc protoc user_rpc.proto --go_out=./types --go-grpc_out=./types --zrpc_out=.
