@@ -35,6 +35,9 @@ func (l *Friend_listLogic) Friend_list(req *types.FriendListRequest) (resp *type
 		},
 		Preloads: []string{"SendUserModel", "RevUserModel"},
 	})
+
+	// 查哪些用户在线
+
 	var list []types.FriendInfoResponse
 	for _, friend := range friends {
 		info := types.FriendInfoResponse{}

@@ -48,11 +48,26 @@ message IsFriendRequest {
 message IsFriendResponse {
  bool  is_friend = 1;
 }
+
+
+message FriendListRequest{
+  uint32 user = 1;
+}
+message FriendInfo {
+  uint32 user_id = 1;
+string nick_name = 2;
+string avatar = 3;
+}
+message FriendListResponse{
+repeated FriendInfo friend_list = 1;
+}
 service Users{
   rpc UserInfo(UserInfoRequest)returns(UserInfoResponse);//用户信息
   rpc UserCreate(UserCreateRequest)returns(UserCreateResponse);//用户创建
   rpc UserListInfo(UserListInfoRequest)returns(UserListInfoResponse);//用户列表信息
   rpc IsFriend(IsFriendRequest)returns(IsFriendResponse);//是否是好友
+  rpc FriendList(FriendListRequest)returns(FriendListResponse);//好友列表
+
 }
 
 // goctl rpc protoc user_rpc.proto --go_out=./types --go-grpc_out=./types --zrpc_out=.

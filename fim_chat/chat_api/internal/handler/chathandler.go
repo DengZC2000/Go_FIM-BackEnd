@@ -4,12 +4,28 @@ import (
 	"FIM/common/response"
 	"FIM/fim_chat/chat_api/internal/svc"
 	"FIM/fim_chat/chat_api/internal/types"
+	"FIM/fim_user/user_models"
+	"FIM/fim_user/user_rpc/types/user_rpc"
+	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"net/http"
 )
+
+type UserInfo struct {
+	NickName string `json:"nick_name"`
+	Avatar   string `json:"avatar"`
+	UserID   uint   `json:"user_id"`
+}
+type UserWsInfo struct {
+	UserInfo UserInfo        //用户信息
+	Conn     *websocket.Conn //用户的ws连接对象
+}
+
+var UserWsMap = map[uint]UserWsInfo{}
 
 func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +49,58 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			response.Response(r, w, nil, err)
 			return
 		}
-		defer conn.Close()
+
+		defer func() {
+			conn.Close()
+			delete(UserWsMap, req.UserID)
+		}()
+		//调用户服务，获取当前用户信息
+		res, err := svcCtx.UserRpc.UserInfo(context.Background(), &user_rpc.UserInfoRequest{
+			UserId: uint32(req.UserID),
+		})
+		if err != nil {
+			logx.Error(err)
+			response.Response(r, w, nil, err)
+			return
+		}
+		var userInfo user_models.UserModel
+		err = json.Unmarshal(res.Data, &userInfo)
+		if err != nil {
+			logx.Error(err)
+			response.Response(r, w, nil, err)
+			return
+		}
+		var userWsInfo = UserWsInfo{
+			UserInfo: UserInfo{
+				UserID:   req.UserID,
+				Avatar:   userInfo.Avatar,
+				NickName: userInfo.NickName,
+			},
+			Conn: conn,
+		}
+		UserWsMap[req.UserID] = userWsInfo
+
+		//if userInfo.UserConfModel.FriendOnline {
+		//如果开启了好友上线提醒
+		//查一下自己的好友是不是上线了
+		friendRes, err := svcCtx.UserRpc.FriendList(context.Background(), &user_rpc.FriendListRequest{User: uint32(req.UserID)})
+		if err != nil {
+			logx.Error(err)
+			response.Response(r, w, nil, err)
+			return
+		}
+		for _, info := range friendRes.FriendList {
+			friend, ok := UserWsMap[uint(info.UserId)]
+			if ok {
+				//好友上线了,向已经在线的我的好友，发送一个消息
+				friend.Conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("好友 %s 上线了", userInfo.NickName)))
+
+			}
+		}
+		//查一下自己的好友列表，返回用户id列表，看看在不在这个UserMsMap中，在的话，就给自己发送个好友上线的消息
+		//}
+
+		fmt.Println(UserWsMap)
 		for {
 			//消息类型，消息，错误
 			_, p, err := conn.ReadMessage()

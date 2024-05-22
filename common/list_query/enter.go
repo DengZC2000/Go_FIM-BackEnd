@@ -57,9 +57,12 @@ func ListQuery[T any](db *gorm.DB, model T, option Option) (list []T, count int6
 	if option.PageInfo.Page <= 0 {
 		option.PageInfo.Page = 1
 	}
-	if option.PageInfo.Limit <= 0 {
-		option.PageInfo.Limit = 10
+	if option.PageInfo.Limit != -1 { //言外之意，=-1就查全部
+		if option.PageInfo.Limit <= 0 {
+			option.PageInfo.Limit = 10
+		}
 	}
+
 	offset := (option.PageInfo.Page - 1) * option.PageInfo.Limit
 	if option.PageInfo.Sort != "" {
 		query.Order(option.PageInfo.Sort)
