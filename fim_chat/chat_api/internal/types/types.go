@@ -25,7 +25,7 @@ type ChatHistoryResponse struct {
 }
 
 type ChatRequest struct {
-	UserID uint `form:"User-ID"`
+	UserID uint `header:"User-ID"`
 }
 
 type ChatResponse struct {

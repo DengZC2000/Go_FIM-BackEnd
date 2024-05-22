@@ -2,6 +2,7 @@ package main
 
 import (
 	"FIM/common/etcd"
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -9,8 +10,6 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"io"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 	"regexp"
 	"strings"
 )
@@ -33,11 +32,6 @@ func FileResponse(msg string, res http.ResponseWriter) {
 func auth(authAddr string, res http.ResponseWriter, req *http.Request) bool {
 	authRequest, _ := http.NewRequest("POST", authAddr, nil)
 	authRequest.Header = req.Header
-
-	token := req.URL.Query().Get("token")
-	if token != "" {
-		authRequest.Header.Set("token", token)
-	}
 	authRequest.Header.Set("valid_path", req.URL.Path)
 	authRes, err := http.DefaultClient.Do(authRequest)
 	if err != nil {
@@ -73,11 +67,22 @@ func auth(authAddr string, res http.ResponseWriter, req *http.Request) bool {
 
 	return true
 }
+func proxy(proxyAddr string, res http.ResponseWriter, req *http.Request) {
+	byteData, _ := io.ReadAll(req.Body)
+	proxyReq, _ := http.NewRequest(req.Method, proxyAddr, bytes.NewBuffer(byteData))
 
-type Proxy struct {
+	proxyReq.Header = req.Header
+	proxyReq.Header.Del("valid_path")
+
+	response, ProxyErr := http.DefaultClient.Do(proxyReq)
+	if ProxyErr != nil {
+		logx.Error(ProxyErr.Error())
+		FileResponse("服务异常", res)
+		return
+	}
+	io.Copy(res, response.Body)
 }
-
-func (Proxy) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+func gateway(res http.ResponseWriter, req *http.Request) {
 	// 匹配请求前缀 /api/auth/xx
 	regex, _ := regexp.Compile(`/api/(.*?)/`)
 	addrList := regex.FindStringSubmatch(req.URL.Path)
@@ -105,9 +110,10 @@ func (Proxy) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	if !auth(authUrl, res, req) {
 		return
 	}
-	remote, _ := url.Parse(fmt.Sprintf("http://%s", addr))
-	reverseProxy := httputil.NewSingleHostReverseProxy(remote)
-	reverseProxy.ServeHTTP(res, req)
+
+	proxy(proxyUrl, res, req)
+
+	//fmt.Println(req.URL.Path)
 }
 
 var configFile = flag.String("f", "settings.yaml", "the config file")
@@ -125,9 +131,11 @@ func main() {
 
 	conf.MustLoad(*configFile, &config)
 	logx.SetUp(config.Log)
+	//回调函数
+	http.HandleFunc("/", gateway)
 
 	fmt.Printf("gateway running %s\n", config.Addr)
-	proxy := Proxy{}
+
 	//绑定服务
-	http.ListenAndServe(config.Addr, proxy)
+	http.ListenAndServe(config.Addr, nil)
 }
