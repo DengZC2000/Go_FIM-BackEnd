@@ -31,6 +31,7 @@ type FriendInfoResponse struct {
 	Profile  string `json:"profile"` //���˼���
 	Avatar   string `json:"avatar"`  //ͷ��
 	Notice   string `json:"notice"`
+	IsOnline bool   `json:"is_online"`
 }
 
 type FriendListRequest struct {

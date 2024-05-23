@@ -5,6 +5,7 @@ import (
 	"FIM/common/models"
 	"FIM/fim_user/user_models"
 	"context"
+	"strconv"
 
 	"FIM/fim_user/user_api/internal/svc"
 	"FIM/fim_user/user_api/internal/types"
@@ -37,7 +38,16 @@ func (l *Friend_listLogic) Friend_list(req *types.FriendListRequest) (resp *type
 	})
 
 	// 查哪些用户在线
-
+	onlineMap := l.svcCtx.Redis.HGetAll(context.Background(), "online").Val()
+	var onlineUserMap = map[uint]bool{}
+	for key, _ := range onlineMap {
+		val, err1 := strconv.Atoi(key)
+		if err1 != nil {
+			logx.Error(err1)
+			continue
+		}
+		onlineUserMap[uint(val)] = true
+	}
 	var list []types.FriendInfoResponse
 	for _, friend := range friends {
 		info := types.FriendInfoResponse{}
@@ -48,6 +58,7 @@ func (l *Friend_listLogic) Friend_list(req *types.FriendListRequest) (resp *type
 			info.Avatar = friend.RevUserModel.Avatar
 			info.Profile = friend.RevUserModel.Profile
 			info.Notice = friend.SendUserNotice
+			info.IsOnline = onlineUserMap[friend.RevUserID]
 		}
 		if friend.RevUserID == req.UserID {
 			//我是接受方,则要把发起方信息作为好友信息返回
@@ -56,6 +67,7 @@ func (l *Friend_listLogic) Friend_list(req *types.FriendListRequest) (resp *type
 			info.Avatar = friend.SendUserModel.Avatar
 			info.Profile = friend.SendUserModel.Profile
 			info.Notice = friend.RevUserNotice
+			info.IsOnline = onlineUserMap[friend.SendUserID]
 		}
 		list = append(list, info)
 	}

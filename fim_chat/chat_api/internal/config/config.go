@@ -10,6 +10,12 @@ type Config struct {
 	Mysql struct {
 		DataSource string
 	}
+	Redis struct {
+		Addr     string
+		Password string
+		DB       int
+		PoolSize int
+	}
 	Etcd    string
 	UserRpc zrpc.RpcClientConf
 }

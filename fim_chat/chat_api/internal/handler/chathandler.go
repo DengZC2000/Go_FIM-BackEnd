@@ -15,14 +15,9 @@ import (
 	"net/http"
 )
 
-type UserInfo struct {
-	NickName string `json:"nick_name"`
-	Avatar   string `json:"avatar"`
-	UserID   uint   `json:"user_id"`
-}
 type UserWsInfo struct {
-	UserInfo UserInfo        //用户信息
-	Conn     *websocket.Conn //用户的ws连接对象
+	UserInfo user_models.UserModel //用户信息
+	Conn     *websocket.Conn       //用户的ws连接对象
 }
 
 var UserWsMap = map[uint]UserWsInfo{}
@@ -53,6 +48,7 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		defer func() {
 			conn.Close()
 			delete(UserWsMap, req.UserID)
+			svcCtx.Redis.HDel(context.Background(), "online", fmt.Sprintf("%d", req.UserID))
 		}()
 		//调用户服务，获取当前用户信息
 		res, err := svcCtx.UserRpc.UserInfo(context.Background(), &user_rpc.UserInfoRequest{
@@ -71,14 +67,13 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 		var userWsInfo = UserWsInfo{
-			UserInfo: UserInfo{
-				UserID:   req.UserID,
-				Avatar:   userInfo.Avatar,
-				NickName: userInfo.NickName,
-			},
-			Conn: conn,
+			UserInfo: userInfo,
+			Conn:     conn,
 		}
 		UserWsMap[req.UserID] = userWsInfo
+
+		//把在线的用户存进一个公共的地方，哎~redis又用上了
+		svcCtx.Redis.HSet(context.Background(), "online", fmt.Sprintf("%d", req.UserID), req.UserID)
 
 		//if userInfo.UserConfModel.FriendOnline {
 		//如果开启了好友上线提醒
@@ -92,8 +87,11 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		for _, info := range friendRes.FriendList {
 			friend, ok := UserWsMap[uint(info.UserId)]
 			if ok {
-				//好友上线了,向已经在线的我的好友，发送一个消息
-				friend.Conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("好友 %s 上线了", userInfo.NickName)))
+				//那他是否开启了好友上线提醒功能
+				if friend.UserInfo.UserConfModel.FriendOnline {
+					//好友上线了,向已经在线的我的好友，发送一个消息
+					friend.Conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("好友 %s 上线了", userInfo.NickName)))
+				}
 
 			}
 		}
