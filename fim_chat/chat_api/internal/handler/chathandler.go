@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"FIM/common/models/ctype"
 	"FIM/common/response"
 	"FIM/fim_chat/chat_api/internal/svc"
 	"FIM/fim_chat/chat_api/internal/types"
@@ -13,6 +14,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"net/http"
+	"time"
 )
 
 type UserWsInfo struct {
@@ -107,9 +109,49 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				fmt.Println(err)
 				break
 			}
-			fmt.Println(string(p))
-			//发送消息
-			conn.WriteMessage(websocket.TextMessage, []byte("xxx"))
+			var request ChatRequest
+			err1 := json.Unmarshal(p, &request)
+			if err1 != nil {
+				//用户乱发消息
+				logx.Error(err1)
+				conn.WriteMessage(websocket.TextMessage, []byte("消息格式错误"))
+				continue
+			}
+			//入库
+			//看看目标用户在不在线
+			targetUserWs, ok := UserWsMap[request.RevUserID]
+			if ok {
+				//构造响应
+				resp := ChatResponse{
+					RevUser: ctype.UserInfo{
+						ID:       request.RevUserID,
+						Nickname: targetUserWs.UserInfo.NickName,
+						Avatar:   targetUserWs.UserInfo.Avatar,
+					},
+					SendUser: ctype.UserInfo{
+						ID:       req.UserID,
+						Nickname: userInfo.NickName,
+						Avatar:   userInfo.Avatar,
+					},
+					Msg:       request.Msg,
+					CreatedAt: time.Now().String(),
+				}
+				byteData, _ := json.Marshal(resp)
+				targetUserWs.Conn.WriteMessage(websocket.TextMessage, byteData)
+			}
+
 		}
 	}
+}
+
+type ChatRequest struct {
+	RevUserID uint      `json:"rev_user_id"`
+	Msg       ctype.Msg `json:"msg"`
+}
+
+type ChatResponse struct {
+	SendUser  ctype.UserInfo `json:"send_user"`
+	RevUser   ctype.UserInfo `json:"rev_user"`
+	Msg       ctype.Msg      `json:"msg"`
+	CreatedAt string         `json:"created_at"`
 }

@@ -29,15 +29,10 @@ func NewChat_historyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Chat
 	}
 }
 
-type UserInfo struct {
-	ID       uint   `json:"id"`
-	Avatar   string `json:"avatar"`
-	Nickname string `json:"nick_name"`
-}
 type ChatHistory struct {
 	ID        uint             `json:"id"`
-	SendUser  UserInfo         `json:"send_user"`
-	RevUser   UserInfo         `json:"rev_user"`
+	SendUser  ctype.UserInfo   `json:"send_user"`
+	RevUser   ctype.UserInfo   `json:"rev_user"`
 	IsMe      bool             `json:"is_me"` //哪条消息是我发的
 	CreateAt  string           `json:"create_at"`
 	Msg       *ctype.Msg       `json:"msg"`
@@ -89,12 +84,12 @@ func (l *Chat_historyLogic) Chat_history(req *types.ChatHistoryRequest) (resp *C
 
 	var list = make([]ChatHistory, 0)
 	for _, chat := range chatList {
-		sendUser := UserInfo{
+		sendUser := ctype.UserInfo{
 			Nickname: response.UserInfo[uint32(chat.SendUserID)].NickName,
 			Avatar:   response.UserInfo[uint32(chat.SendUserID)].Avatar,
 			ID:       chat.SendUserID,
 		}
-		revUser := UserInfo{
+		revUser := ctype.UserInfo{
 			Nickname: response.UserInfo[uint32(chat.RevUserID)].NickName,
 			Avatar:   response.UserInfo[uint32(chat.RevUserID)].Avatar,
 			ID:       chat.RevUserID,
