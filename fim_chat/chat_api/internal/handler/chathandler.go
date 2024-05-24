@@ -17,6 +17,18 @@ import (
 	"time"
 )
 
+type ChatRequest struct {
+	RevUserID uint      `json:"rev_user_id"`
+	Msg       ctype.Msg `json:"msg"`
+}
+
+type ChatResponse struct {
+	SendUser  ctype.UserInfo `json:"send_user"`
+	RevUser   ctype.UserInfo `json:"rev_user"`
+	Msg       ctype.Msg      `json:"msg"`
+	CreatedAt string         `json:"created_at"`
+}
+
 type UserWsInfo struct {
 	UserInfo user_models.UserModel //用户信息
 	Conn     *websocket.Conn       //用户的ws连接对象
@@ -74,7 +86,7 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 		UserWsMap[req.UserID] = userWsInfo
 
-		//把在线的用户存进一个公共的地方，哎~redis又用上了
+		//把在线的用户存进一个公共的地方，哎~ redis又用上了
 		svcCtx.Redis.HSet(context.Background(), "online", fmt.Sprintf("%d", req.UserID), req.UserID)
 
 		//查一下自己的好友是不是上线了
@@ -111,7 +123,7 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			if err1 != nil {
 				//用户乱发消息
 				logx.Error(err1)
-				conn.WriteMessage(websocket.TextMessage, []byte("消息格式错误"))
+				SendTipErrMsg(conn, "参数解析失败")
 				continue
 			}
 			if req.UserID != request.RevUserID {
@@ -123,49 +135,65 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				})
 				if err != nil {
 					logx.Error(err)
-					conn.WriteMessage(websocket.TextMessage, []byte("用户服务错误"))
+					SendTipErrMsg(conn, "用户服务错误")
 					continue
 				}
 				if !isFriendRes.IsFriend {
-					conn.WriteMessage(websocket.TextMessage, []byte("你们还不是好友哦	"))
+					SendTipErrMsg(conn, "你们还不是好友哦")
 					continue
 				}
 			}
 			//入库
-			//看看目标用户在不在线
-			targetUserWs, ok := UserWsMap[request.RevUserID]
-			if ok {
-				//构造响应
-				resp := ChatResponse{
-					RevUser: ctype.UserInfo{
-						ID:       request.RevUserID,
-						Nickname: targetUserWs.UserInfo.NickName,
-						Avatar:   targetUserWs.UserInfo.Avatar,
-					},
-					SendUser: ctype.UserInfo{
-						ID:       req.UserID,
-						Nickname: userInfo.NickName,
-						Avatar:   userInfo.Avatar,
-					},
-					Msg:       request.Msg,
-					CreatedAt: time.Now().String(),
-				}
-				byteData, _ := json.Marshal(resp)
-				targetUserWs.Conn.WriteMessage(websocket.TextMessage, byteData)
-			}
+
+			//调用封装方法，发送信息,其中判断了是否在线
+			SendMsgByUser(req.UserID, request.RevUserID, request.Msg)
 
 		}
 	}
 }
 
-type ChatRequest struct {
-	RevUserID uint      `json:"rev_user_id"`
-	Msg       ctype.Msg `json:"msg"`
+// SendTipErrMsg 发送错误提示的消息
+func SendTipErrMsg(Conn *websocket.Conn, msg string) {
+	resp := ChatResponse{
+		Msg: ctype.Msg{
+			Type: ctype.TipMsgType,
+			TipMsg: &ctype.TipMsg{
+				Status:  "error",
+				Content: msg,
+			},
+		},
+		CreatedAt: time.Now().String(),
+	}
+	byteData, _ := json.Marshal(resp)
+	Conn.WriteMessage(websocket.TextMessage, byteData)
 }
 
-type ChatResponse struct {
-	SendUser  ctype.UserInfo `json:"send_user"`
-	RevUser   ctype.UserInfo `json:"rev_user"`
-	Msg       ctype.Msg      `json:"msg"`
-	CreatedAt string         `json:"created_at"`
+// SendMsgByUser 发消息 谁发的 给谁发
+func SendMsgByUser(revUserID uint, sendUserID uint, msg ctype.Msg) {
+	revUser, ok := UserWsMap[revUserID]
+	if !ok {
+		return
+	}
+	sendUser, ok := UserWsMap[sendUserID]
+	if !ok {
+		return
+	}
+	//构造响应
+	resp := ChatResponse{
+		RevUser: ctype.UserInfo{
+			ID:       revUserID,
+			Nickname: revUser.UserInfo.NickName,
+			Avatar:   revUser.UserInfo.Avatar,
+		},
+		SendUser: ctype.UserInfo{
+			ID:       sendUserID,
+			Nickname: sendUser.UserInfo.NickName,
+			Avatar:   sendUser.UserInfo.Avatar,
+		},
+		Msg:       msg,
+		CreatedAt: time.Now().String(),
+	}
+	byteData, _ := json.Marshal(resp)
+	revUser.Conn.WriteMessage(websocket.TextMessage, byteData)
+
 }

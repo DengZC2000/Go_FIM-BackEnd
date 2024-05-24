@@ -6,8 +6,25 @@ import (
 	"time"
 )
 
+type MsgType = int8
+
+const (
+	TextMsgType MsgType = iota + 1
+	ImageMsgType
+	VideoMsgType
+	FileMsgType
+	VoiceMsgType
+	VoiceCallMsgType
+	VideoCallMsgType
+	WithdrawMsgType
+	ReplyMsgType
+	QuoteMsgType
+	AtMsgType
+	TipMsgType
+)
+
 type Msg struct {
-	Type         int8          `json:"type"`           //消息类型
+	Type         MsgType       `json:"type"`           //消息类型
 	TextMsg      *TextMsg      `json:"text_msg"`       //文本消息
 	ImageMsg     *ImageMsg     `json:"image_msg"`      //图片
 	VideoMsg     *VideoMsg     `json:"video_msg"`      //视频
@@ -19,6 +36,7 @@ type Msg struct {
 	ReplyMsg     *ReplyMsg     `json:"reply_msg"`      //回复消息
 	QuoteMsg     *QuoteMsg     `json:"quote_msg"`      //引用消息
 	AtMsg        *AtMsg        `json:"at_msg"`         //at消息，只有群聊有
+	TipMsg       *TipMsg       `json:"tip_msg"`        //提示消息，一般是不入库的
 }
 
 // Scan 取出来的时候的数据
@@ -32,6 +50,10 @@ func (c *Msg) Value() (driver.Value, error) {
 	return string(b), err
 }
 
+type TipMsg struct {
+	Status  string `json:"status"` //error warning success
+	Content string `json:"content"`
+}
 type TextMsg struct {
 	Content string `json:"content"`
 }
