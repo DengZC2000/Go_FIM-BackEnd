@@ -77,8 +77,6 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		//把在线的用户存进一个公共的地方，哎~redis又用上了
 		svcCtx.Redis.HSet(context.Background(), "online", fmt.Sprintf("%d", req.UserID), req.UserID)
 
-		//if userInfo.UserConfModel.FriendOnline {
-		//如果开启了好友上线提醒
 		//查一下自己的好友是不是上线了
 		friendRes, err := svcCtx.UserRpc.FriendList(context.Background(), &user_rpc.FriendListRequest{User: uint32(req.UserID)})
 		if err != nil {
@@ -98,7 +96,6 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			}
 		}
 		//查一下自己的好友列表，返回用户id列表，看看在不在这个UserMsMap中，在的话，就给自己发送个好友上线的消息
-		//}
 
 		fmt.Println(UserWsMap)
 		for {
@@ -115,6 +112,20 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				//用户乱发消息
 				logx.Error(err1)
 				conn.WriteMessage(websocket.TextMessage, []byte("消息格式错误"))
+				continue
+			}
+			//判断是否是好友
+			isFriendRes, err := svcCtx.UserRpc.IsFriend(context.Background(), &user_rpc.IsFriendRequest{
+				User1: uint32(req.UserID),
+				User2: uint32(request.RevUserID),
+			})
+			if err != nil {
+				logx.Error(err)
+				conn.WriteMessage(websocket.TextMessage, []byte("用户服务错误"))
+				continue
+			}
+			if !isFriendRes.IsFriend {
+				conn.WriteMessage(websocket.TextMessage, []byte("你们还不是好友哦	"))
 				continue
 			}
 			//入库
