@@ -114,19 +114,22 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				conn.WriteMessage(websocket.TextMessage, []byte("消息格式错误"))
 				continue
 			}
-			//判断是否是好友
-			isFriendRes, err := svcCtx.UserRpc.IsFriend(context.Background(), &user_rpc.IsFriendRequest{
-				User1: uint32(req.UserID),
-				User2: uint32(request.RevUserID),
-			})
-			if err != nil {
-				logx.Error(err)
-				conn.WriteMessage(websocket.TextMessage, []byte("用户服务错误"))
-				continue
-			}
-			if !isFriendRes.IsFriend {
-				conn.WriteMessage(websocket.TextMessage, []byte("你们还不是好友哦	"))
-				continue
+			if req.UserID != request.RevUserID {
+
+				//判断是否是好友
+				isFriendRes, err := svcCtx.UserRpc.IsFriend(context.Background(), &user_rpc.IsFriendRequest{
+					User1: uint32(req.UserID),
+					User2: uint32(request.RevUserID),
+				})
+				if err != nil {
+					logx.Error(err)
+					conn.WriteMessage(websocket.TextMessage, []byte("用户服务错误"))
+					continue
+				}
+				if !isFriendRes.IsFriend {
+					conn.WriteMessage(websocket.TextMessage, []byte("你们还不是好友哦	"))
+					continue
+				}
 			}
 			//入库
 			//看看目标用户在不在线

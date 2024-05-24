@@ -45,16 +45,18 @@ type ChatHistoryResponse struct {
 
 // Chat_history 用户与用户的聊天记录
 func (l *Chat_historyLogic) Chat_history(req *types.ChatHistoryRequest) (resp *ChatHistoryResponse, err error) {
-	//是否是好友
-	res, err := l.svcCtx.UserRpc.IsFriend(context.Background(), &user_rpc.IsFriendRequest{
-		User1: uint32(req.UserID),
-		User2: uint32(req.FriendID),
-	})
-	if err != nil {
-		return nil, err
-	}
-	if !res.IsFriend {
-		return nil, errors.New("你们还不是好友呢")
+	if req.UserID != req.FriendID {
+		//是否是好友
+		res, err := l.svcCtx.UserRpc.IsFriend(context.Background(), &user_rpc.IsFriendRequest{
+			User1: uint32(req.UserID),
+			User2: uint32(req.FriendID),
+		})
+		if err != nil {
+			return nil, err
+		}
+		if !res.IsFriend {
+			return nil, errors.New("你们还不是好友呢")
+		}
 	}
 	chatList, count, _ := list_query.ListQuery(l.svcCtx.DB, chat_models.ChatModel{}, list_query.Option{
 		PageInfo: models.PageInfo{
