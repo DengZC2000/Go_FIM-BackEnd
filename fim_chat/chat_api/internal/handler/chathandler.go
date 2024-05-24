@@ -5,6 +5,7 @@ import (
 	"FIM/common/response"
 	"FIM/fim_chat/chat_api/internal/svc"
 	"FIM/fim_chat/chat_api/internal/types"
+	"FIM/fim_chat/chat_models"
 	"FIM/fim_user/user_models"
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"context"
@@ -13,6 +14,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest/httpx"
+	"gorm.io/gorm"
 	"net/http"
 	"time"
 )
@@ -144,11 +146,32 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				}
 			}
 			//入库
+			ChatMsgIntoDataBase(svcCtx.DB, req.UserID, request.RevUserID, &request.Msg)
 
 			//调用封装方法，发送信息,其中判断了是否在线
 			SendMsgByUser(req.UserID, request.RevUserID, request.Msg)
 
 		}
+	}
+}
+
+// ChatMsgIntoDataBase 数据入库
+func ChatMsgIntoDataBase(db *gorm.DB, sendUserID uint, revUserID uint, msg *ctype.Msg) {
+	chatModel := chat_models.ChatModel{
+		SendUserID: sendUserID,
+		RevUserID:  revUserID,
+		MsgType:    msg.Type,
+		Msg:        msg,
+	}
+	chatModel.MsgPreview = chatModel.MsgPreviewMethod()
+	err := db.Create(&chatModel).Error
+	if err != nil {
+		logx.Error(err)
+		sendUser, ok := UserWsMap[sendUserID]
+		if !ok {
+			return
+		}
+		SendTipErrMsg(sendUser.Conn, "消息保存失败")
 	}
 }
 
@@ -169,7 +192,7 @@ func SendTipErrMsg(Conn *websocket.Conn, msg string) {
 }
 
 // SendMsgByUser 发消息 谁发的 给谁发
-func SendMsgByUser(revUserID uint, sendUserID uint, msg ctype.Msg) {
+func SendMsgByUser(sendUserID uint, revUserID uint, msg ctype.Msg) {
 	revUser, ok := UserWsMap[revUserID]
 	if !ok {
 		return
