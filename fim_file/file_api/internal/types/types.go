@@ -9,14 +9,14 @@ type FileResponse struct {
 	Src string `json:"src"`
 }
 
+type FileShowRequest struct {
+	FileName string `path:"FileName"`
+}
+
 type ImageRequest struct {
 	UserID uint `header:"User-ID"`
 }
 
 type ImageResponse struct {
 	Url string `json:"url"`
-}
-
-type ImageShowRequest struct {
-	ImageName string `path:"imageName"`
 }

@@ -9,21 +9,21 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type Image_showLogic struct {
+type File_showLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewImage_showLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Image_showLogic {
-	return &Image_showLogic{
+func NewFile_showLogic(ctx context.Context, svcCtx *svc.ServiceContext) *File_showLogic {
+	return &File_showLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *Image_showLogic) Image_show(req *types.ImageShowRequest) error {
+func (l *File_showLogic) File_show(req *types.FileShowRequest) error {
 	// todo: add your logic here and delete this line
 
 	return nil

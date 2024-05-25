@@ -8,8 +8,9 @@ Log:
   Encoding: plain
   TimeFormat: 2006-01-02 15:04:05
   Stat: false
-MaxBytes: 10485760 #设置go-zero实际文件上传大小限制10MB
-FileSize : 3 # 实际3MB
+MaxBytes: 1083741824 #设置go-zero实际文件上传大小限制大概1个G多一点
+ImageSize : 3 # 实际3MB
+FileSize : 1024 # 其他文件为1024MB
 WriteList:
   - png
   - jpg

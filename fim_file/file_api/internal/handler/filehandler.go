@@ -5,12 +5,14 @@ import (
 	"FIM/fim_file/file_api/internal/logic"
 	"FIM/fim_file/file_api/internal/svc"
 	"FIM/fim_file/file_api/internal/types"
+	"FIM/fim_file/file_models"
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"FIM/utils"
-	"FIM/utils/random"
 	"context"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"io"
 	"net/http"
@@ -33,6 +35,13 @@ func fileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
+		//文件大小限制
+		mSize := float64(fileHead.Size) / float64(1024) / float64(1024)
+		if mSize > svcCtx.Config.FileSize {
+			response.Response(r, w, nil, errors.New(fmt.Sprintf("文件上传超过大小限制 %.2f MB", svcCtx.Config.FileSize)))
+			return
+		}
+
 		//文件上传用黑名单限制
 
 		//exe
@@ -46,6 +55,19 @@ func fileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			response.Response(r, w, nil, errors.New("上传的文件非法"))
 			return
 		}
+		l := logic.NewFileLogic(r.Context(), svcCtx)
+		resp, err := l.File(&req)
+		fileData, _ := io.ReadAll(file)
+		fileHash := utils.MD5(fileData)
+		var fileModel file_models.FileModel
+		err = svcCtx.DB.Take(&fileModel, "hash = ?", fileHash).Error
+		if err == nil {
+			//已经有这个文件了
+			resp.Src = fileModel.WebPath()
+			response.Response(r, w, resp, nil)
+			return
+		}
+
 		//先去拿用户信息
 		userResponse, err := svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
 			UserIdList: []uint32{uint32(req.UserID)},
@@ -56,30 +78,33 @@ func fileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 		dirName := fmt.Sprintf("%d_%s", req.UserID, userResponse.UserInfo[uint32(req.UserID)].NickName)
 
-		//文件重名处理
 		dirPath := path.Join(svcCtx.Config.UpLoadDir, "file", dirName)
-		dir, err := os.ReadDir(dirPath)
+		_, err = os.ReadDir(dirPath)
 		if err != nil {
 			os.MkdirAll(dirPath, 0666)
 		}
-		filePath := path.Join(dirPath, fileHead.Filename)
-		imageData, _ := io.ReadAll(file)
-		//fileName := fileHead.Filename
-		l := logic.NewFileLogic(r.Context(), svcCtx)
-		resp, err := l.File(&req)
-		resp.Src = "/" + filePath
-		if utils.InDir(dir, fileHead.Filename) {
-			//改名
-			prefix := utils.GetFilePrefix(filePath)
-			filePath = prefix + "_" + random.RandStr(4) + "." + nameList[len(nameList)-1]
+		UID := uuid.New()
+		newfileModel := file_models.FileModel{
+			UserID:   req.UserID,
+			FileName: fileHead.Filename,
+			Size:     fileHead.Size,
+			Path:     path.Join(dirPath, fmt.Sprintf("%s.%s", UID, nameList[len(nameList)-1])),
+			Hash:     fileHash,
+			Uid:      UID,
 		}
 
-		err = os.WriteFile(filePath, imageData, 0666)
+		err = os.WriteFile(newfileModel.Path, fileData, 0666)
 		if err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}
-		resp.Src = "/" + filePath
+		err = svcCtx.DB.Create(&newfileModel).Error
+		if err != nil {
+			logx.Error(err)
+			response.Response(r, w, nil, err)
+			return
+		}
+		resp.Src = newfileModel.WebPath()
 		response.Response(r, w, resp, err)
 
 	}

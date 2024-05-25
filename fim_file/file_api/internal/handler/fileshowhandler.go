@@ -11,15 +11,15 @@ import (
 	"os"
 )
 
-func image_showHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func file_showHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.ImageShowRequest
+		var req types.FileShowRequest
 		if err := httpx.Parse(r, &req); err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}
 		var fileModel file_models.FileModel
-		err := svcCtx.DB.Take(&fileModel, "uid = ?", req.ImageName).Error
+		err := svcCtx.DB.Take(&fileModel, "uid = ?", req.FileName).Error
 		if err != nil {
 			response.Response(r, w, nil, errors.New("文件不存在"))
 			return
@@ -30,6 +30,5 @@ func image_showHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 		w.Write(byteData)
-
 	}
 }

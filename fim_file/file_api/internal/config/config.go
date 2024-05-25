@@ -11,6 +11,7 @@ type Config struct {
 	Mysql struct {
 		DataSource string
 	}
+	ImageSize float64
 	FileSize  float64
 	WriteList []string //图片文件名白名单
 	BlackList []string //文件上传的黑名单

@@ -46,8 +46,8 @@ func imageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		//文件大小限制
 		mSize := float64(fileHead.Size) / float64(1024) / float64(1024)
-		if mSize > svcCtx.Config.FileSize {
-			response.Response(r, w, nil, errors.New(fmt.Sprintf("文件上传超过大小限制 %.2f MB", svcCtx.Config.FileSize)))
+		if mSize > svcCtx.Config.ImageSize {
+			response.Response(r, w, nil, errors.New(fmt.Sprintf("文件上传超过大小限制 %.2f MB", svcCtx.Config.ImageSize)))
 			return
 		}
 		//文件白名单限制
