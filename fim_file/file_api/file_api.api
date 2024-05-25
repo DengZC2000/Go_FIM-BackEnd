@@ -1,11 +1,12 @@
-type ImageRequest {}
+type ImageRequest {
+	UserID uint `header:"User-ID"`
+}
 
 type ImageResponse {
 	Url string `json:"url"`
 }
 
 type ImageShowRequest {
-	ImageType string `path:"imageType"`
 	ImageName string `path:"imageName"`
 }
 
@@ -25,7 +26,7 @@ service file {
 	post /api/file/file (FileRequest) returns (FileResponse) //文件上传
 
 	@handler image_show
-	get /api/file/uploads/:imageType/:imageName (ImageShowRequest)
+	get /api/file/:imageName (ImageShowRequest) //文件预览
 }
 
 // goctl api go -api file_api.api -dir .

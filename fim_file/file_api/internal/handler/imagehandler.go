@@ -5,10 +5,12 @@ import (
 	"FIM/fim_file/file_api/internal/logic"
 	"FIM/fim_file/file_api/internal/svc"
 	"FIM/fim_file/file_api/internal/types"
+	"FIM/fim_file/file_models"
 	"FIM/utils"
-	"FIM/utils/random"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"io"
 	"net/http"
@@ -58,37 +60,51 @@ func imageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			response.Response(r, w, nil, errors.New("上传的不是图片"))
 			return
 		}
-		//文件重名处理
+		//先去算hash
+		imageData, _ := io.ReadAll(file)
+		imageHash := utils.MD5(imageData)
+		var fileModel file_models.FileModel
+		l := logic.NewImageLogic(r.Context(), svcCtx)
+		resp, err := l.Image(&req)
+		err = svcCtx.DB.Take(&fileModel, "hash = ?", imageHash).Error
+		if err == nil {
+			//找到了，有hash一摸一样的
+			resp.Url = fileModel.WebPath()
+			response.Response(r, w, resp, nil)
+			return
+		}
+		// 拼路径 /uploads/imageType/{uid}.{后缀}
 		dirPath := path.Join(svcCtx.Config.UpLoadDir, imageType)
-		dir, err := os.ReadDir(dirPath)
+		_, err = os.ReadDir(dirPath)
 		if err != nil {
 			os.MkdirAll(dirPath, 0666)
 		}
-		filePath := path.Join(svcCtx.Config.UpLoadDir, imageType, fileHead.Filename)
-		imageData, _ := io.ReadAll(file)
-		//fileName := fileHead.Filename
-		l := logic.NewImageLogic(r.Context(), svcCtx)
-		resp, err := l.Image(&req)
-		resp.Url = "/" + filePath
-		if utils.InDir(dir, fileHead.Filename) {
-			byteData, _ := os.ReadFile(filePath)
+		UID := uuid.New()
+		filePath := path.Join(dirPath, fmt.Sprintf("%s.%s", UID, nameList[len(nameList)-1]))
 
-			if utils.MD5(byteData) == utils.MD5(imageData) {
-				//两个文件是一样的,名字一样，内容也一样，虚惊一场，直接返回
-				response.Response(r, w, resp, nil)
-				return
-			}
-			//否则此时名字相同，但是内容不同，其中一个需要改名
-			prefix := utils.GetFilePrefix(filePath)
-			filePath = prefix + "_" + random.RandStr(4) + "." + nameList[len(nameList)-1]
-		}
+		//fileName := fileHead.Filename
 
 		err = os.WriteFile(filePath, imageData, 0666)
 		if err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}
-		resp.Url = "/" + filePath
+		newfileModel := file_models.FileModel{
+			UserID:   req.UserID,
+			FileName: fileHead.Filename,
+			Size:     fileHead.Size,
+			Path:     filePath,
+			Hash:     utils.MD5(imageData),
+			Uid:      UID,
+		}
+		//图片信息入库
+		err = svcCtx.DB.Create(&newfileModel).Error
+		if err != nil {
+			logx.Error(err)
+			response.Response(r, w, nil, err)
+			return
+		}
+		resp.Url = newfileModel.WebPath()
 		response.Response(r, w, resp, err)
 
 	}

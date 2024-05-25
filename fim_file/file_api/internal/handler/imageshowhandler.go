@@ -4,10 +4,11 @@ import (
 	"FIM/common/response"
 	"FIM/fim_file/file_api/internal/svc"
 	"FIM/fim_file/file_api/internal/types"
+	"FIM/fim_file/file_models"
+	"errors"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"net/http"
 	"os"
-	"path"
 )
 
 func image_showHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -17,8 +18,13 @@ func image_showHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			response.Response(r, w, nil, err)
 			return
 		}
-		filePath := path.Join("uploads", req.ImageType, req.ImageName)
-		byteData, err := os.ReadFile(filePath)
+		var fileModel file_models.FileModel
+		err := svcCtx.DB.Take(&fileModel, "uid = ?", req.ImageName).Error
+		if err != nil {
+			response.Response(r, w, nil, errors.New("文件不存在"))
+			return
+		}
+		byteData, err := os.ReadFile(fileModel.Path)
 		if err != nil {
 			response.Response(r, w, nil, err)
 			return

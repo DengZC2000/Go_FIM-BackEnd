@@ -34,5 +34,5 @@ WhiteList:
   - /api/auth/open_login
   - /api/auth/authentication
   - /api/auth/logout
-  - /api/file/uploads/.*?/.*?
   - /api/settings/open_login
+  - /api/file/.{8}-.{4}-.{4}-.{4}-.{12}
