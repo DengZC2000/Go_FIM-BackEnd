@@ -70,7 +70,7 @@ func imageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := logic.NewImageLogic(r.Context(), svcCtx)
 		resp, err := l.Image(&req)
 		resp.Url = "/" + filePath
-		if InDir(dir, fileHead.Filename) {
+		if utils.InDir(dir, fileHead.Filename) {
 			byteData, _ := os.ReadFile(filePath)
 
 			if utils.MD5(byteData) == utils.MD5(imageData) {
@@ -92,12 +92,4 @@ func imageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		response.Response(r, w, resp, err)
 
 	}
-}
-func InDir(dir []os.DirEntry, file string) bool {
-	for _, entry := range dir {
-		if entry.Name() == file {
-			return true
-		}
-	}
-	return false
 }

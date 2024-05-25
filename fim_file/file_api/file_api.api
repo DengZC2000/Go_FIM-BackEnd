@@ -9,9 +9,20 @@ type ImageShowRequest {
 	ImageName string `path:"imageName"`
 }
 
+type FileRequest {
+	UserID uint `header:"User-ID"`
+}
+
+type FileResponse {
+	Src string `json:"src"`
+}
+
 service file {
 	@handler image
 	post /api/file/image (ImageRequest) returns (ImageResponse) //图片上传
+
+	@handler file
+	post /api/file/file (FileRequest) returns (FileResponse) //文件上传
 
 	@handler image_show
 	get /api/file/uploads/:imageType/:imageName (ImageShowRequest)

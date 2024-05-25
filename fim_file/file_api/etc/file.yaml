@@ -17,4 +17,11 @@ WriteList:
   - gif
   - icon
   - webp
+BlackList:
+  - exe
 UpLoadDir: uploads
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: userrpc.rpc
