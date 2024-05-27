@@ -206,6 +206,11 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 					SendTipErrMsg(conn, "消息不存在")
 					continue
 				}
+				//不能撤回已撤回的消息
+				if msgModel.MsgType == ctype.WithdrawMsgType {
+					SendTipErrMsg(conn, "撤回消息不能再撤回了")
+					continue
+				}
 				//判断是不是自己发的
 				if msgModel.SendUserID != req.UserID {
 					SendTipErrMsg(conn, "只能撤回自己的消息")

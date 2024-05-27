@@ -39,17 +39,6 @@ type Msg struct {
 	TipMsg       *TipMsg       `json:"tip_msg,omitempty"`        //提示消息，一般是不入库的
 }
 
-// Scan 取出来的时候的数据
-func (c *Msg) Scan(val interface{}) error {
-	return json.Unmarshal(val.([]byte), c)
-}
-
-// Value 入库的数据
-func (c *Msg) Value() (driver.Value, error) {
-	b, err := json.Marshal(c)
-	return string(b), err
-}
-
 type TipMsg struct {
 	Status  string `json:"status"` //error warning success
 	Content string `json:"content"`
@@ -87,14 +76,14 @@ type VideoCallMsg struct {
 	EndReason int8      `json:"end_reason"` //结束原因 0 发起方挂断 1 接收方挂断 2 网络原因挂断 3 未打通
 }
 type WithdrawMsg struct {
-	Content   string `json:"content"`    //撤回的提示符
-	MsgID     uint   `json:"msg_id"`     //需要撤回的消息id 入参必填
-	OriginMsg *Msg   `json:"origin_msg"` //原消息
+	Content   string `json:"content"`              //撤回的提示符
+	MsgID     uint   `json:"msg_id"`               //需要撤回的消息id 入参必填
+	OriginMsg *Msg   `json:"origin_msg,omitempty"` //原消息
 }
 type ReplyMsg struct {
 	MsgID         uint      `json:"msg_id"`  //消息id
 	Content       string    `json:"content"` //回复的文本消息
-	Msg           *Msg      `json:"msg"`
+	Msg           *Msg      `json:"msg,omitempty"`
 	UserID        uint      `json:"user_id"`         //被回复人的用户id
 	UserNickName  string    `json:"user_nick_name"`  //被回复人的用户昵称
 	OriginMsgDate time.Time `json:"origin_msg_date"` //原消息的时间
@@ -111,4 +100,25 @@ type AtMsg struct {
 	UserID  uint   `json:"user_id"`
 	Content string `json:"content"`
 	Msg     *Msg   `json:"msg"`
+}
+
+// Scan 取出来的时候的数据
+func (c *Msg) Scan(val interface{}) error {
+	err := json.Unmarshal(val.([]byte), c)
+	if err != nil {
+		return err
+	}
+	if c.Type == WithdrawMsgType {
+		//如果这个消息是撤回消息，那就不要把原消息带出去
+		if c.WithdrawMsg != nil {
+			c.WithdrawMsg.OriginMsg = nil
+		}
+	}
+	return nil
+}
+
+// Value 入库的数据
+func (c *Msg) Value() (driver.Value, error) {
+	b, err := json.Marshal(c)
+	return string(b), err
 }
