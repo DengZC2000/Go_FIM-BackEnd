@@ -6,6 +6,7 @@ import (
 	"FIM/fim_chat/chat_api/internal/svc"
 	"FIM/fim_chat/chat_api/internal/types"
 	"FIM/fim_chat/chat_models"
+	"FIM/fim_file/file_rpc/types/file_rpc"
 	"FIM/fim_user/user_models"
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"context"
@@ -16,6 +17,7 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"gorm.io/gorm"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -144,6 +146,29 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 					SendTipErrMsg(conn, "你们还不是好友哦")
 					continue
 				}
+			}
+			//判断是否是文件类型
+			switch request.Msg.Type {
+			case ctype.FileMsgType:
+				//如果是文件类型,那么就要去请求rpc服务了,获取文件信息
+				nameList := strings.Split(request.Msg.FileMsg.Src, "/")
+				if len(nameList) == 0 {
+					SendTipErrMsg(conn, "请上传文件")
+					continue
+				}
+				fileID := nameList[len(nameList)-1]
+				fileResponse, err3 := svcCtx.FileRpc.FileInfo(context.Background(), &file_rpc.FileInfoRequest{
+					FileId: fileID,
+				})
+				if err3 != nil {
+					logx.Error(err3)
+					SendTipErrMsg(conn, err3.Error())
+					continue
+				}
+				request.Msg.FileMsg.Title = fileResponse.FileName
+				request.Msg.FileMsg.Size = fileResponse.FileSize
+				request.Msg.FileMsg.Type = fileResponse.FileType
+
 			}
 			//入库
 			ChatMsgIntoDataBase(svcCtx.DB, req.UserID, request.RevUserID, &request.Msg)
