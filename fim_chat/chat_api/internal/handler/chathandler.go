@@ -168,12 +168,55 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				request.Msg.FileMsg.Title = fileResponse.FileName
 				request.Msg.FileMsg.Size = fileResponse.FileSize
 				request.Msg.FileMsg.Type = fileResponse.FileType
+			case ctype.WithdrawMsgType:
+				//撤回消息的id是必填的
+				if request.Msg.WithdrawMsg.MsgID == 0 {
+					SendTipErrMsg(conn, "撤回消息是必填的")
+					continue
+				}
+				//自己只能撤回自己的
+				//找这个消息是谁发的
+				var msgModel chat_models.ChatModel
+				err = svcCtx.DB.Take(&msgModel, request.Msg.WithdrawMsg.MsgID).Error
+				if err != nil {
+					SendTipErrMsg(conn, "消息不存在")
+					continue
+				}
+				//判断是不是自己发的
+				if msgModel.SendUserID != req.UserID {
+					SendTipErrMsg(conn, "只能撤回自己的消息")
+					continue
+				}
+				now := time.Now()
+				subTime := now.Sub(msgModel.CreatedAt)
+				if subTime >= time.Minute*2 {
+					SendTipErrMsg(conn, "只能撤回2分钟之内的消息")
+					continue
+				}
+				//撤回逻辑
+				//收到撤回请求之后，服务端这边把原来消息类型修改为撤回消息，并且记录原消息
+				//然后通知前端的收发双方，重新拉取聊天记录
+				var content = "xx 撤回了一条消息"
+				if userInfo.UserConfModel.RecallMessage != nil {
+					content += *userInfo.UserConfModel.RecallMessage
+				}
+				svcCtx.DB.Model(&msgModel).Updates(chat_models.ChatModel{
+					Msg: &ctype.Msg{
+						Type: ctype.WithdrawMsgType,
+						WithdrawMsg: &ctype.WithdrawMsg{
+							Content:   content,
+							MsgID:     request.Msg.WithdrawMsg.MsgID,
+							OriginMsg: msgModel.Msg,
+						},
+					},
+				})
 
 			}
 			//入库
 			ChatMsgIntoDataBase(svcCtx.DB, req.UserID, request.RevUserID, &request.Msg)
 
 			//调用封装方法，发送信息,其中判断了是否在线
+			//并且应该双方都发消息，真实的场景啊
 			SendMsgByUser(req.UserID, request.RevUserID, request.Msg)
 
 		}
@@ -182,6 +225,11 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 // ChatMsgIntoDataBase 数据入库
 func ChatMsgIntoDataBase(db *gorm.DB, sendUserID uint, revUserID uint, msg *ctype.Msg) {
+	switch msg.Type {
+	case ctype.WithdrawMsgType:
+		fmt.Println("撤回消息是不入库的")
+		return
+	}
 	chatModel := chat_models.ChatModel{
 		SendUserID: sendUserID,
 		RevUserID:  revUserID,
@@ -243,5 +291,8 @@ func SendMsgByUser(sendUserID uint, revUserID uint, msg ctype.Msg) {
 	}
 	byteData, _ := json.Marshal(resp)
 	revUser.Conn.WriteMessage(websocket.TextMessage, byteData)
+
+	//并且应该双方都发消息，真实的场景啊
+	sendUser.Conn.WriteMessage(websocket.TextMessage, byteData)
 
 }

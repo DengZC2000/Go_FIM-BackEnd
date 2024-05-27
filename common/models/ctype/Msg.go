@@ -88,6 +88,7 @@ type VideoCallMsg struct {
 }
 type WithdrawMsg struct {
 	Content   string `json:"content"` //撤回的提示符
+	MsgID     uint   `json:"msg_id"`  //需要撤回的消息id 入参必填
 	OriginMsg *Msg   `json:"-"`       //原消息
 }
 type ReplyMsg struct {
