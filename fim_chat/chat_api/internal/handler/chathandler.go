@@ -149,7 +149,12 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 					continue
 				}
 			}
-			//判断是否是文件类型
+			// 判断type 1 - 12
+			if !(request.Msg.Type >= 1 && request.Msg.Type <= 12) {
+				SendTipErrMsg(conn, "消息类型错误，未知的消息类型")
+				continue
+			}
+			// 判断是否是文件类型
 			switch request.Msg.Type {
 			case ctype.TextMsgType:
 				if request.Msg.TextMsg == nil {
@@ -209,23 +214,29 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				now := time.Now()
 				subTime := now.Sub(msgModel.CreatedAt)
 				if subTime >= time.Minute*2 {
+					logx.Info(subTime)
 					SendTipErrMsg(conn, "只能撤回2分钟之内的消息")
 					continue
 				}
 				//撤回逻辑
 				//收到撤回请求之后，服务端这边把原来消息类型修改为撤回消息，并且记录原消息
 				//然后通知前端的收发双方，重新拉取聊天记录
-				var content = "xx 撤回了一条消息"
+				var content = "撤回了一条消息"
 				if userInfo.UserConfModel.RecallMessage != nil {
 					content += *userInfo.UserConfModel.RecallMessage
 				}
+				content = "你" + content
+				//前端可以判断，这个消息如果不是isMe，就可以把你替换成对方的昵称
+				originMsg := msgModel.Msg
+				originMsg.WithdrawMsg = nil
 				svcCtx.DB.Model(&msgModel).Updates(chat_models.ChatModel{
+					MsgPreview: "[撤回消息]- " + content,
 					Msg: &ctype.Msg{
 						Type: ctype.WithdrawMsgType,
 						WithdrawMsg: &ctype.WithdrawMsg{
 							Content:   content,
 							MsgID:     request.Msg.WithdrawMsg.MsgID,
-							OriginMsg: msgModel.Msg,
+							OriginMsg: originMsg,
 						},
 					},
 				})
@@ -241,6 +252,12 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				err = svcCtx.DB.Take(&msgModel, request.Msg.ReplyMsg.MsgID).Error
 				if err != nil {
 					SendTipErrMsg(conn, "消息不存在")
+					continue
+				}
+				//回复的这个消息，必须是你自己或者当前和你聊天这个人发出来的
+				if !((msgModel.SendUserID == req.UserID && msgModel.RevUserID == request.RevUserID) ||
+					(msgModel.SendUserID == request.RevUserID && msgModel.RevUserID == req.UserID)) {
+					SendTipErrMsg(conn, "只能回复自己或者对方的消息")
 					continue
 				}
 				SendBaseInfo, err := svcCtx.UserRpc.UserBaseInfo(context.Background(), &user_rpc.UserBaseInfoRequest{UserId: uint32(msgModel.SendUserID)})
