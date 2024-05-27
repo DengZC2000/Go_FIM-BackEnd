@@ -92,14 +92,20 @@ type WithdrawMsg struct {
 	OriginMsg *Msg   `json:"-"`       //原消息
 }
 type ReplyMsg struct {
-	MsgID   uint   `json:"msg_id"`  //消息id
-	Content string `json:"content"` //回复的文本消息，目前只能回复图片
-	Msg     *Msg   `json:"msg"`
+	MsgID         uint      `json:"msg_id"`  //消息id
+	Content       string    `json:"content"` //回复的文本消息
+	Msg           *Msg      `json:"msg"`
+	UserID        uint      `json:"user_id"`         //被回复人的用户id
+	UserNickName  string    `json:"user_nick_name"`  //被回复人的用户昵称
+	OriginMsgDate time.Time `json:"origin_msg_date"` //原消息的时间
 }
 type QuoteMsg struct {
-	MsgID   uint   `json:"msg_id"`  //消息id
-	Content string `json:"content"` //回复的文本消息，目前只能回复图片
-	Msg     *Msg   `json:"msg"`
+	MsgID         uint      `json:"msg_id"`  //消息id
+	Content       string    `json:"content"` //回复的文本消息，目前只能回复图片
+	Msg           *Msg      `json:"msg"`
+	UserID        uint      `json:"user_id"`         //被回复人的用户id
+	UserNickName  string    `json:"user_nick_name"`  //被回复人的用户昵称
+	OriginMsgDate time.Time `json:"origin_msg_date"` //原消息的时间
 }
 type AtMsg struct {
 	UserID  uint   `json:"user_id"`

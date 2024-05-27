@@ -162,6 +162,10 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				}
 			case ctype.FileMsgType:
 				//如果是文件类型,那么就要去请求rpc服务了,获取文件信息
+				if request.Msg.FileMsg == nil {
+					SendTipErrMsg(conn, "请上传文件")
+					continue
+				}
 				nameList := strings.Split(request.Msg.FileMsg.Src, "/")
 				if len(nameList) == 0 {
 					SendTipErrMsg(conn, "请上传文件")
@@ -181,6 +185,10 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				request.Msg.FileMsg.Type = fileResponse.FileType
 			case ctype.WithdrawMsgType:
 				//撤回消息的id是必填的
+				if request.Msg.WithdrawMsg == nil {
+					SendTipErrMsg(conn, "撤回消息是必填的")
+					continue
+				}
 				if request.Msg.WithdrawMsg.MsgID == 0 {
 					SendTipErrMsg(conn, "撤回消息是必填的")
 					continue
@@ -221,9 +229,31 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 						},
 					},
 				})
-
+			case ctype.ReplyMsgType:
+				//回复消息
+				//先校验
+				if request.Msg.ReplyMsg == nil || request.Msg.ReplyMsg.MsgID == 0 {
+					SendTipErrMsg(conn, "回复消息必填")
+					continue
+				}
+				//找这个原消息
+				var msgModel chat_models.ChatModel
+				err = svcCtx.DB.Take(&msgModel, request.Msg.ReplyMsg.MsgID).Error
+				if err != nil {
+					SendTipErrMsg(conn, "消息不存在")
+					continue
+				}
+				SendBaseInfo, err := svcCtx.UserRpc.UserBaseInfo(context.Background(), &user_rpc.UserBaseInfoRequest{UserId: uint32(msgModel.SendUserID)})
+				if err != nil {
+					logx.Error(err)
+					return
+				}
+				request.Msg.ReplyMsg.Msg = msgModel.Msg
+				request.Msg.ReplyMsg.UserID = msgModel.SendUserID
+				request.Msg.ReplyMsg.UserNickName = SendBaseInfo.NickName
+				request.Msg.ReplyMsg.OriginMsgDate = msgModel.CreatedAt
 			}
-			//入库
+			//入库,里面有不入库的逻辑
 			chatID := ChatMsgIntoDataBase(svcCtx.DB, req.UserID, request.RevUserID, &request.Msg)
 
 			//调用封装方法，发送信息,其中判断了是否在线
