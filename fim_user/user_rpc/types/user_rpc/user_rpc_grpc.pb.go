@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UsersClient interface {
 	UserInfo(ctx context.Context, in *UserInfoRequest, opts ...grpc.CallOption) (*UserInfoResponse, error)
+	UserBaseInfo(ctx context.Context, in *UserBaseInfoRequest, opts ...grpc.CallOption) (*UserBaseInfoResponse, error)
 	UserCreate(ctx context.Context, in *UserCreateRequest, opts ...grpc.CallOption) (*UserCreateResponse, error)
 	UserListInfo(ctx context.Context, in *UserListInfoRequest, opts ...grpc.CallOption) (*UserListInfoResponse, error)
 	IsFriend(ctx context.Context, in *IsFriendRequest, opts ...grpc.CallOption) (*IsFriendResponse, error)
@@ -40,6 +41,15 @@ func NewUsersClient(cc grpc.ClientConnInterface) UsersClient {
 func (c *usersClient) UserInfo(ctx context.Context, in *UserInfoRequest, opts ...grpc.CallOption) (*UserInfoResponse, error) {
 	out := new(UserInfoResponse)
 	err := c.cc.Invoke(ctx, "/user_rpc.Users/UserInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersClient) UserBaseInfo(ctx context.Context, in *UserBaseInfoRequest, opts ...grpc.CallOption) (*UserBaseInfoResponse, error) {
+	out := new(UserBaseInfoResponse)
+	err := c.cc.Invoke(ctx, "/user_rpc.Users/UserBaseInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +97,7 @@ func (c *usersClient) FriendList(ctx context.Context, in *FriendListRequest, opt
 // for forward compatibility
 type UsersServer interface {
 	UserInfo(context.Context, *UserInfoRequest) (*UserInfoResponse, error)
+	UserBaseInfo(context.Context, *UserBaseInfoRequest) (*UserBaseInfoResponse, error)
 	UserCreate(context.Context, *UserCreateRequest) (*UserCreateResponse, error)
 	UserListInfo(context.Context, *UserListInfoRequest) (*UserListInfoResponse, error)
 	IsFriend(context.Context, *IsFriendRequest) (*IsFriendResponse, error)
@@ -100,6 +111,9 @@ type UnimplementedUsersServer struct {
 
 func (UnimplementedUsersServer) UserInfo(context.Context, *UserInfoRequest) (*UserInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserInfo not implemented")
+}
+func (UnimplementedUsersServer) UserBaseInfo(context.Context, *UserBaseInfoRequest) (*UserBaseInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserBaseInfo not implemented")
 }
 func (UnimplementedUsersServer) UserCreate(context.Context, *UserCreateRequest) (*UserCreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserCreate not implemented")
@@ -140,6 +154,24 @@ func _Users_UserInfo_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UsersServer).UserInfo(ctx, req.(*UserInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Users_UserBaseInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserBaseInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).UserBaseInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user_rpc.Users/UserBaseInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).UserBaseInfo(ctx, req.(*UserBaseInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -226,6 +258,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UserInfo",
 			Handler:    _Users_UserInfo_Handler,
+		},
+		{
+			MethodName: "UserBaseInfo",
+			Handler:    _Users_UserBaseInfo_Handler,
 		},
 		{
 			MethodName: "UserCreate",

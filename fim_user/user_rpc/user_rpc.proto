@@ -2,15 +2,16 @@ syntax = "proto3";
 package user_rpc;
 option go_package = "./user_rpc";
 
-/*
-message UserInfoRequest {
+
+message UserBaseInfoRequest {
   uint32 user_id = 1;
 }
-message UserInfoResponse {
+message UserBaseInfoResponse {
   uint32 user_id = 1;
-  string username = 2;
+  string nick_name = 2;
+  string avatar = 3;
 }
-*/
+
 message UserCreateRequest {
   string nickname = 1;
   string password = 2;
@@ -63,6 +64,7 @@ repeated FriendInfo friend_list = 1;
 }
 service Users{
   rpc UserInfo(UserInfoRequest)returns(UserInfoResponse);//用户信息
+  rpc UserBaseInfo(UserBaseInfoRequest)returns(UserBaseInfoResponse);//用户基本信息
   rpc UserCreate(UserCreateRequest)returns(UserCreateResponse);//用户创建
   rpc UserListInfo(UserListInfoRequest)returns(UserListInfoResponse);//用户列表信息
   rpc IsFriend(IsFriendRequest)returns(IsFriendResponse);//是否是好友
