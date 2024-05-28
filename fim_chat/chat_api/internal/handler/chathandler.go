@@ -3,6 +3,7 @@ package handler
 import (
 	"FIM/common/models/ctype"
 	"FIM/common/response"
+	"FIM/common/service/redis_service"
 	"FIM/fim_chat/chat_api/internal/svc"
 	"FIM/fim_chat/chat_api/internal/types"
 	"FIM/fim_chat/chat_models"
@@ -235,6 +236,7 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				originMsg := msgModel.Msg
 				originMsg.WithdrawMsg = nil
 				svcCtx.DB.Model(&msgModel).Updates(chat_models.ChatModel{
+					MsgType:    ctype.WithdrawMsgType,
 					MsgPreview: "[撤回消息]- " + content,
 					Msg: &ctype.Msg{
 						Type: ctype.WithdrawMsgType,
@@ -259,25 +261,67 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 					SendTipErrMsg(conn, "消息不存在")
 					continue
 				}
+				//不能引用撤回消息
+				if msgModel.MsgType == ctype.WithdrawMsgType {
+					SendTipErrMsg(conn, "该消息已撤回")
+					continue
+				}
 				//回复的这个消息，必须是你自己或者当前和你聊天这个人发出来的
 				if !((msgModel.SendUserID == req.UserID && msgModel.RevUserID == request.RevUserID) ||
 					(msgModel.SendUserID == request.RevUserID && msgModel.RevUserID == req.UserID)) {
 					SendTipErrMsg(conn, "只能回复自己或者对方的消息")
 					continue
 				}
-				SendBaseInfo, err := svcCtx.UserRpc.UserBaseInfo(context.Background(), &user_rpc.UserBaseInfoRequest{UserId: uint32(msgModel.SendUserID)})
-				if err != nil {
-					logx.Error(err)
+				SendBaseInfo, err2 := redis_service.GetUserBaseInfoByRedis(svcCtx.Redis, svcCtx.UserRpc, msgModel.SendUserID)
+				if err2 != nil {
+					logx.Error(err2)
 					return
 				}
 				request.Msg.ReplyMsg.Msg = msgModel.Msg
 				request.Msg.ReplyMsg.UserID = msgModel.SendUserID
-				request.Msg.ReplyMsg.UserNickName = SendBaseInfo.NickName
+				request.Msg.ReplyMsg.UserNickName = SendBaseInfo.Nickname
 				request.Msg.ReplyMsg.OriginMsgDate = msgModel.CreatedAt
+			case ctype.QuoteMsgType:
+				//回复消息
+				//先校验
+				if request.Msg.QuoteMsg == nil || request.Msg.QuoteMsg.MsgID == 0 {
+					SendTipErrMsg(conn, "引用消息必填")
+					continue
+				}
+				//找这个原消息
+				var msgModel chat_models.ChatModel
+				err = svcCtx.DB.Take(&msgModel, request.Msg.QuoteMsg.MsgID).Error
+				if err != nil {
+					SendTipErrMsg(conn, "消息不存在")
+					continue
+				}
+				//不能引用撤回消息
+				if msgModel.MsgType == ctype.WithdrawMsgType {
+					SendTipErrMsg(conn, "该消息已撤回")
+					continue
+				}
+				//引用的这个消息，必须是你自己或者当前和你聊天这个人发出来的
+				if !((msgModel.SendUserID == req.UserID && msgModel.RevUserID == request.RevUserID) ||
+					(msgModel.SendUserID == request.RevUserID && msgModel.RevUserID == req.UserID)) {
+					SendTipErrMsg(conn, "只能引用自己或者对方的消息")
+					continue
+				}
+				SendBaseInfo, err2 := redis_service.GetUserBaseInfoByRedis(svcCtx.Redis, svcCtx.UserRpc, msgModel.SendUserID)
+				if err2 != nil {
+					logx.Error(err2)
+					return
+				}
+				request.Msg.QuoteMsg.Msg = msgModel.Msg
+				request.Msg.QuoteMsg.UserID = msgModel.SendUserID
+				request.Msg.QuoteMsg.UserNickName = SendBaseInfo.Nickname
+				request.Msg.QuoteMsg.OriginMsgDate = msgModel.CreatedAt
 			}
-			//入库,里面有不入库的逻辑
+			//入库,里面有撤回消息是不入库的逻辑
 			chatID := ChatMsgIntoDataBase(svcCtx.DB, req.UserID, request.RevUserID, &request.Msg)
-
+			//如果是撤回消息，此时的chatID是0，所以给一个被撤回的原消息的id值。
+			if request.Msg.Type == ctype.WithdrawMsgType {
+				chatID = request.Msg.WithdrawMsg.MsgID
+			}
 			//调用封装方法，发送信息,其中判断了是否在线
 			//并且应该双方都发消息，真实的场景啊
 			SendMsgByUser(svcCtx, req.UserID, request.RevUserID, request.Msg, chatID)
@@ -355,16 +399,16 @@ func SendMsgByUser(SvcCtx *svc.ServiceContext, sendUserID uint, revUserID uint, 
 		return
 	}
 	if !ok1 {
-		//如果接收者不在线，直接调rpc获得接收者信息
-		revBaseInfo, err := SvcCtx.UserRpc.UserBaseInfo(context.Background(), &user_rpc.UserBaseInfoRequest{UserId: uint32(revUserID)})
-		if err != nil {
-			logx.Error(err)
+		//如果接收者不在线，调redis获得接收者信息
+		RevBaseInfo, err2 := redis_service.GetUserBaseInfoByRedis(SvcCtx.Redis, SvcCtx.UserRpc, revUserID)
+		if err2 != nil {
+			logx.Error(err2)
 			return
 		}
 		resp.RevUser = ctype.UserInfo{
-			ID:       uint(revBaseInfo.UserId),
-			Nickname: revBaseInfo.NickName,
-			Avatar:   revBaseInfo.Avatar,
+			ID:       RevBaseInfo.ID,
+			Nickname: RevBaseInfo.Nickname,
+			Avatar:   RevBaseInfo.Avatar,
 		}
 
 	} else {
