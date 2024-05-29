@@ -37,11 +37,12 @@ type ChatResponse struct {
 }
 
 type UserWsInfo struct {
-	UserInfo user_models.UserModel //用户信息
-	Conn     *websocket.Conn       //用户的ws连接对象
+	UserInfo    user_models.UserModel      //用户信息
+	WsClientMap map[string]*websocket.Conn //这个用户管理的所有ws客户端
+	CurrentConn *websocket.Conn            //当前的连接对象
 }
 
-var UserOnlineWsMap = map[uint]UserWsInfo{}
+var UserOnlineWsMap = map[uint]*UserWsInfo{}
 
 func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -65,11 +66,21 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			response.Response(r, w, nil, err)
 			return
 		}
-
+		//获取这次的连接地址
+		addr := conn.RemoteAddr().String()
 		defer func() {
 			conn.Close()
-			delete(UserOnlineWsMap, req.UserID)
-			svcCtx.Redis.HDel(context.Background(), "online", fmt.Sprintf("%d", req.UserID))
+			userWsTarget, ok := UserOnlineWsMap[req.UserID]
+			if ok {
+				//删除退出的那个conn
+				delete(userWsTarget.WsClientMap, addr)
+			}
+			if userWsTarget != nil && len(userWsTarget.WsClientMap) == 0 {
+				//如果都退出了，就下线
+				delete(UserOnlineWsMap, req.UserID)
+				svcCtx.Redis.HDel(context.Background(), "online", fmt.Sprintf("%d", req.UserID))
+			}
+
 		}()
 		//调用户服务，获取当前用户信息
 		res, err := svcCtx.UserRpc.UserInfo(context.Background(), &user_rpc.UserInfoRequest{
@@ -87,11 +98,24 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			response.Response(r, w, nil, err)
 			return
 		}
-		var userWsInfo = UserWsInfo{
-			UserInfo: userInfo,
-			Conn:     conn,
+
+		logx.Info(addr)
+		userWsInfo, ok := UserOnlineWsMap[req.UserID]
+		if !ok {
+			//如果这个用户第一次来
+			UserOnlineWsMap[req.UserID] = &UserWsInfo{
+				UserInfo:    userInfo,
+				WsClientMap: map[string]*websocket.Conn{addr: conn},
+				CurrentConn: conn,
+			}
+		} else {
+			_, ok1 := userWsInfo.WsClientMap[addr]
+			if !ok1 {
+				//这个用户不是第一次来，那判断是不是这个用户二开
+				userWsInfo.WsClientMap[addr] = conn
+				userWsInfo.CurrentConn = conn
+			}
 		}
-		UserOnlineWsMap[req.UserID] = userWsInfo
 
 		//把在线的用户存进一个公共的地方，哎~ redis又用上了
 		svcCtx.Redis.HSet(context.Background(), "online", fmt.Sprintf("%d", req.UserID), req.UserID)
@@ -109,7 +133,7 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				//那他是否开启了好友上线提醒功能
 				if friend.UserInfo.UserConfModel.FriendOnline {
 					//好友上线了,向已经在线的我的好友，发送一个消息
-					friend.Conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("好友 %s 上线了", userInfo.NickName)))
+					DistributeWsMsgMap(friend.WsClientMap, []byte(fmt.Sprintf("好友 %s 上线了", userInfo.NickName)))
 				}
 
 			}
@@ -330,6 +354,13 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	}
 }
 
+// DistributeWsMsgMap 给一组的ws对象发消息
+func DistributeWsMsgMap(wsMap map[string]*websocket.Conn, byteData []byte) {
+	for _, conn := range wsMap {
+		conn.WriteMessage(websocket.TextMessage, byteData)
+	}
+}
+
 // ChatMsgIntoDataBase 数据入库
 func ChatMsgIntoDataBase(db *gorm.DB, sendUserID uint, revUserID uint, msg *ctype.Msg) (MsgID uint) {
 	switch msg.Type {
@@ -351,7 +382,7 @@ func ChatMsgIntoDataBase(db *gorm.DB, sendUserID uint, revUserID uint, msg *ctyp
 		if !ok {
 			return
 		}
-		SendTipErrMsg(sendUser.Conn, "消息保存失败")
+		SendTipErrMsg(sendUser.CurrentConn, "消息保存失败")
 	}
 	return chatModel.ID
 }
@@ -383,6 +414,7 @@ func SendMsgByUser(SvcCtx *svc.ServiceContext, sendUserID uint, revUserID uint, 
 	}
 
 	if ok1 && ok2 && sendUserID == revUserID {
+		resp.IsMe = true
 		//百分百是自己与自己发消息了
 		resp.SendUser = ctype.UserInfo{
 			ID:       sendUserID,
@@ -395,7 +427,7 @@ func SendMsgByUser(SvcCtx *svc.ServiceContext, sendUserID uint, revUserID uint, 
 			Avatar:   revUser.UserInfo.Avatar,
 		}
 		byteData, _ := json.Marshal(resp)
-		sendUser.Conn.WriteMessage(websocket.TextMessage, byteData)
+		DistributeWsMsgMap(sendUser.WsClientMap, byteData)
 		return
 	}
 	if !ok1 {
@@ -429,10 +461,10 @@ func SendMsgByUser(SvcCtx *svc.ServiceContext, sendUserID uint, revUserID uint, 
 
 	RevByteData, _ := json.Marshal(resp)
 	if ok1 {
-		revUser.Conn.WriteMessage(websocket.TextMessage, RevByteData)
+		DistributeWsMsgMap(revUser.WsClientMap, RevByteData)
 	}
 	resp.IsMe = true
 	SendByteData, _ := json.Marshal(resp)
-	sendUser.Conn.WriteMessage(websocket.TextMessage, SendByteData)
+	DistributeWsMsgMap(sendUser.WsClientMap, SendByteData)
 
 }

@@ -14,8 +14,6 @@ import (
 func GetUserBaseInfoByRedis(client *redis.Client, UserRpc user_rpc.UsersClient, userID uint) (userInfo ctype.UserInfo, err error) {
 	key := fmt.Sprintf("fim_server_user_%d", userID)
 	str, err := client.Get(context.Background(), key).Result()
-	fmt.Println(str)
-	fmt.Println(err)
 	if err != nil {
 		//没找到
 		userBaseResponse, err1 := UserRpc.UserBaseInfo(context.Background(), &user_rpc.UserBaseInfoRequest{
