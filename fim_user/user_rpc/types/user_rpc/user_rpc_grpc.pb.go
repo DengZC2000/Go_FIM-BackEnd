@@ -28,6 +28,7 @@ type UsersClient interface {
 	UserListInfo(ctx context.Context, in *UserListInfoRequest, opts ...grpc.CallOption) (*UserListInfoResponse, error)
 	IsFriend(ctx context.Context, in *IsFriendRequest, opts ...grpc.CallOption) (*IsFriendResponse, error)
 	FriendList(ctx context.Context, in *FriendListRequest, opts ...grpc.CallOption) (*FriendListResponse, error)
+	UserOnlineList(ctx context.Context, in *UserOnlineListRequest, opts ...grpc.CallOption) (*UserOnlineListResponse, error)
 }
 
 type usersClient struct {
@@ -92,6 +93,15 @@ func (c *usersClient) FriendList(ctx context.Context, in *FriendListRequest, opt
 	return out, nil
 }
 
+func (c *usersClient) UserOnlineList(ctx context.Context, in *UserOnlineListRequest, opts ...grpc.CallOption) (*UserOnlineListResponse, error) {
+	out := new(UserOnlineListResponse)
+	err := c.cc.Invoke(ctx, "/user_rpc.Users/UserOnlineList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServer is the server API for Users service.
 // All implementations must embed UnimplementedUsersServer
 // for forward compatibility
@@ -102,6 +112,7 @@ type UsersServer interface {
 	UserListInfo(context.Context, *UserListInfoRequest) (*UserListInfoResponse, error)
 	IsFriend(context.Context, *IsFriendRequest) (*IsFriendResponse, error)
 	FriendList(context.Context, *FriendListRequest) (*FriendListResponse, error)
+	UserOnlineList(context.Context, *UserOnlineListRequest) (*UserOnlineListResponse, error)
 	mustEmbedUnimplementedUsersServer()
 }
 
@@ -126,6 +137,9 @@ func (UnimplementedUsersServer) IsFriend(context.Context, *IsFriendRequest) (*Is
 }
 func (UnimplementedUsersServer) FriendList(context.Context, *FriendListRequest) (*FriendListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FriendList not implemented")
+}
+func (UnimplementedUsersServer) UserOnlineList(context.Context, *UserOnlineListRequest) (*UserOnlineListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserOnlineList not implemented")
 }
 func (UnimplementedUsersServer) mustEmbedUnimplementedUsersServer() {}
 
@@ -248,6 +262,24 @@ func _Users_FriendList_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Users_UserOnlineList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserOnlineListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServer).UserOnlineList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user_rpc.Users/UserOnlineList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServer).UserOnlineList(ctx, req.(*UserOnlineListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Users_ServiceDesc is the grpc.ServiceDesc for Users service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -278,6 +310,10 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FriendList",
 			Handler:    _Users_FriendList_Handler,
+		},
+		{
+			MethodName: "UserOnlineList",
+			Handler:    _Users_UserOnlineList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

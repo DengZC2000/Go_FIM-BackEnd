@@ -1,7 +1,7 @@
 package set
 
 // Union 求并集
-func Union[T uint | int | string](slice1, slice2 []T) []T {
+func Union[T uint | int | string | uint32](slice1, slice2 []T) []T {
 	m := make(map[T]int)
 	for _, v := range slice1 {
 		m[v]++
@@ -17,7 +17,7 @@ func Union[T uint | int | string](slice1, slice2 []T) []T {
 }
 
 // Intersect 求交集
-func Intersect[T uint | int | string](slice1, slice2 []T) []T {
+func Intersect[T uint | int | string | uint32](slice1, slice2 []T) []T {
 	m := make(map[T]int)
 	nn := make([]T, 0)
 	for _, v := range slice1 {
@@ -34,7 +34,7 @@ func Intersect[T uint | int | string](slice1, slice2 []T) []T {
 }
 
 // Difference 求差集 slice1-并集
-func Difference[T uint | int | string](slice1, slice2 []T) []T {
+func Difference[T uint | int | string | uint32](slice1, slice2 []T) []T {
 	m := make(map[T]int)
 	nn := make([]T, 0)
 	inter := Intersect(slice1, slice2)

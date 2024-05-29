@@ -3,6 +3,7 @@ package logic
 import (
 	"FIM/fim_group/group_models"
 	"FIM/fim_user/user_rpc/types/user_rpc"
+	"FIM/utils/set"
 	"context"
 	"errors"
 
@@ -42,10 +43,12 @@ func (l *Group_infoLogic) Group_info(req *types.GroupInfoRequest) (resp *types.G
 	}
 	// 查用户列表信息
 	var userIDList []uint32
+	var AlluserIDList []uint32
 	for _, model := range groupModel.MemberList {
 		if model.Role == 1 || model.Role == 2 {
 			userIDList = append(userIDList, uint32(model.UserID))
 		}
+		AlluserIDList = append(AlluserIDList, uint32(model.UserID))
 	}
 	userListResponse, err := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
 		UserIdList: userIDList,
@@ -74,7 +77,12 @@ func (l *Group_infoLogic) Group_info(req *types.GroupInfoRequest) (resp *types.G
 		}
 	}
 	// 算在线用户总数
-
+	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(context.Background(), &user_rpc.UserOnlineListRequest{})
+	if err == nil {
+		slice := set.Intersect(AlluserIDList, userOnlineResponse.UserIdList)
+		resp.MemberOnlineCount = len(slice)
+	}
+	// 用户服务需要去写一个在线的用户列表的方法
 	resp.Creator = creator
 	resp.AdminList = adminList
 
