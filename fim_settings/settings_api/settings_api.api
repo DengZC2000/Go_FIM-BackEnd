@@ -7,9 +7,9 @@ info (
 )
 
 type OpenLoginInfoResponse {
-	Name string `json:"name"` //用什么第三方登录
-	Icon string `json:"icon"`//第三方登录图标
-	Href string `json:"href"`//跳转地址
+	Name string `json:"name"` //
+	Icon string `json:"icon"`//
+	Href string `json:"href"`//
 }
 
 service settings {

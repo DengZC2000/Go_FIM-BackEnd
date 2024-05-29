@@ -1,0 +1,19 @@
+syntax = "v1"
+
+type GroupCreateRequest {
+	UserID     uint   `header:"User-ID"`
+	Mode       int8   `json:"mode,optional"`
+	Name       string `json:"name,optional"`
+	IsSearch   bool   `json:"is_seatch,optional"`
+	Size       int    `json:"size,optional"`
+	UserIDList []uint `json:"user_id_list,optional"`
+}
+
+type GroupCreateResponse {}
+
+service group {
+	@handler group_create
+	post /api/group/group_create (GroupCreateRequest) returns (GroupCreateResponse)
+}
+
+//goctl api go -api group_api.api -dir .
