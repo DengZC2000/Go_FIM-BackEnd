@@ -12,3 +12,25 @@ type GroupCreateRequest struct {
 
 type GroupCreateResponse struct {
 }
+
+type GroupInfoRequest struct {
+	UserID uint `header:"User-ID"`
+	ID     uint `json:"id"` //群id
+}
+
+type GroupInfoResponse struct {
+	GroupID           uint       `json:"group_id"`            //群id
+	Title             string     `json:"title"`               //群名称
+	Abstract          string     `json:"abstract"`            //群简介
+	Avatar            string     `json:"avatar"`              //群头像
+	Creator           UserInfo   `json:"creator"`             //群主
+	MemberCount       int        `json:"member_count"`        //群聊用户总数
+	MemberOnlineCount int        `json:"member_online_count"` //在线用户数量
+	AdminList         []UserInfo `json:"admin_list"`          //管理员列表
+}
+
+type UserInfo struct {
+	UserID   uint   `json:"user_id"`
+	Avatar   string `json:"avatar"`
+	Nickname string `json:"nickname"`
+}

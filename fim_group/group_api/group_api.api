@@ -11,9 +11,34 @@ type GroupCreateRequest {
 
 type GroupCreateResponse {}
 
+type GroupInfoRequest {
+	UserID uint `header:"User-ID"`
+	ID     uint `json:"id"` //群id
+}
+
+type UserInfo {
+	UserID   uint   `json:"user_id"`
+	Avatar   string `json:"avatar"`
+	Nickname string `json:"nickname"`
+}
+
+type GroupInfoResponse {
+	GroupID           uint       `json:"group_id"` //群id
+	Title             string     `json:"title"` //群名称
+	Abstract          string     `json:"abstract"` //群简介
+	Avatar            string     `json:"avatar"` //群头像
+	Creator           UserInfo   `json:"creator"` //群主
+	MemberCount       int        `json:"member_count"` //群聊用户总数
+	MemberOnlineCount int        `json:"member_online_count"` //在线用户数量
+	AdminList         []UserInfo `json:"admin_list"` //管理员列表
+}
+
 service group {
 	@handler group_create
 	post /api/group/group_create (GroupCreateRequest) returns (GroupCreateResponse)
+
+	@handler group_info
+	get /api/group/group_info (GroupInfoRequest) returns (GroupInfoResponse)
 }
 
 //goctl api go -api group_api.api -dir .
