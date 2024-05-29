@@ -3,6 +3,7 @@ package logic
 import (
 	"FIM/fim_group/group_models"
 	"FIM/fim_user/user_rpc/types/user_rpc"
+	"FIM/utils/set"
 	"context"
 	"errors"
 	"fmt"
@@ -61,6 +62,23 @@ func (l *Group_createLogic) Group_create(req *types.GroupCreateRequest) (resp *t
 			userIDList = append(userIDList, uint32(u))
 			groupUserList = append(groupUserList, u)
 		}
+		//判断邀请的这些人是不是你的好友，只要有一个不是，那就说明用户是乱填的
+		userFriendResponse, err := l.svcCtx.UserRpc.FriendList(context.Background(), &user_rpc.FriendListRequest{
+			User: uint32(req.UserID),
+		})
+		if err != nil {
+			logx.Error(err)
+			return nil, err
+		}
+		var friendIDList []uint
+		for _, i2 := range userFriendResponse.FriendList {
+			friendIDList = append(friendIDList, uint(i2.UserId))
+		}
+		//判断两个是不是一致的
+		slice := set.Difference(req.UserIDList, friendIDList)
+		if len(slice) != 0 {
+			return nil, errors.New("选择的用户列表中有人不是你的好友")
+		}
 		userListRes, err1 := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
 			UserIdList: userIDList,
 		})
@@ -68,7 +86,7 @@ func (l *Group_createLogic) Group_create(req *types.GroupCreateRequest) (resp *t
 			logx.Error(err1)
 			return nil, errors.New("用户服务错误")
 		}
-		//去算昵称的长度，算到第几个人大于32,xxx、xxx、xxx的群聊
+		//去算昵称的长度，算到第几个人大于32,《xxx、xxx、xxx的群聊》
 		var nameList []string
 		for _, info := range userListRes.UserInfo {
 			if len([]rune(strings.Join(nameList, "、"))) > 29 {
