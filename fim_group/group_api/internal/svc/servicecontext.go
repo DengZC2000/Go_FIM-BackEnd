@@ -3,6 +3,8 @@ package svc
 import (
 	"FIM/core"
 	"FIM/fim_group/group_api/internal/config"
+	"FIM/fim_group/group_rpc/groups"
+	"FIM/fim_group/group_rpc/types/group_rpc"
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"FIM/fim_user/user_rpc/users"
 	"github.com/redis/go-redis/v9"
@@ -12,10 +14,11 @@ import (
 )
 
 type ServiceContext struct {
-	Config  config.Config
-	DB      *gorm.DB
-	Redis   *redis.Client
-	UserRpc user_rpc.UsersClient
+	Config   config.Config
+	DB       *gorm.DB
+	Redis    *redis.Client
+	UserRpc  user_rpc.UsersClient
+	GroupRpc group_rpc.GroupsClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -25,9 +28,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		log.Println("redis连接失败")
 	}
 	return &ServiceContext{
-		Config:  c,
-		DB:      mysqlDb,
-		Redis:   redisDb,
-		UserRpc: users.NewUsers(zrpc.MustNewClient(c.UserRpc)),
+		Config:   c,
+		DB:       mysqlDb,
+		Redis:    redisDb,
+		UserRpc:  users.NewUsers(zrpc.MustNewClient(c.UserRpc)),
+		GroupRpc: groups.NewGroups(zrpc.MustNewClient(c.GroupRpc)),
 	}
 }

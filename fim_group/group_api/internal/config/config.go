@@ -16,6 +16,7 @@ type Config struct {
 		DB       int
 		PoolSize int
 	}
-	Etcd    string
-	UserRpc zrpc.RpcClientConf
+	Etcd     string
+	UserRpc  zrpc.RpcClientConf
+	GroupRpc zrpc.RpcClientConf
 }
