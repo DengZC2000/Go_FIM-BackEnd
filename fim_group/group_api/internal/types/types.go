@@ -13,6 +13,14 @@ type GroupCreateRequest struct {
 type GroupCreateResponse struct {
 }
 
+type GroupDeleteRequest struct {
+	UserID uint `header:"User-ID"`
+	ID     uint `path:"id"` //群id
+}
+
+type GroupDeleteResponse struct {
+}
+
 type GroupInfoRequest struct {
 	UserID uint `header:"User-ID"`
 	ID     uint `path:"id"` //群id
