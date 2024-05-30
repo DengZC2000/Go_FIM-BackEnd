@@ -15,7 +15,7 @@ type GroupCreateResponse struct {
 
 type GroupInfoRequest struct {
 	UserID uint `header:"User-ID"`
-	ID     uint `json:"id"` //群id
+	ID     uint `path:"id"` //群id
 }
 
 type GroupInfoResponse struct {
@@ -29,8 +29,34 @@ type GroupInfoResponse struct {
 	AdminList         []UserInfo `json:"admin_list"`          //管理员列表
 }
 
+type GroupUpdateRequest struct {
+	UserID               uint                  `header:"User-ID"`
+	ID                   uint                  `json:"id"` //群id
+	IsSearch             *bool                 `json:"is_search,optional" conf:"is_search"`
+	Avatar               *string               `json:"avatar,optional" conf:"avatar"`
+	Abstract             *string               `json:"abstract,optional" conf:"abstract"`
+	Title                *string               `json:"title,optional" conf:"title"`
+	Verification         *int8                 `json:"verification,optional" conf:"verification"`
+	IsInvite             *bool                 `json:"is_invite,optional" conf:"is_invite"`
+	IsTemporarySession   *bool                 `json:"is_temporary_session,optional" conf:"is_temporary_session"`
+	IsProhibition        *bool                 `json:"is_prohibition,optional" conf:"is_prohibition"`
+	VerificationQuestion *VerificationQuestion `json:"verification_question,optional" conf:"verification_question"`
+}
+
+type GroupUpdateResponse struct {
+}
+
 type UserInfo struct {
 	UserID   uint   `json:"user_id"`
 	Avatar   string `json:"avatar"`
 	Nickname string `json:"nickname"`
+}
+
+type VerificationQuestion struct {
+	Problem1 *string `json:"problem1,optional" conf:"problem1"`
+	Problem2 *string `json:"problem2,optional" conf:"problem2"`
+	Problem3 *string `json:"problem3,optional" conf:"problem3"`
+	Answer1  *string `json:"answer1,optional" conf:"answer1"`
+	Answer2  *string `json:"answer2,optional" conf:"answer2"`
+	Answer3  *string `json:"answer3,optional" conf:"answer3"`
 }

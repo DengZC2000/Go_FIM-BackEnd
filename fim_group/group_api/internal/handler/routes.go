@@ -19,8 +19,13 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
-				Path:    "/api/group/group_info",
+				Path:    "/api/group/group_info/:id",
 				Handler: group_infoHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPut,
+				Path:    "/api/group/group_update",
+				Handler: group_updateHandler(serverCtx),
 			},
 		},
 	)
