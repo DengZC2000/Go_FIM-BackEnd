@@ -35,6 +35,31 @@ type GroupInfoResponse struct {
 	MemberCount       int        `json:"member_count"`        //群聊用户总数
 	MemberOnlineCount int        `json:"member_online_count"` //在线用户数量
 	AdminList         []UserInfo `json:"admin_list"`          //管理员列表
+	Role              int8       `json:"role"`                //角色
+}
+
+type GroupMemberInfo struct {
+	UserID         uint   `json:"user_id"`
+	UserNickname   string `json:"user_nickname"`
+	Avatar         string `json:"avatar"`
+	IsOnline       bool   `json:"is_online"`
+	Role           int8   `json:"role"`
+	MemberNickname string `json:"member_nickname"`
+	CreatedAt      string `json:"created_at"`
+	NewMsgDate     string `json:"new_msg_date"`
+}
+
+type GroupMemberRequest struct {
+	UserID uint   `header:"User-ID"`
+	ID     uint   `form:"id"`
+	Page   int    `form:"page,optional"`
+	Limit  int    `form:"limit,optional"`
+	Sort   string `form:"sort,optional"`
+}
+
+type GroupMemberResponse struct {
+	List  []GroupMemberInfo `json:"list"`
+	Count int               `json:"count"`
 }
 
 type GroupUpdateRequest struct {

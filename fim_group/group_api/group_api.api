@@ -31,7 +31,7 @@ type GroupInfoResponse {
 	MemberCount       int        `json:"member_count"` //群聊用户总数
 	MemberOnlineCount int        `json:"member_online_count"` //在线用户数量
 	AdminList         []UserInfo `json:"admin_list"` //管理员列表
-Role int8 `json:"role"`//角色
+	Role              int8       `json:"role"` //角色
 }
 
 type VerificationQuestion {
@@ -66,6 +66,30 @@ type GroupDeleteRequest {
 
 type GroupDeleteResponse {}
 
+type GroupMemberRequest {
+	UserID uint   `header:"User-ID"`
+	ID     uint   `form:"id"`
+	Page   int    `form:"page,optional"`
+	Limit  int    `form:"limit,optional"`
+	Sort   string `form:"sort,optional"`
+}
+
+type GroupMemberInfo {
+	UserID         uint   `json:"user_id"`
+	UserNickname   string `json:"user_nickname"`
+	Avatar         string `json:"avatar"`
+	IsOnline       bool   `json:"is_online"`
+	Role           int8   `json:"role"`
+	MemberNickname string `json:"member_nickname"`
+	CreatedAt      string `json:"created_at"`
+	NewMsgDate     string `json:"new_msg_date"`
+}
+
+type GroupMemberResponse {
+	List  []GroupMemberInfo `json:"list"`
+	Count int               `json:"count"`
+}
+
 service group {
 	@handler group_create
 	post /api/group/group_create (GroupCreateRequest) returns (GroupCreateResponse)
@@ -78,6 +102,9 @@ service group {
 
 	@handler group_delete
 	delete /api/group/group_delete/:id (GroupDeleteRequest) returns (GroupDeleteResponse)
+
+	@handler group_member
+	get /api/group/group_member (GroupMemberRequest) returns (GroupMemberResponse)
 }
 
 //goctl api go -api group_api.api -dir .

@@ -2,7 +2,6 @@ package logic
 
 import (
 	"FIM/fim_group/group_models"
-	"FIM/fim_group/group_rpc/types/group_rpc"
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"FIM/utils/set"
 	"context"
@@ -30,28 +29,25 @@ func NewGroup_infoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Group_
 
 func (l *Group_infoLogic) Group_info(req *types.GroupInfoRequest) (resp *types.GroupInfoResponse, err error) {
 	// 谁能调这个接口，必须得是这个群的成员
-	isInGroup, err := l.svcCtx.GroupRpc.IsInGroup(context.Background(), &group_rpc.IsInGroupRequest{
-		UserId:  uint32(req.UserID),
-		GroupId: uint32(req.ID),
-	})
-	if err != nil {
-		logx.Error(err)
-		return nil, errors.New("该用户不是群成员")
-	}
-	if !isInGroup.IsInGroup {
-		return nil, errors.New("该用户不是群成员")
-	}
+
 	var groupModel group_models.GroupModel
 	err = l.svcCtx.DB.Preload("MemberList").Take(&groupModel, req.ID).Error
 	if err != nil {
 		return nil, errors.New("群不存在")
 	}
+	var member group_models.GroupMemberModel
+	err = l.svcCtx.DB.Take(&member, "user_id = ? and group_id = ?", req.UserID, req.ID).Error
+	if err != nil {
+		return nil, errors.New("该用户不是群成员")
+	}
+
 	resp = &types.GroupInfoResponse{
 		GroupID:     groupModel.ID,
 		Title:       groupModel.Title,
 		Abstract:    groupModel.Abstract,
 		Avatar:      groupModel.Avatar,
 		MemberCount: len(groupModel.MemberList),
+		Role:        int8(member.Role),
 	}
 	// 查用户列表信息
 	var userIDList []uint32
