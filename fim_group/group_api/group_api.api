@@ -115,6 +115,15 @@ type GroupUpdateMemberNicknameRequest {
 
 type GroupUpdateMemberNicknameResponse {}
 
+type GroupUpdateRoleRequest {
+	UserID   uint `header:"User-ID"` //自己的id
+	ID       uint `json:"id"` //群id
+	MemberID uint `json:"member_id"`
+	role     int8 `json:"role"`
+}
+
+type GroupUpdateRoleResponse {}
+
 service group {
 	@handler group_create
 	post /api/group/group_create (GroupCreateRequest) returns (GroupCreateResponse)
@@ -139,6 +148,9 @@ service group {
 
 	@handler group_update_nickname
 	put /api/group/group_update_nickname (GroupUpdateMemberNicknameRequest) returns (GroupUpdateMemberNicknameResponse)
+
+	@handler group_update_role
+	put /api/group/group_update_role (GroupUpdateRoleRequest) returns (GroupUpdateRoleResponse)
 }
 
 //goctl api go -api group_api.api -dir .

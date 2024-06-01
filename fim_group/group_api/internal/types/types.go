@@ -107,6 +107,16 @@ type GroupUpdateRequest struct {
 type GroupUpdateResponse struct {
 }
 
+type GroupUpdateRoleRequest struct {
+	UserID   uint `header:"User-ID"` //自己的id
+	ID       uint `json:"id"`        //群id
+	MemberID uint `json:"member_id"`
+	Role     int8 `json:"role"`
+}
+
+type GroupUpdateRoleResponse struct {
+}
+
 type UserInfo struct {
 	UserID   uint   `json:"user_id"`
 	Avatar   string `json:"avatar"`
