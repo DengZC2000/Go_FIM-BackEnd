@@ -30,6 +30,23 @@ type GroupDeleteRequest struct {
 type GroupDeleteResponse struct {
 }
 
+type GroupFriendsListRequest struct {
+	UserID uint `header:"User-ID"` //自己的id
+	ID     uint `form:"id"`        //群id
+}
+
+type GroupFriendsListResponse struct {
+	List  []GroupFriendsResponse `json:"list"`
+	Count int                    `json:"count"`
+}
+
+type GroupFriendsResponse struct {
+	UserID    uint   `json:"user_id"`
+	Avatar    string `json:"avatar"`
+	Nickname  string `json:"nickname"`
+	IsInGroup bool   `json:"is_in_group"` //是否在群里面
+}
+
 type GroupInfoRequest struct {
 	UserID uint `header:"User-ID"`
 	ID     uint `path:"id"` //群id
