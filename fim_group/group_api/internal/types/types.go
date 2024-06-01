@@ -2,9 +2,9 @@
 package types
 
 type GroupAddMemberRequest struct {
-	UserID   uint `header:"User-ID"` //自己的id
-	ID       uint `form:"id"`        //群id
-	MemberID uint `form:"member_id"` //被操作的用户id
+	UserID       uint   `header:"User-ID"`      //自己的id
+	ID           uint   `json:"id"`             //群id
+	MemberIDList []uint `json:"member_id_list"` //被操作的用户id
 }
 
 type GroupAddMemberResponse struct {
@@ -78,6 +78,16 @@ type GroupRemoveMemberRequest struct {
 }
 
 type GroupRemoveMemberResponse struct {
+}
+
+type GroupUpdateMemberNicknameRequest struct {
+	UserID   uint   `header:"User-ID"` //自己的id
+	ID       uint   `json:"id"`        //群id
+	MemberID uint   `json:"member_id"`
+	Nickname string `json:"nickname"`
+}
+
+type GroupUpdateMemberNicknameResponse struct {
 }
 
 type GroupUpdateRequest struct {
