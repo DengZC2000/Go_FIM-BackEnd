@@ -163,6 +163,16 @@ type GroupSearchListResponse {
 	Count int                   `json:"count"` //群的个数，因为可能群昵称搜索之类的
 }
 
+type GroupValidRequest {
+	UserID  uint `header:"User-ID"`
+	GroupID uint `json:"group_id"`
+}
+
+type GroupValidResponse {
+	Verification         int8                 `json:"verification"` //好友验证,0 不允许任何人 1允许任何人 2 需要验证消息 3 需要回答问题 4 需要正确回答设置的问题
+	VerificationQuestion VerificationQuestion `json:"verification_question"` //这是问题和答案，记得答案就别返回了
+}
+
 service group {
 	@handler group_create
 	post /api/group/group_create (GroupCreateRequest) returns (GroupCreateResponse)
@@ -196,6 +206,9 @@ service group {
 
 	@handler group_search
 	get /api/group/search (GroupSearchRequest) returns (GroupSearchListResponse) //群搜索
+
+	@handler group_valid
+	post /api/group/group_valid (GroupValidRequest) returns (GroupValidResponse) //群搜索
 }
 
 //goctl api go -api group_api.api -dir .

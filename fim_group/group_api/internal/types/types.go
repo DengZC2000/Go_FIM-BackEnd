@@ -156,6 +156,16 @@ type GroupUpdateRoleRequest struct {
 type GroupUpdateRoleResponse struct {
 }
 
+type GroupValidRequest struct {
+	UserID  uint `header:"User-ID"`
+	GroupID uint `json:"group_id"`
+}
+
+type GroupValidResponse struct {
+	Verification         int8                 `json:"verification"`          //好友验证,0 不允许任何人 1允许任何人 2 需要验证消息 3 需要回答问题 4 需要正确回答设置的问题
+	VerificationQuestion VerificationQuestion `json:"verification_question"` //这是问题和答案，记得答案就别返回了
+}
+
 type UserInfo struct {
 	UserID   uint   `json:"user_id"`
 	Avatar   string `json:"avatar"`
