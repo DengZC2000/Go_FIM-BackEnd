@@ -13,8 +13,8 @@ type GroupAddMemberResponse struct {
 type GroupCreateRequest struct {
 	UserID     uint   `header:"User-ID"`
 	Mode       int8   `json:"mode,optional"`
-	Name       string `json:"name,optional"`
-	IsSearch   bool   `json:"is_seatch,optional"`
+	Title      string `json:"title,optional"` //群聊名字
+	IsSearch   bool   `json:"is_search,optional"`
 	Size       int    `json:"size,optional"`
 	UserIDList []uint `json:"user_id_list,optional"`
 }
@@ -95,6 +95,28 @@ type GroupRemoveMemberRequest struct {
 }
 
 type GroupRemoveMemberResponse struct {
+}
+
+type GroupSearchListResponse struct {
+	List  []GroupSearchResponse `json:"list"`
+	Count int                   `json:"count"` //群的个数，因为可能群昵称搜索之类的
+}
+
+type GroupSearchRequest struct {
+	UserID uint   `header:"User-ID"` //自己的id
+	Key    string `form:"key,optional"`
+	Page   int    `form:"page,optional"`
+	Limit  int    `form:"limit,optional"`
+}
+
+type GroupSearchResponse struct {
+	GroupID         uint   `json:"group_id"`
+	Title           string `json:"title"`
+	Abstract        string `json:"abstract"`
+	Avatar          string `json:"avatar"`
+	IsInGroup       bool   `json:"is_in_group"`       //我是否在群里
+	UserCount       int    `json:"user_count"`        //群用户总数
+	UserOnlineCount int    `json:"user_online_count"` //群用户在线总数
 }
 
 type GroupUpdateMemberNicknameRequest struct {

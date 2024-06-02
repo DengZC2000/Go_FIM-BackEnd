@@ -34,20 +34,21 @@ func (l *Group_createLogic) Group_create(req *types.GroupCreateRequest) (resp *t
 	var groupModel = group_models.GroupModel{
 		Creator:      req.UserID,
 		Abstract:     fmt.Sprintf("本群创建于%s，群主很懒，什么都没有留下", time.Now().Format("2006-01-02")),
-		IsSearch:     false,
+		IsSearch:     true,
+		IsInvite:     true,
 		Verification: 2,
 		Size:         50,
 	}
 	groupUserList := []uint{req.UserID}
 	switch req.Mode {
 	case 1: //直接创建模式
-		if req.Name == "" {
+		if req.Title == "" {
 			return nil, errors.New("群名不可为空")
 		}
 		if req.Size > 1000 {
 			return nil, errors.New("群规模错误")
 		}
-		groupModel.Title = req.Name
+		groupModel.Title = req.Title
 		groupModel.Size = req.Size
 		groupModel.IsSearch = req.IsSearch
 	case 2: //选人创建模式

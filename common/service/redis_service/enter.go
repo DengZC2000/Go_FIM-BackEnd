@@ -15,7 +15,7 @@ func GetUserBaseInfoByRedis(client *redis.Client, UserRpc user_rpc.UsersClient, 
 	key := fmt.Sprintf("fim_server_user_%d", userID)
 	str, err := client.Get(context.Background(), key).Result()
 	if err != nil {
-		//没找到
+		//没找到,调用户rpc服务，数据库去查，查完之后再设置进redis缓存
 		userBaseResponse, err1 := UserRpc.UserBaseInfo(context.Background(), &user_rpc.UserBaseInfoRequest{
 			UserId: uint32(userID),
 		})

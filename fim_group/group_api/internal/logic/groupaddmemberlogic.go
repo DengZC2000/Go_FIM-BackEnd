@@ -33,7 +33,7 @@ func (l *Group_add_memberLogic) Group_add_member(req *types.GroupAddMemberReques
 		return nil, errors.New("该群不存在或者你不是群成员")
 	}
 	//有没有设置群成员不能邀请新用户进群
-	if CurrentMember.Role == 3 && CurrentMember.GroupModel.IsInvite == true {
+	if CurrentMember.Role == 3 && CurrentMember.GroupModel.IsInvite == false {
 		return nil, errors.New("群设置限制，现在只有群主和管理员可以邀请新用户进群")
 	}
 	var MemberList []group_models.GroupMemberModel
