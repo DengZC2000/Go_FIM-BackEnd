@@ -50,12 +50,22 @@ func (l *Group_historyLogic) Group_history(req *types.GroupHistoryRequest) (resp
 	if err != nil {
 		return nil, errors.New("该群不存在或者你不是群成员")
 	}
-	groupMsgList, count, _ := list_query.ListQuery(l.svcCtx.DB, group_models.GroupMsgModel{}, list_query.Option{
+	// 去查我删除了哪些聊天记录,id
+	msgIDList := make([]uint, 0)
+	l.svcCtx.DB.Model(group_models.GroupUserMsgDeleteModel{}).
+		Where("group_id = ? and user_id = ?", req.ID, req.UserID).
+		Select("msg_id").
+		Scan(&msgIDList)
+	msgIDList = append(msgIDList, 0) //这一句其实很重要，要不然就是id not in null ，然后结果就是什么都查不出来
+
+	groupMsgList, count, _ := list_query.ListQuery(l.svcCtx.DB, group_models.GroupMsgModel{GroupID: req.ID}, list_query.Option{
 		PageInfo: models.PageInfo{
 			Page:  req.Page,
 			Limit: req.Limit,
 		},
+		Where: l.svcCtx.DB.Where("id not in ?", msgIDList),
 	})
+
 	var userIDList []uint32
 	for _, model := range groupMsgList {
 		userIDList = append(userIDList, uint32(model.SendUserID))

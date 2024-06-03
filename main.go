@@ -36,6 +36,7 @@ func main() {
 			&group_models.GroupVerifyModel{},
 			&group_models.GroupMsgModel{},
 			&group_models.GroupMemberModel{},
+			&group_models.GroupUserMsgDeleteModel{},
 
 			&file_models.FileModel{},
 		)
