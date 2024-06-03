@@ -37,7 +37,7 @@ func (l *Group_valid_listLogic) Group_valid_list(req *types.GroupValidListReques
 			Limit: req.Limit,
 		},
 		Preloads: []string{"GroupModel"},
-		Where:    l.svcCtx.DB.Where("group_id in ?", groupIDList),
+		Where:    l.svcCtx.DB.Where("group_id in ? or user_id = ?", groupIDList, req.UserID),
 	})
 	resp = &types.GroupValidListResponse{}
 	var userIDList []uint32
