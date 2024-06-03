@@ -57,6 +57,16 @@ type GroupFriendsResponse struct {
 	IsInGroup bool   `json:"is_in_group"` //是否在群里面
 }
 
+type GroupHistoryListResponse struct {
+}
+
+type GroupHistoryRequest struct {
+	UserID uint `header:"User-ID"`
+	ID     uint `path:"id"`
+	Page   int  `form:"page,optional"`
+	Limit  int  `form:"limit,optional"`
+}
+
 type GroupInfoRequest struct {
 	UserID uint `header:"User-ID"`
 	ID     uint `path:"id"` //群id

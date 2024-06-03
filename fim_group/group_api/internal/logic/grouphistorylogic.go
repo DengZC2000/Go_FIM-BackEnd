@@ -1,0 +1,87 @@
+package logic
+
+import (
+	"FIM/common/list_query"
+	"FIM/common/models"
+	"FIM/common/models/ctype"
+	"FIM/fim_group/group_api/internal/svc"
+	"FIM/fim_group/group_api/internal/types"
+	"FIM/fim_group/group_models"
+	"FIM/fim_user/user_rpc/types/user_rpc"
+	"FIM/utils"
+	"context"
+	"errors"
+	"time"
+
+	"github.com/zeromicro/go-zero/core/logx"
+)
+
+type Group_historyLogic struct {
+	logx.Logger
+	ctx    context.Context
+	svcCtx *svc.ServiceContext
+}
+
+func NewGroup_historyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Group_historyLogic {
+	return &Group_historyLogic{
+		Logger: logx.WithContext(ctx),
+		ctx:    ctx,
+		svcCtx: svcCtx,
+	}
+}
+
+type HistoryResponse struct {
+	UserID       uint      `json:"user_id"`
+	UserNickname string    `json:"user_nickname"`
+	UserAvatar   string    `json:"user_avatar"`
+	Msg          ctype.Msg `json:"msg"`
+	ID           uint      `json:"id"`
+	MsgType      int8      `json:"msg_type"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+type HistoryListResponse struct {
+	List  []HistoryResponse `json:"list"`
+	Count int               `json:"count"`
+}
+
+func (l *Group_historyLogic) Group_history(req *types.GroupHistoryRequest) (resp *HistoryListResponse, err error) {
+	var CurrentMember group_models.GroupMemberModel
+	err = l.svcCtx.DB.Take(&CurrentMember, "group_id = ? and user_id = ?", req.ID, req.UserID).Error
+	if err != nil {
+		return nil, errors.New("该群不存在或者你不是群成员")
+	}
+	groupMsgList, count, _ := list_query.ListQuery(l.svcCtx.DB, group_models.GroupMsgModel{}, list_query.Option{
+		PageInfo: models.PageInfo{
+			Page:  req.Page,
+			Limit: req.Limit,
+		},
+	})
+	var userIDList []uint32
+	for _, model := range groupMsgList {
+		userIDList = append(userIDList, uint32(model.SendUserID))
+	}
+	//去重,主要是减轻rpc复杂度
+	userIDList = utils.DeduplicationList(userIDList)
+	userListResponse, err1 := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
+		UserIdList: userIDList,
+	})
+	var list = make([]HistoryResponse, 0)
+	for _, model := range groupMsgList {
+		info := HistoryResponse{
+			ID:        model.ID,
+			UserID:    model.SendUserID,
+			Msg:       model.Msg,
+			MsgType:   model.MsgType,
+			CreatedAt: model.CreatedAt,
+		}
+		if err1 == nil {
+			info.UserNickname = userListResponse.UserInfo[uint32(info.UserID)].NickName
+			info.UserAvatar = userListResponse.UserInfo[uint32(info.UserID)].Avatar
+		}
+		list = append(list, info)
+	}
+	resp = &HistoryListResponse{}
+	resp.List = list
+	resp.Count = int(count)
+	return
+}
