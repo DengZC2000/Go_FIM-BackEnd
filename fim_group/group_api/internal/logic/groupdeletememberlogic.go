@@ -39,12 +39,23 @@ func (l *Group_delete_memberLogic) Group_delete_member(req *types.GroupRemoveMem
 	if err != nil {
 		return nil, errors.New("操作的用户不在该群")
 	}
-	if CurrentMember.Role == 3 {
-		//普通用户
-		return nil, errors.New("你没有权限操作")
-	}
 	if req.UserID == req.MemberID {
-		return nil, errors.New("自己不能踢自己")
+		//自己退出群聊
+		if CurrentMember.Role == 1 {
+			// 群主不能直接退出群聊，只能解散群聊
+			return nil, errors.New("您是群主，只能解散该群")
+		}
+		// 把member中的与这个用户的记录删除
+		err = DeleteMember(l.svcCtx.DB, req.MemberID)
+		if err != nil {
+			return nil, err
+		}
+		// 给群验证表里面加条记录
+		l.svcCtx.DB.Create(&group_models.GroupVerifyModel{
+			GroupID: req.ID,
+			UserID:  req.UserID,
+			Type:    2, // 2 代表退群
+		})
 	}
 	//是群主
 	if CurrentMember.Role == 1 {
@@ -56,7 +67,7 @@ func (l *Group_delete_memberLogic) Group_delete_member(req *types.GroupRemoveMem
 	} else {
 		//否则就是管理员了
 		if member.Role == 1 || member.Role == 2 {
-			return nil, errors.New("你没有权限操作群主或其他管理员")
+			return nil, errors.New("你没有权限踢出群主或其他管理员")
 		}
 		err = DeleteMember(l.svcCtx.DB, req.MemberID)
 		if err != nil {

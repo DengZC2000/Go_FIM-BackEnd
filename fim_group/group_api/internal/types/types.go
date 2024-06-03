@@ -72,6 +72,8 @@ type GroupInfoResponse struct {
 	MemberOnlineCount int        `json:"member_online_count"` //在线用户数量
 	AdminList         []UserInfo `json:"admin_list"`          //管理员列表
 	Role              int8       `json:"role"`                //角色
+	IsProhibition     bool       `json:"is_prohibition"`      //是否开启全员禁言
+	ProhibitionTime   *int       `json:"prohibition_time"`    //自己的禁言时间，单位 min
 }
 
 type GroupMemberInfo struct {

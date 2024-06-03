@@ -42,12 +42,14 @@ func (l *Group_infoLogic) Group_info(req *types.GroupInfoRequest) (resp *types.G
 	}
 
 	resp = &types.GroupInfoResponse{
-		GroupID:     groupModel.ID,
-		Title:       groupModel.Title,
-		Abstract:    groupModel.Abstract,
-		Avatar:      groupModel.Avatar,
-		MemberCount: len(groupModel.MemberList),
-		Role:        int8(member.Role),
+		GroupID:         groupModel.ID,
+		Title:           groupModel.Title,
+		Abstract:        groupModel.Abstract,
+		Avatar:          groupModel.Avatar,
+		MemberCount:     len(groupModel.MemberList),
+		Role:            int8(member.Role),
+		IsProhibition:   groupModel.IsProhibition,
+		ProhibitionTime: member.ProhibitionTime,
 	}
 	// 查用户列表信息
 	var userIDList []uint32
