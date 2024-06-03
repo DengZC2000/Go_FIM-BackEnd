@@ -217,6 +217,15 @@ type GroupUpdateValidStatusRequest {
 
 type GroupUpdateValidStatusResponse {}
 
+type GroupUpdateUserProhibitionRequest {
+	UserID          uint `header:"User-ID"`
+	GroupID         uint `json:"group_id"`
+	MemberID        uint `json:"member_id"`
+	ProhibitionTime *int `json:"prohibition_time,optional"`
+}
+
+type GroupUpdateUserProhibitionResponse {}
+
 service group {
 	@handler group_create
 	post /api/group/group_create (GroupCreateRequest) returns (GroupCreateResponse)
@@ -262,6 +271,9 @@ service group {
 
 	@handler group_valid_status
 	put /api/group/group_valid_status (GroupUpdateValidStatusRequest) returns (GroupUpdateValidStatusResponse) //群验证状态变更
+
+	@handler group_user_prohibition
+	put /api/group/group_user_prohibition (GroupUpdateUserProhibitionRequest) returns (GroupUpdateUserProhibitionResponse) //更改用户禁言设置
 }
 
 //goctl api go -api group_api.api -dir .

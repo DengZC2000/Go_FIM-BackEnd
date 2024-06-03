@@ -68,6 +68,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: group_update_roleHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodPut,
+				Path:    "/api/group/group_user_prohibition",
+				Handler: group_user_prohibitionHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodGet,
 				Path:    "/api/group/group_valid",
 				Handler: group_validHandler(serverCtx),

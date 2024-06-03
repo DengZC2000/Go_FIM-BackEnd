@@ -168,6 +168,16 @@ type GroupUpdateRoleRequest struct {
 type GroupUpdateRoleResponse struct {
 }
 
+type GroupUpdateUserProhibitionRequest struct {
+	UserID          uint `header:"User-ID"`
+	GroupID         uint `json:"group_id"`
+	MemberID        uint `json:"member_id"`
+	ProhibitionTime *int `json:"prohibition_time,optional"`
+}
+
+type GroupUpdateUserProhibitionResponse struct {
+}
+
 type GroupUpdateValidStatusRequest struct {
 	UserID  uint `header:"User-ID"`
 	ValidID uint `json:"valid_id"`
