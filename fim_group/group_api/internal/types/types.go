@@ -166,7 +166,17 @@ type GroupUpdateRoleRequest struct {
 type GroupUpdateRoleResponse struct {
 }
 
+type GroupUpdateValidStatusRequest struct {
+	UserID  uint `header:"User-ID"`
+	ValidID uint `json:"valid_id"`
+	Status  int8 `json:"status"`
+}
+
+type GroupUpdateValidStatusResponse struct {
+}
+
 type GroupValidInfoResponse struct {
+	ID                   uint                  `json:"id"`
 	GroupID              uint                  `json:"group_id"`
 	UserID               uint                  `json:"user_id"`
 	UserNickname         string                `json:"user_nickname"`

@@ -39,6 +39,7 @@ func (l *User_valid_listLogic) User_valid_list(req *types.FriendValidResquest) (
 		info := types.FriendValidInfo{
 			AdditionalMessages: fvl.AdditionalMessages,
 			ID:                 fvl.ID,
+			CreatedAt:          fvl.CreatedAt.String(),
 		}
 		if fvl.SendUserID == req.UserID {
 			//我是发送方

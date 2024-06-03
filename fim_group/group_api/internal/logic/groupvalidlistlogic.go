@@ -50,6 +50,7 @@ func (l *Group_valid_listLogic) Group_valid_list(req *types.GroupValidListReques
 
 	for _, group := range groups {
 		info := types.GroupValidInfoResponse{
+			ID:                 group.ID,
 			GroupID:            group.GroupID,
 			UserID:             group.UserID,
 			Status:             group.Status,
