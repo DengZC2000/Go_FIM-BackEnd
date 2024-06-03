@@ -65,6 +65,7 @@ type FriendValidInfo struct {
 	Verification         int8                  `json:"verification"`                   //好友验证,0 不允许任何人 1允许任何人 2 需要验证消息 3 需要回答问题 4 需要正确回答设置的问题
 	ID                   uint                  `json:"id"`                             //验证记录的id
 	Flag                 string                `json:"flag"`                           //send 我是发送方，rev我是接收方
+	CreatedAt            string                `json:"created_at"`                     //验证的时间
 }
 
 type FriendValidResponse struct {

@@ -74,6 +74,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodGet,
+				Path:    "/api/group/group_valid_list",
+				Handler: group_valid_listHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/api/group/search",
 				Handler: group_searchHandler(serverCtx),
 			},

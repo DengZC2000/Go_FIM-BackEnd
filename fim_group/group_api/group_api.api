@@ -182,6 +182,30 @@ type AddGroupRequest {
 
 type AddGroupResponse {}
 
+type GroupValidListRequest {
+	UserID uint `header:"User-ID"`
+	Page   int  `form:"page,optional"`
+	Limit  int  `form:"limit,optional"`
+}
+
+type GroupValidInfoResponse {
+	GroupID              uint                  `json:"group_id"`
+	UserID               uint                  `json:"user_id"`
+	UserNickname         string                `json:"user_nickname"`
+	UserAvatar           string                `json:"userAvatar"`
+	status               int8                  `json:"status"`
+	AdditionalMessages   string                `json:"additional_messages"`
+	VerificationQuestion *VerificationQuestion `json:"verification_question"`
+	Title                string                `json:"title"`
+	CreatedAt            string                `json:"created_at"`
+	Type                 int8                  `json:"type"` //1 加群 2退群
+}
+
+type GroupValidListResponse {
+	List  []GroupValidInfoResponse `json:"list"`
+	Count int                      `json:"count"`
+}
+
 service group {
 	@handler group_create
 	post /api/group/group_create (GroupCreateRequest) returns (GroupCreateResponse)
@@ -221,6 +245,9 @@ service group {
 
 	@handler group_add
 	post /api/group/group_add (AddGroupRequest) returns (AddGroupResponse) //加群
+
+	@handler group_valid_list
+	get /api/group/group_valid_list (GroupValidListRequest) returns (GroupValidListResponse) //群验证列表
 }
 
 //goctl api go -api group_api.api -dir .

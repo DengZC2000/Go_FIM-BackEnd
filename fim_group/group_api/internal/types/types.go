@@ -166,6 +166,30 @@ type GroupUpdateRoleRequest struct {
 type GroupUpdateRoleResponse struct {
 }
 
+type GroupValidInfoResponse struct {
+	GroupID              uint                  `json:"group_id"`
+	UserID               uint                  `json:"user_id"`
+	UserNickname         string                `json:"user_nickname"`
+	UserAvatar           string                `json:"userAvatar"`
+	Status               int8                  `json:"status"`
+	AdditionalMessages   string                `json:"additional_messages"`
+	VerificationQuestion *VerificationQuestion `json:"verification_question"`
+	Title                string                `json:"title"`
+	CreatedAt            string                `json:"created_at"`
+	Type                 int8                  `json:"type"` //1 加群 2退群
+}
+
+type GroupValidListRequest struct {
+	UserID uint `header:"User-ID"`
+	Page   int  `form:"page,optional"`
+	Limit  int  `form:"limit,optional"`
+}
+
+type GroupValidListResponse struct {
+	List  []GroupValidInfoResponse `json:"list"`
+	Count int                      `json:"count"`
+}
+
 type GroupValidRequest struct {
 	UserID  uint `header:"User-ID"`
 	GroupID uint `form:"group_id"`
