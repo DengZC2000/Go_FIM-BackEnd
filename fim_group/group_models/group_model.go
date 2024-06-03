@@ -20,3 +20,18 @@ type GroupModel struct {
 	Size                 int                         `json:"size"`                        //群规模 20 100 1000 2000
 	MemberList           []GroupMemberModel          `gorm:"foreignKey:GroupID" json:"-"` //群成员
 }
+
+func (uc GroupModel) GetQuestionCount() (count int) {
+	if uc.VerificationQuestion != nil {
+		if uc.VerificationQuestion.Answer1 != nil {
+			count += 1
+		}
+		if uc.VerificationQuestion.Answer2 != nil {
+			count += 1
+		}
+		if uc.VerificationQuestion.Answer3 != nil {
+			count += 1
+		}
+	}
+	return count
+}
