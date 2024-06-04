@@ -57,6 +57,17 @@ type GroupFriendsResponse struct {
 	IsInGroup bool   `json:"is_in_group"` //是否在群里面
 }
 
+type GroupHistoryDeleteRequest struct {
+	UserID    uint   `header:"User-ID"`
+	ID        uint   `path:"id"`
+	Page      int    `form:"page,optional"`
+	Limit     int    `form:"limit,optional"`
+	MsgIDList []uint `json:"msg_id_list"`
+}
+
+type GroupHistoryDeleteResponse struct {
+}
+
 type GroupHistoryListResponse struct {
 }
 

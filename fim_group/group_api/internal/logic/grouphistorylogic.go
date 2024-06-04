@@ -35,6 +35,7 @@ type HistoryResponse struct {
 	UserNickname string    `json:"user_nickname"`
 	UserAvatar   string    `json:"user_avatar"`
 	Msg          ctype.Msg `json:"msg"`
+	MsgPreview   string    `json:"msg_preview"`
 	ID           uint      `json:"id"`
 	MsgType      int8      `json:"msg_type"`
 	CreatedAt    time.Time `json:"created_at"`
@@ -78,11 +79,12 @@ func (l *Group_historyLogic) Group_history(req *types.GroupHistoryRequest) (resp
 	var list = make([]HistoryResponse, 0)
 	for _, model := range groupMsgList {
 		info := HistoryResponse{
-			ID:        model.ID,
-			UserID:    model.SendUserID,
-			Msg:       model.Msg,
-			MsgType:   model.MsgType,
-			CreatedAt: model.CreatedAt,
+			ID:         model.ID,
+			UserID:     model.SendUserID,
+			Msg:        model.Msg,
+			MsgType:    model.MsgType,
+			MsgPreview: model.MsgPreview,
+			CreatedAt:  model.CreatedAt,
 		}
 		if err1 == nil {
 			info.UserNickname = userListResponse.UserInfo[uint32(info.UserID)].NickName
