@@ -265,6 +265,14 @@ type GroupSessionListResponse {
 	Count int                    `json:"count"`
 }
 
+type GroupTopRequest {
+	UserID  uint `header:"User-ID"`
+	GroupID uint `json:"group_id"`
+	IsTop   bool `json:"is_top"` // true表示置顶 false表示不置顶
+}
+
+type GroupTopResponse {}
+
 service group {
 	@handler group_create
 	post /api/group/group_create (GroupCreateRequest) returns (GroupCreateResponse)
@@ -322,6 +330,9 @@ service group {
 
 	@handler group_session
 	get /api/group/group_session (GroupSessionRequest) returns (GroupSessionListResponse) //加群
+
+	@handler group_top
+	put /api/group/top (GroupTopRequest) returns (GroupTopResponse) //加群
 }
 
 //goctl api go -api group_api.api -dir .

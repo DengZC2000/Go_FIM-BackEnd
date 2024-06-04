@@ -107,6 +107,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/api/group/search",
 				Handler: group_searchHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPut,
+				Path:    "/api/group/top",
+				Handler: group_topHandler(serverCtx),
+			},
 		},
 	)
 }

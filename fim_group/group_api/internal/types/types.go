@@ -172,6 +172,15 @@ type GroupSessionResponse struct {
 	IsTop         bool   `json:"is_top"`          //是否置顶
 }
 
+type GroupTopRequest struct {
+	UserID  uint `header:"User-ID"`
+	GroupID uint `json:"group_id"`
+	IsTop   bool `json:"is_top"` // true表示置顶 false表示不置顶
+}
+
+type GroupTopResponse struct {
+}
+
 type GroupUpdateMemberNicknameRequest struct {
 	UserID   uint   `header:"User-ID"` //自己的id
 	ID       uint   `json:"id"`        //群id
