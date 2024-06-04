@@ -152,6 +152,25 @@ type GroupSearchResponse struct {
 	UserOnlineCount int    `json:"user_online_count"` //群用户在线总数
 }
 
+type GroupSessionListResponse struct {
+	List  []GroupSessionResponse `json:"list"`
+	Count int                    `json:"count"`
+}
+
+type GroupSessionRequest struct {
+	UserID uint `header:"User-ID"`
+	Page   int  `form:"page,optional"`
+	Limit  int  `form:"limit,optional"`
+}
+
+type GroupSessionResponse struct {
+	GroupID       uint   `json:"group_id"`
+	Title         string `json:"title"`
+	Avatar        string `json:"avatar"`
+	NewMsgDate    string `json:"new_msg_date"`    //最新的消息时间
+	NewMsgPreview string `json:"new_msg_preview"` //最新的消息内容
+}
+
 type GroupUpdateMemberNicknameRequest struct {
 	UserID   uint   `header:"User-ID"` //自己的id
 	ID       uint   `json:"id"`        //群id

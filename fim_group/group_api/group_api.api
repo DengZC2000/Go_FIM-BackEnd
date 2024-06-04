@@ -245,6 +245,25 @@ type GroupHistoryDeleteRequest {
 
 type GroupHistoryDeleteResponse {}
 
+type GroupSessionRequest {
+	UserID uint `header:"User-ID"`
+	Page   int  `form:"page,optional"`
+	Limit  int  `form:"limit,optional"`
+}
+
+type GroupSessionResponse {
+	GroupID       uint   `json:"group_id"`
+	Title         string `json:"title"`
+	Avatar        string `json:"avatar"`
+	NewMsgDate    string `json:"new_msg_date"` //最新的消息时间
+	NewMsgPreview string `json:"new_msg_preview"` //最新的消息内容
+}
+
+type GroupSessionListResponse {
+	List  []GroupSessionResponse `json:"list"`
+	Count int                    `json:"count"`
+}
+
 service group {
 	@handler group_create
 	post /api/group/group_create (GroupCreateRequest) returns (GroupCreateResponse)
@@ -299,6 +318,9 @@ service group {
 
 	@handler group_history_delete
 	delete /api/group/group_history_delete/:id (GroupHistoryDeleteRequest) returns (GroupHistoryDeleteResponse) //群聊消息记录
+
+	@handler group_session
+	get /api/group/group_session (GroupSessionRequest) returns (GroupSessionListResponse) //加群
 }
 
 //goctl api go -api group_api.api -dir .
