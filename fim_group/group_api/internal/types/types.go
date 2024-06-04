@@ -121,6 +121,27 @@ type GroupMemberResponse struct {
 	Count int               `json:"count"`
 }
 
+type GroupMineListResponse struct {
+	List  []GroupMineResponse `json:"list"`
+	Count int                 `json:"count"`
+}
+
+type GroupMineRequest struct {
+	UserID uint `header:"User-ID"`
+	Mode   int8 `json:"mode,optional"` //1 表示我创建的 2 表示我加入的
+	Page   int  `form:"page,optional"`
+	Limit  int  `form:"limit,optional"`
+}
+
+type GroupMineResponse struct {
+	GroupID          uint   `json:"group_id"`
+	GroupTitle       string `json:"group_title"`
+	GroupAvatar      string `json:"group_avatar"`
+	GroupMemberCount int    `json:"group_member_count"`
+	Role             int8   `json:"role"` //角色
+	Mode             int8   `json:"mode"` //1 表示我创建的 2 表示我加入的
+}
+
 type GroupRemoveMemberRequest struct {
 	UserID   uint `header:"User-ID"` //自己的id
 	ID       uint `form:"id"`        //群id

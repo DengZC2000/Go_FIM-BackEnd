@@ -273,6 +273,27 @@ type GroupTopRequest {
 
 type GroupTopResponse {}
 
+type GroupMineRequest {
+	UserID uint `header:"User-ID"`
+	Mode   int8 `json:"mode,optional"` //1 表示我创建的 2 表示我加入的
+	Page   int  `form:"page,optional"`
+	Limit  int  `form:"limit,optional"`
+}
+
+type GroupMineResponse {
+	GroupID          uint   `json:"group_id"`
+	GroupTitle       string `json:"group_title"`
+	GroupAvatar      string `json:"group_avatar"`
+	GroupMemberCount int    `json:"group_member_count"`
+	Role             int8   `json:"role"` //角色
+	Mode             int8   `json:"mode"` //1 表示我创建的 0(不传)或者其他表示我加入的
+}
+
+type GroupMineListResponse {
+	List  []GroupMineResponse `json:"list"`
+	Count int                 `json:"count"`
+}
+
 service group {
 	@handler group_create
 	post /api/group/group_create (GroupCreateRequest) returns (GroupCreateResponse)
@@ -326,13 +347,16 @@ service group {
 	get /api/group/group_history/:id (GroupHistoryRequest) returns (GroupHistoryListResponse) //群聊消息记录
 
 	@handler group_history_delete
-	delete /api/group/group_history_delete/:id (GroupHistoryDeleteRequest) returns (GroupHistoryDeleteResponse) //群聊消息记录
+	delete /api/group/group_history_delete/:id (GroupHistoryDeleteRequest) returns (GroupHistoryDeleteResponse) //删除群聊消息记录
 
 	@handler group_session
-	get /api/group/group_session (GroupSessionRequest) returns (GroupSessionListResponse) //加群
+	get /api/group/group_session (GroupSessionRequest) returns (GroupSessionListResponse) //群会话列表
 
 	@handler group_top
-	put /api/group/top (GroupTopRequest) returns (GroupTopResponse) //加群
+	put /api/group/top (GroupTopRequest) returns (GroupTopResponse) //群置顶
+
+	@handler group_mine
+	get /api/group/group_mine (GroupMineRequest) returns (GroupMineListResponse) //我创建/加入的群
 }
 
 //goctl api go -api group_api.api -dir .
