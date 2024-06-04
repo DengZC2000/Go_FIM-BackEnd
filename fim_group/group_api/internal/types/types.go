@@ -169,6 +169,7 @@ type GroupSessionResponse struct {
 	Avatar        string `json:"avatar"`
 	NewMsgDate    string `json:"new_msg_date"`    //最新的消息时间
 	NewMsgPreview string `json:"new_msg_preview"` //最新的消息内容
+	IsTop         bool   `json:"is_top"`          //是否置顶
 }
 
 type GroupUpdateMemberNicknameRequest struct {
