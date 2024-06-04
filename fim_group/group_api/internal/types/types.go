@@ -20,6 +20,13 @@ type GroupAddMemberRequest struct {
 type GroupAddMemberResponse struct {
 }
 
+type GroupChatRequest struct {
+	UserID uint `header:"User-ID"`
+}
+
+type GroupChatResponse struct {
+}
+
 type GroupCreateRequest struct {
 	UserID     uint   `header:"User-ID"`
 	Mode       int8   `json:"mode,optional"`
@@ -139,7 +146,7 @@ type GroupMineResponse struct {
 	GroupAvatar      string `json:"group_avatar"`
 	GroupMemberCount int    `json:"group_member_count"`
 	Role             int8   `json:"role"` //角色
-	Mode             int8   `json:"mode"` //1 表示我创建的 2 表示我加入的
+	Mode             int8   `json:"mode"` //1 表示我创建的 0(不传)或者其他表示我加入的
 }
 
 type GroupRemoveMemberRequest struct {

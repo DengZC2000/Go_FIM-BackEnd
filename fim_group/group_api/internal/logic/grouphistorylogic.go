@@ -39,6 +39,7 @@ type HistoryResponse struct {
 	ID           uint      `json:"id"`
 	MsgType      int8      `json:"msg_type"`
 	CreatedAt    time.Time `json:"created_at"`
+	IsMe         bool      `json:"is_me"`
 }
 type HistoryListResponse struct {
 	List  []HistoryResponse `json:"list"`
@@ -81,7 +82,7 @@ func (l *Group_historyLogic) Group_history(req *types.GroupHistoryRequest) (resp
 		info := HistoryResponse{
 			ID:         model.ID,
 			UserID:     model.SendUserID,
-			Msg:        model.Msg,
+			Msg:        *model.Msg,
 			MsgType:    model.MsgType,
 			MsgPreview: model.MsgPreview,
 			CreatedAt:  model.CreatedAt,
@@ -89,6 +90,9 @@ func (l *Group_historyLogic) Group_history(req *types.GroupHistoryRequest) (resp
 		if err1 == nil {
 			info.UserNickname = userListResponse.UserInfo[uint32(info.UserID)].NickName
 			info.UserAvatar = userListResponse.UserInfo[uint32(info.UserID)].Avatar
+		}
+		if req.UserID == info.UserID {
+			info.IsMe = true
 		}
 		list = append(list, info)
 	}

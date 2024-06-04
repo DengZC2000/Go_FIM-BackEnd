@@ -294,6 +294,12 @@ type GroupMineListResponse {
 	Count int                 `json:"count"`
 }
 
+type GroupChatRequest {
+	UserID uint `header:"User-ID"`
+}
+
+type GroupChatResponse {}
+
 service group {
 	@handler group_create
 	post /api/group/group_create (GroupCreateRequest) returns (GroupCreateResponse)
@@ -357,6 +363,9 @@ service group {
 
 	@handler group_mine
 	get /api/group/group_mine (GroupMineRequest) returns (GroupMineListResponse) //我创建/加入的群
+
+	@handler group_ws_chat
+	get /api/group/ws_chat (GroupChatRequest) returns (GroupChatResponse) //群聊
 }
 
 //goctl api go -api group_api.api -dir .
