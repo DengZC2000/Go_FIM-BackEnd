@@ -132,7 +132,7 @@ func group_ws_chatHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				SendTipErrMsg(conn, "当前群正在全员禁言")
 				continue
 			}
-			if member.ProhibitionTime != nil {
+			if member.GetProhibitionTime(svcCtx.Redis, svcCtx.DB) != nil {
 				SendTipErrMsg(conn, "当前用户正在禁言中")
 				continue
 			}

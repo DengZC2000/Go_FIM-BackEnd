@@ -4,6 +4,8 @@ import (
 	"FIM/fim_group/group_models"
 	"context"
 	"errors"
+	"fmt"
+	"time"
 
 	"FIM/fim_group/group_api/internal/svc"
 	"FIM/fim_group/group_api/internal/types"
@@ -49,5 +51,13 @@ func (l *Group_user_prohibitionLogic) Group_user_prohibition(req *types.GroupUpd
 	}
 	l.svcCtx.DB.Model(&member).Update("prohibition_time", req.ProhibitionTime)
 
+	// 利用redis的过期时间去做这个动态禁言时间
+	key := fmt.Sprintf("prohibition__%d", member.ID)
+	if req.ProhibitionTime != nil {
+		// 给redis设置一个key，过期时间是xxxx
+		l.svcCtx.Redis.Set(context.Background(), key, "1", time.Duration(*req.ProhibitionTime)*time.Minute)
+	} else {
+		l.svcCtx.Redis.Del(context.Background(), key)
+	}
 	return
 }

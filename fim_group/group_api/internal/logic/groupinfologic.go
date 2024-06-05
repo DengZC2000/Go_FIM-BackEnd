@@ -49,7 +49,7 @@ func (l *Group_infoLogic) Group_info(req *types.GroupInfoRequest) (resp *types.G
 		MemberCount:     len(groupModel.MemberList),
 		Role:            int8(member.Role),
 		IsProhibition:   groupModel.IsProhibition,
-		ProhibitionTime: member.ProhibitionTime,
+		ProhibitionTime: member.GetProhibitionTime(l.svcCtx.Redis, l.svcCtx.DB),
 	}
 	// 查用户列表信息
 	var userIDList []uint32

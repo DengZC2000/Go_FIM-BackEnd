@@ -20,11 +20,6 @@ func group_user_prohibitionHandler(svcCtx *svc.ServiceContext) http.HandlerFunc 
 
 		l := logic.NewGroup_user_prohibitionLogic(r.Context(), svcCtx)
 		resp, err := l.Group_user_prohibition(&req)
-		//if err != nil {
-		//httpx.ErrorCtx(r.Context(), w, err)
-		//} else {
-		//httpx.OkJsonCtx(r.Context(), w, resp)
-		//}
 
 		response.Response(r, w, resp, err)
 	}
