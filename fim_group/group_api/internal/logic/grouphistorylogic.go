@@ -31,15 +31,15 @@ func NewGroup_historyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Gro
 }
 
 type HistoryResponse struct {
-	UserID       uint      `json:"user_id"`
-	UserNickname string    `json:"user_nickname"`
-	UserAvatar   string    `json:"user_avatar"`
-	Msg          ctype.Msg `json:"msg"`
-	MsgPreview   string    `json:"msg_preview"`
-	ID           uint      `json:"id"`
-	MsgType      int8      `json:"msg_type"`
-	CreatedAt    time.Time `json:"created_at"`
-	IsMe         bool      `json:"is_me"`
+	UserID       uint       `json:"user_id"`
+	UserNickname string     `json:"user_nickname"`
+	UserAvatar   string     `json:"user_avatar"`
+	Msg          *ctype.Msg `json:"msg"`
+	MsgPreview   string     `json:"msg_preview"`
+	ID           uint       `json:"id"`
+	MsgType      int8       `json:"msg_type"`
+	CreatedAt    time.Time  `json:"created_at"`
+	IsMe         bool       `json:"is_me"`
 }
 type HistoryListResponse struct {
 	List  []HistoryResponse `json:"list"`
@@ -64,7 +64,9 @@ func (l *Group_historyLogic) Group_history(req *types.GroupHistoryRequest) (resp
 		PageInfo: models.PageInfo{
 			Page:  req.Page,
 			Limit: req.Limit,
+			//Sort:  "created_at desc",
 		},
+
 		Where: l.svcCtx.DB.Where("id not in ?", msgIDList),
 	})
 
@@ -82,11 +84,12 @@ func (l *Group_historyLogic) Group_history(req *types.GroupHistoryRequest) (resp
 		info := HistoryResponse{
 			ID:         model.ID,
 			UserID:     model.SendUserID,
-			Msg:        *model.Msg,
+			Msg:        model.Msg,
 			MsgType:    model.MsgType,
 			MsgPreview: model.MsgPreview,
 			CreatedAt:  model.CreatedAt,
 		}
+
 		if err1 == nil {
 			info.UserNickname = userListResponse.UserInfo[uint32(info.UserID)].NickName
 			info.UserAvatar = userListResponse.UserInfo[uint32(info.UserID)].Avatar
