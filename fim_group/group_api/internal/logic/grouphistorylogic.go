@@ -65,17 +65,11 @@ func (l *Group_historyLogic) Group_history(req *types.GroupHistoryRequest) (resp
 		PageInfo: models.PageInfo{
 			Page:  req.Page,
 			Limit: req.Limit,
-			//Sort:  "created_at desc",
+			Sort:  "created_at desc",
 		},
-
-		Where: l.svcCtx.DB.Where("id not in ?", msgIDList),
+		Preloads: []string{"GroupMemberModel"},
+		Where:    l.svcCtx.DB.Where("id not in ?", msgIDList),
 	})
-	var memberMap = map[uint]string{}
-	var memberList []group_models.GroupMemberModel
-	l.svcCtx.DB.Find(&memberList, "group_id = ?", req.ID)
-	for _, info := range memberList {
-		memberMap[info.UserID] = info.MemberNickname
-	}
 
 	var userIDList []uint32
 	for _, model := range groupMsgList {
@@ -89,15 +83,16 @@ func (l *Group_historyLogic) Group_history(req *types.GroupHistoryRequest) (resp
 	var list = make([]HistoryResponse, 0)
 	for _, model := range groupMsgList {
 		info := HistoryResponse{
-			ID:             model.ID,
-			UserID:         model.SendUserID,
-			Msg:            model.Msg,
-			MsgType:        model.MsgType,
-			MsgPreview:     model.MsgPreview,
-			CreatedAt:      model.CreatedAt,
-			MemberNickname: memberMap[model.SendUserID],
+			ID:         model.ID,
+			UserID:     model.SendUserID,
+			Msg:        model.Msg,
+			MsgType:    model.MsgType,
+			MsgPreview: model.MsgPreview,
+			CreatedAt:  model.CreatedAt,
 		}
-
+		if model.GroupMemberModel != nil {
+			info.MemberNickname = model.GroupMemberModel.MemberNickname
+		}
 		if err1 == nil {
 			info.UserNickname = userListResponse.UserInfo[uint32(info.UserID)].NickName
 			info.UserAvatar = userListResponse.UserInfo[uint32(info.UserID)].Avatar

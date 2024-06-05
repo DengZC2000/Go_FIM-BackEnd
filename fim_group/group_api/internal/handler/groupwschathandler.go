@@ -30,14 +30,15 @@ type ChatRequest struct {
 	Msg     ctype.Msg `json:"msg"`      //消息
 }
 type ChatResponse struct {
-	UserID       uint          `json:"user_id"`
-	UserNickname string        `json:"user_nickname"`
-	UserAvatar   string        `json:"user_avatar"`
-	Msg          ctype.Msg     `json:"msg"`
-	ID           uint          `json:"id"`
-	MsgType      ctype.MsgType `json:"msg_type"`
-	CreatedAt    time.Time     `json:"created_at"`
-	IsMe         bool          `json:"is_me"`
+	UserID         uint          `json:"user_id"`
+	UserNickname   string        `json:"user_nickname"`
+	UserAvatar     string        `json:"user_avatar"`
+	Msg            ctype.Msg     `json:"msg"`
+	ID             uint          `json:"id"`
+	MsgType        ctype.MsgType `json:"msg_type"`
+	CreatedAt      time.Time     `json:"created_at"`
+	IsMe           bool          `json:"is_me"`
+	MemberNickname string        `json:"member_nickname"` //群昵称，是不是有备注的该显示备注？
 }
 
 func group_ws_chatHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -199,28 +200,28 @@ func group_ws_chatHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				})
 			}
 			//消息入库
-			groupMsgID := GroupMsgIntoDataBase(svcCtx.DB, conn, request.GroupID, req.UserID, &request.Msg)
+			groupMsgID := GroupMsgIntoDataBase(svcCtx.DB, conn, member, &request.Msg)
 			// 遍历这个用户列表，去找ws的客户端
 			sendGroupOnlineUserMsg(svcCtx.DB,
-				request.GroupID,
-				req.UserID,
+				member,
 				request.Msg,
 				groupMsgID,
 			)
 		}
 	}
 }
-func GroupMsgIntoDataBase(DB *gorm.DB, conn *websocket.Conn, groupID uint, userID uint, msg *ctype.Msg) uint {
+func GroupMsgIntoDataBase(DB *gorm.DB, conn *websocket.Conn, member group_models.GroupMemberModel, msg *ctype.Msg) uint {
 	switch msg.Type {
 	case ctype.WithdrawMsgType:
 		fmt.Println("撤回消息是不入库的")
 		return 0
 	}
 	groupModel := group_models.GroupMsgModel{
-		GroupID:    groupID,
-		SendUserID: userID,
-		MsgType:    msg.Type,
-		Msg:        msg,
+		GroupID:       member.GroupID,
+		SendUserID:    member.UserID,
+		GroupMemberID: member.ID,
+		MsgType:       msg.Type,
+		Msg:           msg,
 	}
 	groupModel.MsgPreview = groupModel.MsgPreviewMethod()
 	err := DB.Create(&groupModel).Error
@@ -233,25 +234,26 @@ func GroupMsgIntoDataBase(DB *gorm.DB, conn *websocket.Conn, groupID uint, userI
 }
 
 // sendGroupOnlineUserMsg 给这个群的用户发消息
-func sendGroupOnlineUserMsg(DB *gorm.DB, groupID uint, userID uint, msg ctype.Msg, msgID uint) {
+func sendGroupOnlineUserMsg(DB *gorm.DB, member group_models.GroupMemberModel, msg ctype.Msg, msgID uint) {
 	// 查在线用户
 	onlineUserIDList := getOnlineUserIDList()
 
 	// 查这个群的成员，且在线
 	var groupMemberOnlineIDList []uint
 	DB.Model(group_models.GroupMemberModel{}).
-		Where("group_id = ? and user_id in ?", groupID, onlineUserIDList).
+		Where("group_id = ? and user_id in ?", member.GroupID, onlineUserIDList).
 		Select("user_id").
 		Scan(&groupMemberOnlineIDList)
 	// 构造响应
 	var chatResponse = ChatResponse{
-		UserID:    userID,
-		Msg:       msg,
-		ID:        msgID,
-		MsgType:   msg.Type,
-		CreatedAt: time.Now(),
+		UserID:         member.UserID,
+		Msg:            msg,
+		ID:             msgID,
+		MsgType:        msg.Type,
+		CreatedAt:      time.Now(),
+		MemberNickname: member.MemberNickname,
 	}
-	wsInfo, ok := UserOnlineWsMap[userID]
+	wsInfo, ok := UserOnlineWsMap[member.UserID]
 	if ok {
 		chatResponse.UserAvatar = wsInfo.UserInfo.Avatar
 		chatResponse.UserNickname = wsInfo.UserInfo.Nickname
@@ -264,7 +266,7 @@ func sendGroupOnlineUserMsg(DB *gorm.DB, groupID uint, userID uint, msg ctype.Ms
 			continue
 		}
 		//判断isMe
-		if wsUserInfo.UserInfo.ID == userID {
+		if wsUserInfo.UserInfo.ID == member.UserID {
 			chatResponse.IsMe = true
 		} else {
 			chatResponse.IsMe = false
