@@ -122,9 +122,18 @@ func group_ws_chatHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			}
 			// 判断自己是不是这个群的成员
 			var member group_models.GroupMemberModel
-			err = svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", request.GroupID, req.UserID).Error
+			err = svcCtx.DB.Preload("GroupModel").Take(&member, "group_id = ? and user_id = ?", request.GroupID, req.UserID).Error
 			if err != nil {
 				SendTipErrMsg(conn, "你不是该群成员")
+				continue
+			}
+			if member.GroupModel.IsProhibition {
+				// 开启了全员禁言
+				SendTipErrMsg(conn, "当前群正在全员禁言")
+				continue
+			}
+			if member.ProhibitionTime != nil {
+				SendTipErrMsg(conn, "当前用户正在禁言中")
 				continue
 			}
 			switch request.Msg.Type {
@@ -237,7 +246,7 @@ func group_ws_chatHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				}
 				//找这个原消息
 				var msgModel group_models.GroupMsgModel
-				err = svcCtx.DB.Take(&msgModel, "group_id = ? and id = ?", request.GroupID, request.Msg.ReplyMsg.MsgID).Error
+				err = svcCtx.DB.Take(&msgModel, "group_id = ? and id = ?", request.GroupID, request.Msg.QuoteMsg.MsgID).Error
 				if err != nil {
 					SendTipErrMsg(conn, "消息不存在")
 					continue
