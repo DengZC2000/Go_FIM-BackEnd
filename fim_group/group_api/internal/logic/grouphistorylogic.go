@@ -31,15 +31,16 @@ func NewGroup_historyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Gro
 }
 
 type HistoryResponse struct {
-	UserID       uint       `json:"user_id"`
-	UserNickname string     `json:"user_nickname"`
-	UserAvatar   string     `json:"user_avatar"`
-	Msg          *ctype.Msg `json:"msg"`
-	MsgPreview   string     `json:"msg_preview"`
-	ID           uint       `json:"id"`
-	MsgType      int8       `json:"msg_type"`
-	CreatedAt    time.Time  `json:"created_at"`
-	IsMe         bool       `json:"is_me"`
+	UserID         uint       `json:"user_id"`
+	UserNickname   string     `json:"user_nickname"`
+	UserAvatar     string     `json:"user_avatar"`
+	Msg            *ctype.Msg `json:"msg"`
+	MsgPreview     string     `json:"msg_preview"`
+	ID             uint       `json:"id"`
+	MsgType        int8       `json:"msg_type"`
+	CreatedAt      time.Time  `json:"created_at"`
+	IsMe           bool       `json:"is_me"`
+	MemberNickname string     `json:"member_nickname"` //群昵称，是不是有备注的该显示备注？
 }
 type HistoryListResponse struct {
 	List  []HistoryResponse `json:"list"`
@@ -69,6 +70,12 @@ func (l *Group_historyLogic) Group_history(req *types.GroupHistoryRequest) (resp
 
 		Where: l.svcCtx.DB.Where("id not in ?", msgIDList),
 	})
+	var memberMap = map[uint]string{}
+	var memberList []group_models.GroupMemberModel
+	l.svcCtx.DB.Find(&memberList, "group_id = ?", req.ID)
+	for _, info := range memberList {
+		memberMap[info.UserID] = info.MemberNickname
+	}
 
 	var userIDList []uint32
 	for _, model := range groupMsgList {
@@ -82,12 +89,13 @@ func (l *Group_historyLogic) Group_history(req *types.GroupHistoryRequest) (resp
 	var list = make([]HistoryResponse, 0)
 	for _, model := range groupMsgList {
 		info := HistoryResponse{
-			ID:         model.ID,
-			UserID:     model.SendUserID,
-			Msg:        model.Msg,
-			MsgType:    model.MsgType,
-			MsgPreview: model.MsgPreview,
-			CreatedAt:  model.CreatedAt,
+			ID:             model.ID,
+			UserID:         model.SendUserID,
+			Msg:            model.Msg,
+			MsgType:        model.MsgType,
+			MsgPreview:     model.MsgPreview,
+			CreatedAt:      model.CreatedAt,
+			MemberNickname: memberMap[model.SendUserID],
 		}
 
 		if err1 == nil {
