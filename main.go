@@ -5,6 +5,7 @@ import (
 	"FIM/fim_chat/chat_models"
 	"FIM/fim_file/file_models"
 	"FIM/fim_group/group_models"
+	"FIM/fim_logs/logs_model"
 	"FIM/fim_user/user_models"
 	"flag"
 	"fmt"
@@ -40,6 +41,8 @@ func main() {
 			&group_models.GroupUserTopModel{},
 
 			&file_models.FileModel{},
+
+			&logs_model.LogModel{},
 		)
 		if err != nil {
 			log.Fatal("表结构生成失败！")
