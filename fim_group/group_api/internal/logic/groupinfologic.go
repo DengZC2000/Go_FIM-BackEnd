@@ -6,6 +6,7 @@ import (
 	"FIM/utils/set"
 	"context"
 	"errors"
+	"fmt"
 
 	"FIM/fim_group/group_api/internal/svc"
 	"FIM/fim_group/group_api/internal/types"
@@ -29,6 +30,7 @@ func NewGroup_infoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Group_
 
 func (l *Group_infoLogic) Group_info(req *types.GroupInfoRequest) (resp *types.GroupInfoResponse, err error) {
 	// 谁能调这个接口，必须得是这个群的成员
+	fmt.Println(l.ctx.Value("ClientIP"), l.ctx.Value("UserID"))
 
 	var groupModel group_models.GroupModel
 	err = l.svcCtx.DB.Preload("MemberList").Take(&groupModel, req.ID).Error

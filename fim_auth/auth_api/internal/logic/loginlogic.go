@@ -30,7 +30,7 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 
 func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, err error) {
 	var user auth_models.UserModel
-
+	fmt.Println(l.ctx.Value("ClientIP"))
 	count := l.svcCtx.DB.Take(&user, "id = ?", req.Username).RowsAffected
 	if count != 1 {
 		err = errors.New("用户名或密码错误")
