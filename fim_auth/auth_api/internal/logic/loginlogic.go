@@ -51,5 +51,9 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 		err = errors.New("生成token失败")
 		return
 	}
+	err = l.svcCtx.KqPusherClient.Push(fmt.Sprintf("昵称：%s -- 登陆成功", user.NickName))
+	if err != nil {
+		logx.Error(err)
+	}
 	return &types.LoginResponse{Token: token}, nil
 }

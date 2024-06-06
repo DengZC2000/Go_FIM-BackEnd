@@ -6,16 +6,18 @@ import (
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"FIM/fim_user/user_rpc/users"
 	"github.com/redis/go-redis/v9"
+	"github.com/zeromicro/go-queue/kq"
 	"github.com/zeromicro/go-zero/zrpc"
 	"gorm.io/gorm"
 	"log"
 )
 
 type ServiceContext struct {
-	Config  config.Config
-	DB      *gorm.DB
-	Redis   *redis.Client
-	UserRpc user_rpc.UsersClient
+	Config         config.Config
+	DB             *gorm.DB
+	Redis          *redis.Client
+	UserRpc        user_rpc.UsersClient
+	KqPusherClient *kq.Pusher
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -26,9 +28,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 	//mysqlDb.AutoMigrate(&auth_models.UserModel{})
 	return &ServiceContext{
-		Config:  c,
-		DB:      mysqlDb,
-		Redis:   redisDb,
-		UserRpc: users.NewUsers(zrpc.MustNewClient(c.UserRpc)),
+		Config:         c,
+		DB:             mysqlDb,
+		Redis:          redisDb,
+		UserRpc:        users.NewUsers(zrpc.MustNewClient(c.UserRpc)),
+		KqPusherClient: kq.NewPusher(c.KqPusherConf.Brokers, c.KqPusherConf.Topic),
 	}
 }
