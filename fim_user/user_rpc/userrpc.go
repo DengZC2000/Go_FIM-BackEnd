@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"google.golang.org/grpc/metadata"
 
 	"FIM/fim_user/user_rpc/internal/config"
 	"FIM/fim_user/user_rpc/internal/server"
@@ -33,7 +35,18 @@ func main() {
 		}
 	})
 	defer s.Stop()
-
+	s.AddUnaryInterceptors(exampleUnaryInterceptor)
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()
+}
+func exampleUnaryInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	clientIP := metadata.ValueFromIncomingContext(ctx, "clientIP")
+	userID := metadata.ValueFromIncomingContext(ctx, "userID")
+	if len(clientIP) > 0 {
+		ctx = context.WithValue(ctx, "clientIP", clientIP[0])
+	}
+	if len(userID) > 0 {
+		ctx = context.WithValue(ctx, "userID", userID[0])
+	}
+	return handler(ctx, req)
 }

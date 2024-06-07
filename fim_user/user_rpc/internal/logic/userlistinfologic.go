@@ -2,10 +2,10 @@ package logic
 
 import (
 	"FIM/fim_user/user_models"
-	"context"
-
 	"FIM/fim_user/user_rpc/internal/svc"
 	"FIM/fim_user/user_rpc/types/user_rpc"
+	"context"
+	"fmt"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -25,7 +25,13 @@ func NewUserListInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *User
 }
 
 func (l *UserListInfoLogic) UserListInfo(in *user_rpc.UserListInfoRequest) (*user_rpc.UserListInfoResponse, error) {
+	/*
+		clientIP := metadata.ValueFromIncomingContext(l.ctx, "clientIP")
+		userID := metadata.ValueFromIncomingContext(l.ctx, "userID")
+		fmt.Println(clientIP, userID)
+	*/
 
+	fmt.Println(l.ctx.Value("clientIP"), l.ctx.Value("userID"))
 	var userList []user_models.UserModel
 	l.svcCtx.DB.Find(&userList, in.UserIdList)
 

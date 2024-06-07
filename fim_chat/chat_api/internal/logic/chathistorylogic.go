@@ -11,7 +11,6 @@ import (
 	"FIM/utils"
 	"context"
 	"errors"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -73,12 +72,14 @@ func (l *Chat_historyLogic) Chat_history(req *types.ChatHistoryRequest) (resp *C
 		userIDList = append(userIDList, uint32(chat.SendUserID))
 		userIDList = append(userIDList, uint32(chat.RevUserID))
 	}
+
 	//去重
 	userIDList = utils.DeduplicationList(userIDList)
 	//去调用户服务的rpc方法，获取用户信息{用户id:用户信息}
 	response, err := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
 		UserIdList: userIDList,
 	})
+
 	if err != nil {
 		logx.Error(err.Error())
 		return nil, errors.New("用户服务错误")

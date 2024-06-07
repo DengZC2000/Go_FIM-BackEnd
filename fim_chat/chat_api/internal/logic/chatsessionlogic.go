@@ -10,6 +10,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -71,7 +72,16 @@ func (l *Chat_sessionLogic) Chat_session(req *types.ChatSessionRequest) (resp *t
 
 		}
 	}
-	response, err := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
+
+	// api层打印ClientIP和UserID
+	fmt.Println(l.ctx.Value("ClientIP"))
+	fmt.Println(l.ctx.Value("UserID"))
+
+	// api层继续将ClientIP和UserID透传给rpc层
+	md := metadata.New(map[string]string{"clientIP": l.ctx.Value("ClientIP").(string), "userID": l.ctx.Value("UserID").(string)})
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	response, err := l.svcCtx.UserRpc.UserListInfo(ctx, &user_rpc.UserListInfoRequest{
 		UserIdList: userIDList,
 	})
 	if err != nil {

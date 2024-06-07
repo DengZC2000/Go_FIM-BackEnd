@@ -29,9 +29,10 @@ func NewGroup_infoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Group_
 }
 
 func (l *Group_infoLogic) Group_info(req *types.GroupInfoRequest) (resp *types.GroupInfoResponse, err error) {
-	// 谁能调这个接口，必须得是这个群的成员
+	// 使用中间件透传ip和UserID,到api层
 	fmt.Println(l.ctx.Value("ClientIP"), l.ctx.Value("UserID"))
 
+	// 谁能调这个接口，必须得是这个群的成员
 	var groupModel group_models.GroupModel
 	err = l.svcCtx.DB.Preload("MemberList").Take(&groupModel, req.ID).Error
 	if err != nil {
