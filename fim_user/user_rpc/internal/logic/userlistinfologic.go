@@ -32,6 +32,7 @@ func (l *UserListInfoLogic) UserListInfo(in *user_rpc.UserListInfoRequest) (*use
 	*/
 
 	fmt.Println(l.ctx.Value("clientIP"), l.ctx.Value("userID"))
+
 	var userList []user_models.UserModel
 	l.svcCtx.DB.Find(&userList, in.UserIdList)
 
