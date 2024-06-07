@@ -28,7 +28,7 @@ func NewUser_infoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *User_in
 }
 
 func (l *User_infoLogic) User_info(req *types.UserInfoRequest) (resp *types.UserInfoResponse, err error) {
-	userInfo, err := l.svcCtx.UserRpc.UserInfo(context.Background(), &user_rpc.UserInfoRequest{
+	userInfo, err := l.svcCtx.UserRpc.UserInfo(l.ctx, &user_rpc.UserInfoRequest{
 		UserId: uint32(req.UserID),
 	})
 	if err != nil {

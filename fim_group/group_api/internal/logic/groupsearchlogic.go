@@ -40,7 +40,7 @@ func (l *Group_searchLogic) Group_search(req *types.GroupSearchRequest) (resp *t
 		Preloads: []string{"MemberList"},
 		Where:    l.svcCtx.DB.Where("is_search = 1 and (id = ? or title like ?)", req.Key, fmt.Sprintf("%%%s%%", req.Key)),
 	})
-	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(context.Background(), &user_rpc.UserOnlineListRequest{})
+	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(l.ctx, &user_rpc.UserOnlineListRequest{})
 	if err != nil {
 		return nil, err
 	}

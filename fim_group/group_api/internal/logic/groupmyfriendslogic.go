@@ -27,7 +27,7 @@ func NewGroup_my_friendsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 
 func (l *Group_my_friendsLogic) Group_my_friends(req *types.GroupFriendsListRequest) (resp *types.GroupFriendsListResponse, err error) {
 	//需要去查我的好友列表
-	friendResponse, err := l.svcCtx.UserRpc.FriendList(context.Background(), &user_rpc.FriendListRequest{
+	friendResponse, err := l.svcCtx.UserRpc.FriendList(l.ctx, &user_rpc.FriendListRequest{
 		User: uint32(req.UserID),
 	})
 	if err != nil {

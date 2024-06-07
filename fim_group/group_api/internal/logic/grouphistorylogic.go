@@ -77,7 +77,7 @@ func (l *Group_historyLogic) Group_history(req *types.GroupHistoryRequest) (resp
 	}
 	//去重,主要是减轻rpc复杂度
 	userIDList = utils.DeduplicationList(userIDList)
-	userListResponse, err1 := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
+	userListResponse, err1 := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
 		UserIdList: userIDList,
 	})
 	var list = make([]HistoryResponse, 0)

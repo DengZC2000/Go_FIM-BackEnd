@@ -44,7 +44,7 @@ func (l *Group_valid_listLogic) Group_valid_list(req *types.GroupValidListReques
 	for _, group := range groups {
 		userIDList = append(userIDList, uint32(group.UserID))
 	}
-	userList, err1 := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
+	userList, err1 := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
 		UserIdList: userIDList,
 	})
 

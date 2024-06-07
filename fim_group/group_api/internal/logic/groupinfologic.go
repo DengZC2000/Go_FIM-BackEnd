@@ -63,7 +63,7 @@ func (l *Group_infoLogic) Group_info(req *types.GroupInfoRequest) (resp *types.G
 		}
 		AlluserIDList = append(AlluserIDList, uint32(model.UserID))
 	}
-	userListResponse, err := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
+	userListResponse, err := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
 		UserIdList: userIDList,
 	})
 	if err != nil {
@@ -90,7 +90,7 @@ func (l *Group_infoLogic) Group_info(req *types.GroupInfoRequest) (resp *types.G
 		}
 	}
 	// 算在线用户总数
-	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(context.Background(), &user_rpc.UserOnlineListRequest{})
+	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(l.ctx, &user_rpc.UserOnlineListRequest{})
 	if err == nil {
 		slice := set.Intersect(AlluserIDList, userOnlineResponse.UserIdList)
 		resp.MemberOnlineCount = len(slice)

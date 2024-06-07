@@ -55,7 +55,7 @@ func (l *Valid_statusLogic) Valid_status(req *types.FriendValidStatusRequest) (r
 		byteData, _ := json.Marshal(msg)
 
 		//给对方发个消息
-		_, err = l.svcCtx.ChatRpc.UserChatCreate(context.Background(), &chat.UserChatRequest{
+		_, err = l.svcCtx.ChatRpc.UserChatCreate(l.ctx, &chat.UserChatRequest{
 			SendUserId: uint32(friendVerify.SendUserID),
 			RevUserId:  uint32(friendVerify.RevUserID),
 			Msg:        byteData,

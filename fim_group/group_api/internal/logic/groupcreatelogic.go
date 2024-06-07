@@ -64,7 +64,7 @@ func (l *Group_createLogic) Group_create(req *types.GroupCreateRequest) (resp *t
 			groupUserList = append(groupUserList, u)
 		}
 		//判断邀请的这些人是不是你的好友，只要有一个不是，那就说明用户是乱填的
-		userFriendResponse, err := l.svcCtx.UserRpc.FriendList(context.Background(), &user_rpc.FriendListRequest{
+		userFriendResponse, err := l.svcCtx.UserRpc.FriendList(l.ctx, &user_rpc.FriendListRequest{
 			User: uint32(req.UserID),
 		})
 		if err != nil {
@@ -80,7 +80,7 @@ func (l *Group_createLogic) Group_create(req *types.GroupCreateRequest) (resp *t
 		if len(slice) != 0 {
 			return nil, errors.New("选择的用户列表中有人不是你的好友")
 		}
-		userListRes, err1 := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
+		userListRes, err1 := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
 			UserIdList: userIDList,
 		})
 		if err1 != nil {

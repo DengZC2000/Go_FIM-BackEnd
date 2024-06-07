@@ -2,6 +2,7 @@ package main
 
 import (
 	"FIM/common/etcd"
+	"FIM/common/middleware"
 	"FIM/fim_logs/log_api/internal/handler"
 	"FIM/fim_logs/log_api/internal/mqs"
 	"FIM/fim_logs/log_api/internal/svc"
@@ -35,6 +36,7 @@ func main() {
 	for _, mq := range mqs.Consumers(c, context.Background(), ctx) {
 		serviceGroup.Add(mq)
 	}
+	server.Use(middleware.LogMiddleware)
 	etcd.DeliveryAddress(c.Etcd, c.Name+"_api", fmt.Sprintf("%s:%d", c.Host, c.Port))
 	serviceGroup.Start()
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)

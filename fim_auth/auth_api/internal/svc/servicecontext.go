@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"FIM/common/zprc_interceptor"
 	"FIM/core"
 	"FIM/fim_auth/auth_api/internal/config"
 	"FIM/fim_user/user_rpc/types/user_rpc"
@@ -31,7 +32,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config:         c,
 		DB:             mysqlDb,
 		Redis:          redisDb,
-		UserRpc:        users.NewUsers(zrpc.MustNewClient(c.UserRpc)),
+		UserRpc:        users.NewUsers(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(zprc_interceptor.ClientInfoInterceptor))),
 		KqPusherClient: kq.NewPusher(c.KqPusherConf.Brokers, c.KqPusherConf.Topic),
 	}
 }

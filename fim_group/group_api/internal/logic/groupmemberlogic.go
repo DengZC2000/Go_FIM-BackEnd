@@ -74,7 +74,7 @@ func (l *Group_memberLogic) Group_member(req *types.GroupMemberRequest) (resp *t
 		userIDList = append(userIDList, uint32(data.UserID))
 	}
 
-	userListResponse, err := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
+	userListResponse, err := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
 		UserIdList: userIDList,
 	})
 	//关于降级
@@ -92,7 +92,7 @@ func (l *Group_memberLogic) Group_member(req *types.GroupMemberRequest) (resp *t
 	}
 	//拿在线
 	var userOnlineMap = map[uint]bool{}
-	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(context.Background(), &user_rpc.UserOnlineListRequest{})
+	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(l.ctx, &user_rpc.UserOnlineListRequest{})
 	if err == nil {
 		for _, u := range userOnlineResponse.UserIdList {
 			userOnlineMap[uint(u)] = true

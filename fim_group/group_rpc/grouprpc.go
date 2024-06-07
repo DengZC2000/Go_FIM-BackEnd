@@ -1,6 +1,7 @@
 package main
 
 import (
+	"FIM/common/zprc_interceptor"
 	"flag"
 	"fmt"
 
@@ -33,7 +34,8 @@ func main() {
 		}
 	})
 	defer s.Stop()
-
+	// rpc透传
+	s.AddUnaryInterceptors(zprc_interceptor.ServerUnaryInterceptor)
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()
 }

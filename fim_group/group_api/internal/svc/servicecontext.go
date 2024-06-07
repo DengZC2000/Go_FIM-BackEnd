@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"FIM/common/zprc_interceptor"
 	"FIM/core"
 	"FIM/fim_group/group_api/internal/config"
 	"FIM/fim_group/group_rpc/groups"
@@ -31,7 +32,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config:   c,
 		DB:       mysqlDb,
 		Redis:    redisDb,
-		UserRpc:  users.NewUsers(zrpc.MustNewClient(c.UserRpc)),
-		GroupRpc: groups.NewGroups(zrpc.MustNewClient(c.GroupRpc)),
+		UserRpc:  users.NewUsers(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(zprc_interceptor.ClientInfoInterceptor))),
+		GroupRpc: groups.NewGroups(zrpc.MustNewClient(c.GroupRpc, zrpc.WithUnaryClientInterceptor(zprc_interceptor.ClientInfoInterceptor))),
 	}
 }

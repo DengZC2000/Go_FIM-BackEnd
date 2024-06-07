@@ -29,6 +29,7 @@ func main() {
 	handler.RegisterHandlers(server, ctx)
 
 	server.Use(middleware.LogMiddleware)
+	server.Use(middleware.LogMiddleware)
 	etcd.DeliveryAddress(c.Etcd, c.Name+"_api", fmt.Sprintf("%s:%d", c.Host, c.Port))
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
