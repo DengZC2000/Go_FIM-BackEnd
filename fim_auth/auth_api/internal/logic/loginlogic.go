@@ -1,17 +1,15 @@
 package logic
 
 import (
+	"FIM/common/log_stash"
+	"FIM/fim_auth/auth_api/internal/svc"
+	"FIM/fim_auth/auth_api/internal/types"
 	"FIM/fim_auth/auth_models"
 	"FIM/utils/jwt"
 	"FIM/utils/pwd"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"strconv"
-
-	"FIM/fim_auth/auth_api/internal/svc"
-	"FIM/fim_auth/auth_api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -54,30 +52,8 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 		return
 	}
 	ctx := context.WithValue(l.ctx, "UserID", fmt.Sprintf("%d", user.ID))
-	type Request1 struct {
-		LogType int8   `json:"log_type"` // 日志类型 2 操作日志 3 运行日志
-		IP      string `json:"ip"`
-		UserID  uint   `json:"user_id"`
-		Level   string `json:"level"`
-		Title   string `json:"title"`
-		Content string `json:"content"` // 日志详情
-		Service string `json:"service"` // 服务 记录微服务的名称
-	}
-	userID := ctx.Value("UserID").(string)
-	userIDInt, _ := strconv.Atoi(userID)
-	req1 := Request1{
-		LogType: 2,
-		IP:      ctx.Value("ClientIP").(string),
-		Level:   "info",
-		UserID:  uint(userIDInt),
-		Title:   fmt.Sprintf("%s 登陆成功", user.NickName),
-		Content: "xxx",
-		Service: l.svcCtx.Config.Name,
-	}
-	byteData, _ := json.Marshal(req1)
-	err = l.svcCtx.KqPusherClient.Push(string(byteData))
-	if err != nil {
-		logx.Error(err)
-	}
+	er := log_stash.NewActionPusher(ctx, l.svcCtx.KqPusherClient, l.svcCtx.Config.Name)
+	er.Info(fmt.Sprintf("%s 用户登陆成功", user.NickName), "")
+
 	return &types.LoginResponse{Token: token}, nil
 }
