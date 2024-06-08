@@ -8,6 +8,11 @@ Log:
   TimeFormat: 2006-01-02 15:04:05
   Stat: false
 Etcd: 127.0.0.1:2379
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: userrpc.rpc
 KqConsumerConf:
   Name: kqConsumer
   Brokers:

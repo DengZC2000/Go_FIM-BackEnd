@@ -5,8 +5,10 @@ import (
 	"FIM/utils/jwt"
 	"FIM/utils/pwd"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"FIM/fim_auth/auth_api/internal/svc"
 	"FIM/fim_auth/auth_api/internal/types"
@@ -30,7 +32,7 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 
 func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, err error) {
 	var user auth_models.UserModel
-	fmt.Println(l.ctx.Value("ClientIP"))
+
 	count := l.svcCtx.DB.Take(&user, "id = ?", req.Username).RowsAffected
 	if count != 1 {
 		err = errors.New("用户名或密码错误")
@@ -51,7 +53,29 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 		err = errors.New("生成token失败")
 		return
 	}
-	err = l.svcCtx.KqPusherClient.Push(fmt.Sprintf("昵称：%s -- 登陆成功", user.NickName))
+	ctx := context.WithValue(l.ctx, "UserID", fmt.Sprintf("%d", user.ID))
+	type Request1 struct {
+		LogType int8   `json:"log_type"` // 日志类型 2 操作日志 3 运行日志
+		IP      string `json:"ip"`
+		UserID  uint   `json:"user_id"`
+		Level   string `json:"level"`
+		Title   string `json:"title"`
+		Content string `json:"content"` // 日志详情
+		Service string `json:"service"` // 服务 记录微服务的名称
+	}
+	userID := ctx.Value("UserID").(string)
+	userIDInt, _ := strconv.Atoi(userID)
+	req1 := Request1{
+		LogType: 2,
+		IP:      ctx.Value("ClientIP").(string),
+		Level:   "info",
+		UserID:  uint(userIDInt),
+		Title:   fmt.Sprintf("%s 登陆成功", user.NickName),
+		Content: "xxx",
+		Service: l.svcCtx.Config.Name,
+	}
+	byteData, _ := json.Marshal(req1)
+	err = l.svcCtx.KqPusherClient.Push(string(byteData))
 	if err != nil {
 		logx.Error(err)
 	}
