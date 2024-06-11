@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"FIM/common/log_stash"
 	"FIM/fim_auth/auth_api/internal/svc"
 	"FIM/fim_auth/auth_api/internal/types"
 	"FIM/fim_auth/auth_models"
@@ -52,8 +51,9 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 		return
 	}
 	ctx := context.WithValue(l.ctx, "UserID", fmt.Sprintf("%d", user.ID))
-	er := log_stash.NewActionPusher(ctx, l.svcCtx.KqPusherClient, l.svcCtx.Config.Name)
-	er.Info(fmt.Sprintf("%s 用户登陆成功", user.NickName), "")
+
+	l.svcCtx.ActionPusher.Push(fmt.Sprintf("%s 用户登陆成功", user.NickName), "")
+	l.svcCtx.ActionPusher.Commit(ctx)
 
 	return &types.LoginResponse{Token: token}, nil
 }

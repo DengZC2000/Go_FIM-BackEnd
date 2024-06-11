@@ -19,16 +19,25 @@ type Pusher struct {
 	Client  *kq.Pusher
 }
 
-// Info 为什么是指针 因为要改值
-func (p *Pusher) Info(title string, content string) {
+// Push 为什么是指针 因为要改值
+func (p *Pusher) Push(title string, content string) {
 	p.Title = title
 	p.Content = content
-	p.Save()
+
 }
-func (p *Pusher) Save() {
+func (p *Pusher) Commit(ctx context.Context) {
 	if p.Client == nil {
 		return
 	}
+	var userID uint
+	userIDs := ctx.Value("UserID")
+	if userIDs != nil {
+		ID, _ := strconv.Atoi(userIDs.(string))
+		userID = uint(ID)
+	}
+	clientIP := ctx.Value("ClientIP").(string)
+	p.IP = clientIP
+	p.UserID = userID
 	byteData, err := json.Marshal(p)
 	if err != nil {
 		logx.Error(err)
@@ -40,25 +49,16 @@ func (p *Pusher) Save() {
 		return
 	}
 }
-func NewActionPusher(ctx context.Context, client *kq.Pusher, serviceName string) *Pusher {
-	return NewPusher(ctx, client, 2, "Action", serviceName)
+func NewActionPusher(client *kq.Pusher, serviceName string) *Pusher {
+	return NewPusher(client, 2, "Action", serviceName)
 
 }
-func NewRuntimePusher(ctx context.Context, client *kq.Pusher, serviceName string) *Pusher {
-	return NewPusher(ctx, client, 3, "Runtime", serviceName)
+func NewRuntimePusher(client *kq.Pusher, serviceName string) *Pusher {
+	return NewPusher(client, 3, "Runtime", serviceName)
 }
 
-func NewPusher(ctx context.Context, client *kq.Pusher, LogType int8, level string, serviceName string) *Pusher {
-	var userID uint
-	userIDs := ctx.Value("UserID")
-	if userIDs != nil {
-		ID, _ := strconv.Atoi(userIDs.(string))
-		userID = uint(ID)
-	}
-	clientIP := ctx.Value("ClientIP").(string)
+func NewPusher(client *kq.Pusher, LogType int8, level string, serviceName string) *Pusher {
 	return &Pusher{
-		IP:      clientIP,
-		UserID:  userID,
 		LogType: LogType,
 		Level:   level,
 		Service: serviceName,

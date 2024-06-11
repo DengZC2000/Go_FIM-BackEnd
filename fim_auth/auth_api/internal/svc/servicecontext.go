@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"FIM/common/log_stash"
 	"FIM/common/zprc_interceptor"
 	"FIM/core"
 	"FIM/fim_auth/auth_api/internal/config"
@@ -19,6 +20,8 @@ type ServiceContext struct {
 	Redis          *redis.Client
 	UserRpc        user_rpc.UsersClient
 	KqPusherClient *kq.Pusher
+	ActionPusher   *log_stash.Pusher
+	RuntimePusher  *log_stash.Pusher
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -27,12 +30,14 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if err != nil {
 		log.Println("redis连接失败")
 	}
-	//mysqlDb.AutoMigrate(&auth_models.UserModel{})
+	Kq := kq.NewPusher(c.KqPusherConf.Brokers, c.KqPusherConf.Topic)
 	return &ServiceContext{
 		Config:         c,
 		DB:             mysqlDb,
 		Redis:          redisDb,
 		UserRpc:        users.NewUsers(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(zprc_interceptor.ClientInfoInterceptor))),
-		KqPusherClient: kq.NewPusher(c.KqPusherConf.Brokers, c.KqPusherConf.Topic),
+		KqPusherClient: Kq,
+		ActionPusher:   log_stash.NewActionPusher(Kq, c.Name),
+		RuntimePusher:  log_stash.NewRuntimePusher(Kq, c.Name),
 	}
 }
