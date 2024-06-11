@@ -12,6 +12,6 @@ type LogModel struct {
 	UserAvatar   string `gorm:"size:128" json:"user_avatar"`
 	Level        string `gorm:"size:32" json:"level"`
 	Title        string `gorm:"size:32" json:"title"`
-	Content      string `gorm:"size:32" json:"content"` // 日志详情
+	Content      string `json:"content"`                // 日志详情
 	Service      string `gorm:"size:32" json:"service"` // 服务 记录微服务的名称
 }

@@ -29,15 +29,21 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 
 func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, err error) {
 	var user auth_models.UserModel
+	l.svcCtx.ActionPusher.SetItemInfo("Username", req.Username)
+	l.svcCtx.ActionPusher.PushInfo("用户登陆操作")
 
 	count := l.svcCtx.DB.Take(&user, "id = ?", req.Username).RowsAffected
 	if count != 1 {
-		err = errors.New("用户名或密码错误")
+		l.svcCtx.ActionPusher.PushError(fmt.Sprintf("%s 用户名不存在", req.Username))
+		err = errors.New("用户名不存在")
 		return
 	}
-	fmt.Println(user)
 	if !pwd.CheckPwd(user.Password, req.Password) {
-		err = errors.New("用户名或密码错误")
+
+		l.svcCtx.ActionPusher.PushError(fmt.Sprintf("%s 密码错误", req.Username))
+		l.svcCtx.ActionPusher.SetItemInfo("password", req.Password)
+
+		err = errors.New("密码错误")
 		return
 	}
 	//判断用户的注册来源，第三方登录来的不能通过用户名和密码登录
@@ -47,13 +53,14 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 		Role:     user.Role,
 	}, l.svcCtx.Config.Auth.AccessSecret, l.svcCtx.Config.Auth.AccessExpire)
 	if err != nil {
+		l.svcCtx.ActionPusher.SetItemError("生成token失败", err.Error())
+		l.svcCtx.ActionPusher.PushError("生成token失败")
 		err = errors.New("生成token失败")
 		return
 	}
+
+	l.svcCtx.ActionPusher.PushInfo(fmt.Sprintf("%s 用户登陆成功", user.NickName))
 	ctx := context.WithValue(l.ctx, "UserID", fmt.Sprintf("%d", user.ID))
-
-	l.svcCtx.ActionPusher.Push(fmt.Sprintf("%s 用户登陆成功", user.NickName), "")
 	l.svcCtx.ActionPusher.Commit(ctx)
-
 	return &types.LoginResponse{Token: token}, nil
 }

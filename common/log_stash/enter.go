@@ -3,6 +3,7 @@ package log_stash
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/zeromicro/go-queue/kq"
 	"github.com/zeromicro/go-zero/core/logx"
 	"strconv"
@@ -16,19 +17,70 @@ type Pusher struct {
 	Title   string `json:"title"`
 	Content string `json:"content"` // 日志详情
 	Service string `json:"service"` // 服务 记录微服务的名称
+	Items   []string
 	Client  *kq.Pusher
 }
 
-// Push 为什么是指针 因为要改值
-func (p *Pusher) Push(title string, content string) {
+// PushInfo 为什么是指针 因为要改值
+func (p *Pusher) PushInfo(title string) {
 	p.Title = title
-	p.Content = content
+	p.Level = "Info"
+
+}
+
+// PushWarning 为什么是指针 因为要改值
+func (p *Pusher) PushWarning(title string) {
+	p.Title = title
+	p.Level = "Warning"
+
+}
+
+// PushError 为什么是指针 因为要改值
+func (p *Pusher) PushError(title string) {
+	p.Title = title
+	p.Level = "Error"
+
+}
+func (p *Pusher) SetItemInfo(label string, val any) {
+	p.setItem("Info", label, val)
+}
+
+func (p *Pusher) SetItemWarning(label string, val any) {
+	p.setItem("Warning", label, val)
+
+}
+
+func (p *Pusher) SetItemError(label string, val any) {
+	p.setItem("Error", label, val)
+
+}
+func (p *Pusher) setItem(level, label string, val any) {
+	var str string
+	switch value := val.(type) {
+	case string:
+		str = fmt.Sprintf("<div class=\"log_item_label\">%s</div> <div class=\"log_item_content\">%s</div>", label, value)
+	case int, uint, uint32, uint64, int32, int8:
+		str = fmt.Sprintf("<div class=\"log_item_label\">%s</div> <div class=\"log_item_content\">%d</div>", label, value)
+	default:
+		byteData, _ := json.Marshal(val)
+		str = fmt.Sprintf("<div class=\"log_item_label\">%s</div> <div class=\"log_item_content\">%s</div>", label, string(byteData))
+	}
+	logItem := fmt.Sprintf("<div class=\"log_item_%s\">%s</div>", level, str)
+	p.Items = append(p.Items, logItem)
 
 }
 func (p *Pusher) Commit(ctx context.Context) {
+
 	if p.Client == nil {
 		return
 	}
+	if len(p.Items) > 0 {
+		for _, content := range p.Items {
+			p.Content += content
+		}
+		p.Items = []string{}
+	}
+
 	var userID uint
 	userIDs := ctx.Value("UserID")
 	if userIDs != nil {
@@ -38,6 +90,7 @@ func (p *Pusher) Commit(ctx context.Context) {
 	clientIP := ctx.Value("ClientIP").(string)
 	p.IP = clientIP
 	p.UserID = userID
+
 	byteData, err := json.Marshal(p)
 	if err != nil {
 		logx.Error(err)
@@ -48,19 +101,19 @@ func (p *Pusher) Commit(ctx context.Context) {
 		logx.Error(err)
 		return
 	}
+	p.Content = ""
 }
 func NewActionPusher(client *kq.Pusher, serviceName string) *Pusher {
-	return NewPusher(client, 2, "Action", serviceName)
+	return NewPusher(client, 2, serviceName)
 
 }
 func NewRuntimePusher(client *kq.Pusher, serviceName string) *Pusher {
-	return NewPusher(client, 3, "Runtime", serviceName)
+	return NewPusher(client, 3, serviceName)
 }
 
-func NewPusher(client *kq.Pusher, LogType int8, level string, serviceName string) *Pusher {
+func NewPusher(client *kq.Pusher, LogType int8, serviceName string) *Pusher {
 	return &Pusher{
 		LogType: LogType,
-		Level:   level,
 		Service: serviceName,
 		Client:  client,
 	}
