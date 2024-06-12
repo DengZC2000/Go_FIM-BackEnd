@@ -21,6 +21,7 @@ type Pusher struct {
 	Title      string `json:"title"`
 	Content    string `json:"content"` // 日志详情
 	Service    string `json:"service"` // 服务 记录微服务的名称
+	Ctx        context.Context
 	Client     *kq.Pusher
 	Items      []string
 	isRequest  bool
@@ -29,6 +30,7 @@ type Pusher struct {
 	request    string
 	headers    string
 	response   string
+	Count      int
 }
 
 // PushInfo 为什么是指针 因为要改值
@@ -60,6 +62,9 @@ func (p *Pusher) IsHeaders() {
 func (p *Pusher) IsResponse() {
 	p.isResponse = true
 }
+func (p *Pusher) GetResponse() bool {
+	return p.isResponse
+}
 
 // SetRequest 设置一组入参
 func (p *Pusher) SetRequest(r *http.Request) {
@@ -84,8 +89,21 @@ func (p *Pusher) SetRequest(r *http.Request) {
 
 }
 func (p *Pusher) SetHeaders(r *http.Request) {
+	byteData, _ := json.Marshal(r.Header)
+	p.headers = fmt.Sprintf(`<div class="log_request_header">
+<div class="log_request_body">
+   <pre class="log_json_body">%s</pre>
+</div>
+</div>`, string(byteData))
 }
-func (p *Pusher) SetResponse(w http.ResponseWriter) {
+func (p *Pusher) SetResponse(w string) {
+	fmt.Println("邓智超", w)
+
+	p.response = fmt.Sprintf(`
+<div class="log_response">
+	<pre class="log_json_body">%s</pre>
+</div>`, w)
+	p.Commit(p.Ctx)
 }
 func (p *Pusher) SetItemInfo(label string, val any) {
 	p.setItem("Info", label, val)
@@ -115,7 +133,17 @@ func (p *Pusher) setItem(level, label string, val any) {
 	p.Items = append(p.Items, logItem)
 
 }
+func (p *Pusher) SetCtx(ctx context.Context) {
+	p.Ctx = ctx
+}
 func (p *Pusher) Commit(ctx context.Context) {
+	if p.Ctx == nil {
+		p.Ctx = ctx
+	}
+	if p.isResponse && p.Count == 0 {
+		p.Count = 1
+		return
+	}
 	if p.Client == nil {
 		return
 	}
@@ -127,6 +155,7 @@ func (p *Pusher) Commit(ctx context.Context) {
 		items = append(items, p.headers)
 	}
 	if p.isResponse {
+		fmt.Println(p.response)
 		items = append(items, p.response)
 	}
 	for _, content := range items {
@@ -135,12 +164,12 @@ func (p *Pusher) Commit(ctx context.Context) {
 
 	p.Items = []string{}
 	var userID uint
-	userIDs := ctx.Value("UserID")
+	userIDs := p.Ctx.Value("UserID")
 	if userIDs != nil {
 		ID, _ := strconv.Atoi(userIDs.(string))
 		userID = uint(ID)
 	}
-	clientIP := ctx.Value("ClientIP").(string)
+	clientIP := p.Ctx.Value("ClientIP").(string)
 	p.IP = clientIP
 	p.UserID = userID
 

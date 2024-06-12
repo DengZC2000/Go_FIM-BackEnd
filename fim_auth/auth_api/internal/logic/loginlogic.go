@@ -31,8 +31,12 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 	var user auth_models.UserModel
 	// 启用http request写入
 	l.svcCtx.ActionPusher.IsRequest()
+	l.svcCtx.ActionPusher.IsHeaders()
+	l.svcCtx.ActionPusher.IsResponse()
+
 	l.svcCtx.ActionPusher.SetItemInfo("Username", req.Username)
 	l.svcCtx.ActionPusher.PushInfo("用户登陆操作")
+	defer l.svcCtx.ActionPusher.Commit(l.ctx)
 
 	count := l.svcCtx.DB.Take(&user, "id = ?", req.Username).RowsAffected
 	if count != 1 {
@@ -63,6 +67,6 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 
 	l.svcCtx.ActionPusher.PushInfo(fmt.Sprintf("%s 用户登陆成功", user.NickName))
 	ctx := context.WithValue(l.ctx, "UserID", fmt.Sprintf("%d", user.ID))
-	l.svcCtx.ActionPusher.Commit(ctx)
+	l.svcCtx.ActionPusher.SetCtx(ctx)
 	return &types.LoginResponse{Token: token}, nil
 }
