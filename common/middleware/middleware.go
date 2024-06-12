@@ -14,11 +14,13 @@ func LogActionMiddleware(pusher *log_stash.Pusher) func(next http.HandlerFunc) h
 
 			// 设置入参
 			pusher.SetRequest(r)
+			pusher.SetHeaders(r)
 
 			ctx := context.WithValue(r.Context(), "ClientIP", ClientIP)
 			ctx = context.WithValue(ctx, "UserID", r.Header.Get("User-ID"))
 			next(w, r.WithContext(ctx))
 			// 设置响应
+			pusher.SetResponse(w)
 		}
 	}
 }

@@ -14,16 +14,21 @@ import (
 )
 
 type Pusher struct {
-	LogType   int8   `json:"log_type"` // 日志类型 2 操作日志 3 运行日志
-	IP        string `json:"ip"`
-	UserID    uint   `json:"user_id"`
-	Level     string `json:"level"`
-	Title     string `json:"title"`
-	Content   string `json:"content"` // 日志详情
-	Service   string `json:"service"` // 服务 记录微服务的名称
-	Items     []string
-	isRequest bool
-	Client    *kq.Pusher
+	LogType    int8   `json:"log_type"` // 日志类型 2 操作日志 3 运行日志
+	IP         string `json:"ip"`
+	UserID     uint   `json:"user_id"`
+	Level      string `json:"level"`
+	Title      string `json:"title"`
+	Content    string `json:"content"` // 日志详情
+	Service    string `json:"service"` // 服务 记录微服务的名称
+	Client     *kq.Pusher
+	Items      []string
+	isRequest  bool
+	isHeaders  bool
+	isResponse bool
+	request    string
+	headers    string
+	response   string
 }
 
 // PushInfo 为什么是指针 因为要改值
@@ -49,6 +54,14 @@ func (p *Pusher) PushError(title string) {
 func (p *Pusher) IsRequest() {
 	p.isRequest = true
 }
+func (p *Pusher) IsHeaders() {
+	p.isHeaders = true
+}
+func (p *Pusher) IsResponse() {
+	p.isResponse = true
+}
+
+// SetRequest 设置一组入参
 func (p *Pusher) SetRequest(r *http.Request) {
 	// 请求头
 	// 请求体
@@ -59,7 +72,7 @@ func (p *Pusher) SetRequest(r *http.Request) {
 	path := r.URL.String()
 	byteData, _ := io.ReadAll(r.Body)
 	r.Body = io.NopCloser(bytes.NewBuffer(byteData))
-	p.Items = append(p.Items, fmt.Sprintf(`<div class="log_request">
+	p.request = fmt.Sprintf(`<div class="log_request">
 <div class="log_request_head">
 	<span class="log_request_method %s">%s</span>
 	<span class="log_request_path">%s</span>
@@ -67,8 +80,12 @@ func (p *Pusher) SetRequest(r *http.Request) {
 	<div class="log_request_body">
 		<pre class="log_json_body">%s</pre>
 	</div>
-</div>`, strings.ToLower(method), method, path, string(byteData)))
+</div>`, strings.ToLower(method), method, path, string(byteData))
 
+}
+func (p *Pusher) SetHeaders(r *http.Request) {
+}
+func (p *Pusher) SetResponse(w http.ResponseWriter) {
 }
 func (p *Pusher) SetItemInfo(label string, val any) {
 	p.setItem("Info", label, val)
@@ -99,22 +116,24 @@ func (p *Pusher) setItem(level, label string, val any) {
 
 }
 func (p *Pusher) Commit(ctx context.Context) {
-
 	if p.Client == nil {
 		return
 	}
-	if len(p.Items) > 0 {
-		for _, content := range p.Items {
-			if !p.isRequest {
-				if strings.Contains(content, "log_request") {
-					continue
-				}
-			}
-			p.Content += content
-		}
-		p.Items = []string{}
+	var items []string
+	if p.isRequest {
+		items = append(items, p.request)
+	}
+	if p.isHeaders {
+		items = append(items, p.headers)
+	}
+	if p.isResponse {
+		items = append(items, p.response)
+	}
+	for _, content := range items {
+		p.Content += content
 	}
 
+	p.Items = []string{}
 	var userID uint
 	userIDs := ctx.Value("UserID")
 	if userIDs != nil {
