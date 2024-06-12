@@ -27,7 +27,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 
-	server.Use(middleware.LogMiddleware)
+	server.Use(middleware.LogActionMiddleware(ctx.ActionPusher))
 
 	etcd.DeliveryAddress(c.Etcd, c.Name+"_api", fmt.Sprintf("%s:%d", c.Host, c.Port))
 

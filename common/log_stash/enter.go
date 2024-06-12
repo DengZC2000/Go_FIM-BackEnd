@@ -1,24 +1,29 @@
 package log_stash
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/zeromicro/go-queue/kq"
 	"github.com/zeromicro/go-zero/core/logx"
+	"io"
+	"net/http"
 	"strconv"
+	"strings"
 )
 
 type Pusher struct {
-	LogType int8   `json:"log_type"` // 日志类型 2 操作日志 3 运行日志
-	IP      string `json:"ip"`
-	UserID  uint   `json:"user_id"`
-	Level   string `json:"level"`
-	Title   string `json:"title"`
-	Content string `json:"content"` // 日志详情
-	Service string `json:"service"` // 服务 记录微服务的名称
-	Items   []string
-	Client  *kq.Pusher
+	LogType   int8   `json:"log_type"` // 日志类型 2 操作日志 3 运行日志
+	IP        string `json:"ip"`
+	UserID    uint   `json:"user_id"`
+	Level     string `json:"level"`
+	Title     string `json:"title"`
+	Content   string `json:"content"` // 日志详情
+	Service   string `json:"service"` // 服务 记录微服务的名称
+	Items     []string
+	isRequest bool
+	Client    *kq.Pusher
 }
 
 // PushInfo 为什么是指针 因为要改值
@@ -39,6 +44,30 @@ func (p *Pusher) PushWarning(title string) {
 func (p *Pusher) PushError(title string) {
 	p.Title = title
 	p.Level = "Error"
+
+}
+func (p *Pusher) IsRequest() {
+	p.isRequest = true
+}
+func (p *Pusher) SetRequest(r *http.Request) {
+	// 请求头
+	// 请求体
+	// 请求路径，请求方法
+	// 关于请求体的问题，拿了之后要还回去
+	// 一定要在参数绑定之前调用
+	method := r.Method
+	path := r.URL.String()
+	byteData, _ := io.ReadAll(r.Body)
+	r.Body = io.NopCloser(bytes.NewBuffer(byteData))
+	p.Items = append(p.Items, fmt.Sprintf(`<div class="log_request">
+<div class="log_request_head">
+	<span class="log_request_method %s">%s</span>
+	<span class="log_request_path">%s</span>
+</div>
+	<div class="log_request_body">
+		<pre class="log_json_body">%s</pre>
+	</div>
+</div>`, strings.ToLower(method), method, path, string(byteData)))
 
 }
 func (p *Pusher) SetItemInfo(label string, val any) {
@@ -76,6 +105,11 @@ func (p *Pusher) Commit(ctx context.Context) {
 	}
 	if len(p.Items) > 0 {
 		for _, content := range p.Items {
+			if !p.isRequest {
+				if strings.Contains(content, "log_request") {
+					continue
+				}
+			}
 			p.Content += content
 		}
 		p.Items = []string{}

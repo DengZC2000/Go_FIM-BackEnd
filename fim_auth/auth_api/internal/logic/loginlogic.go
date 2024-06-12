@@ -29,6 +29,8 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 
 func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, err error) {
 	var user auth_models.UserModel
+	// 启用http request写入
+	l.svcCtx.ActionPusher.IsRequest()
 	l.svcCtx.ActionPusher.SetItemInfo("Username", req.Username)
 	l.svcCtx.ActionPusher.PushInfo("用户登陆操作")
 
