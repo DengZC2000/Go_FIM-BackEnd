@@ -132,7 +132,9 @@ func (p *Pusher) setItem(level, label string, val any) {
 	}
 	logItem := fmt.Sprintf("<div class=\"log_item_%s\">%s</div>", level, str)
 	p.Items = append(p.Items, logItem)
-
+	if p.LogType == 3 {
+		p.Commit(p.Ctx)
+	}
 }
 func (p *Pusher) SetCtx(ctx context.Context) {
 	p.Ctx = ctx
@@ -140,6 +142,9 @@ func (p *Pusher) SetCtx(ctx context.Context) {
 func (p *Pusher) Commit(ctx context.Context) {
 	if p.Ctx == nil {
 		p.Ctx = ctx
+	}
+	if ctx == nil {
+		p.Ctx = context.Background()
 	}
 	if p.isResponse && p.Count == 0 {
 		p.Count = 1
@@ -171,8 +176,11 @@ func (p *Pusher) Commit(ctx context.Context) {
 		ID, _ := strconv.Atoi(userIDs.(string))
 		userID = uint(ID)
 	}
-	clientIP := p.Ctx.Value("ClientIP").(string)
-	p.IP = clientIP
+	clientIP, ok := p.Ctx.Value("ClientIP").(string)
+	if ok {
+		p.IP = clientIP
+
+	}
 	p.UserID = userID
 
 	byteData, err := json.Marshal(p)

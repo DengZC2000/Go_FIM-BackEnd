@@ -34,8 +34,6 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 	l.svcCtx.ActionPusher.IsHeaders()
 	//l.svcCtx.ActionPusher.IsResponse()
 	l.svcCtx.RuntimePusher.SetItemInfo("xxx", "登陆了")
-	l.svcCtx.RuntimePusher.SetItemInfo("xxx", "登陆了123")
-	l.svcCtx.RuntimePusher.Commit(l.ctx)
 
 	l.svcCtx.ActionPusher.SetItemInfo("Username", req.Username)
 	l.svcCtx.ActionPusher.PushInfo("用户登陆操作")
@@ -64,6 +62,8 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 	if err != nil {
 		l.svcCtx.ActionPusher.SetItemError("生成token失败", err.Error())
 		l.svcCtx.ActionPusher.PushError("生成token失败")
+		l.svcCtx.RuntimePusher.SetItemError("xxx", "token内部错误")
+
 		err = errors.New("生成token失败")
 		return
 	}
