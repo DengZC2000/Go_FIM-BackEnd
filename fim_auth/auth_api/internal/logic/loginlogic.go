@@ -32,7 +32,10 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 	// 启用http request写入
 	l.svcCtx.ActionPusher.IsRequest()
 	l.svcCtx.ActionPusher.IsHeaders()
-	l.svcCtx.ActionPusher.IsResponse()
+	//l.svcCtx.ActionPusher.IsResponse()
+	l.svcCtx.RuntimePusher.SetItemInfo("xxx", "登陆了")
+	l.svcCtx.RuntimePusher.SetItemInfo("xxx", "登陆了123")
+	l.svcCtx.RuntimePusher.Commit(l.ctx)
 
 	l.svcCtx.ActionPusher.SetItemInfo("Username", req.Username)
 	l.svcCtx.ActionPusher.PushInfo("用户登陆操作")

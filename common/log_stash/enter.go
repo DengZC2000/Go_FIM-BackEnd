@@ -119,6 +119,7 @@ func (p *Pusher) SetItemError(label string, val any) {
 
 }
 func (p *Pusher) setItem(level, label string, val any) {
+	p.Level = level
 	var str string
 	switch value := val.(type) {
 	case string:
@@ -155,9 +156,10 @@ func (p *Pusher) Commit(ctx context.Context) {
 		items = append(items, p.headers)
 	}
 	if p.isResponse {
-		fmt.Println(p.response)
+
 		items = append(items, p.response)
 	}
+	items = append(items, p.Items...)
 	for _, content := range items {
 		p.Content += content
 	}

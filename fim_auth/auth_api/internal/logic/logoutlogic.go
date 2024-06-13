@@ -35,6 +35,8 @@ func (l *LogoutLogic) Logout(token string) (resp string, err error) {
 		err = errors.New("token错误")
 		return
 	}
+	l.svcCtx.RuntimePusher.SetItemInfo("xxx", "注销了")
+	l.svcCtx.RuntimePusher.Commit(l.ctx)
 	key := fmt.Sprintf("logout_%s", token)
 	now := time.Now()
 	expiration := claims.ExpiresAt.Sub(now)

@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/zeromicro/go-zero/core/logx"
+	"sync"
 )
 
 type LogEvent struct {
@@ -60,7 +61,26 @@ func (l *LogEvent) Consume(key, val string) error {
 			info.UserNickname = baseInfo.NickName
 		}
 	}
+	// 判断是不是运行日志
+	if info.LogType == 3 {
+		// 运行日志
+		// 先查一下 今天这个服务有没有日志 有的话就更新，没有就创建
+		var logModel logs_model.LogModel
+		mutex := sync.Mutex{}
+		mutex.Lock()
+		err = l.svcCtx.DB.Take(&logModel, "log_type = 3 and service = ? and to_days(created_at) = to_days(now())", info.Service).Error
+		mutex.Unlock()
+		if err == nil {
+			// 找到了
+			l.svcCtx.DB.Model(&logModel).Update("content", logModel.Content+"\n"+info.Content)
+			logx.Infof("运行日志 %s 更新成功", req.Title)
+			return nil
+		}
+	}
+	mutex := sync.Mutex{}
+	mutex.Lock()
 	err = l.svcCtx.DB.Create(&info).Error
+	mutex.Unlock()
 	if err != nil {
 		logx.Error(err)
 		return err
