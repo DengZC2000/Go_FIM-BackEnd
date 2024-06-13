@@ -14,4 +14,8 @@ type Config struct {
 	Etcd           string
 	KqConsumerConf kq.KqConf
 	UserRpc        zrpc.RpcClientConf
+	KqPusherConf   struct {
+		Brokers []string
+		Topic   string
+	}
 }

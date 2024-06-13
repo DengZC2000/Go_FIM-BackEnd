@@ -22,3 +22,7 @@ KqConsumerConf:
   Offset: first
   Consumers: 8
   Processors: 8
+KqPusherConf:
+  Brokers:
+    - 127.0.0.1:9092
+  Topic: log-topic
