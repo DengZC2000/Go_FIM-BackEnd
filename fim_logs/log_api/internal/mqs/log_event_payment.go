@@ -4,6 +4,7 @@ import (
 	"FIM/fim_logs/log_api/internal/svc"
 	"FIM/fim_logs/logs_model"
 	"FIM/fim_user/user_rpc/types/user_rpc"
+	"FIM/utils/addr"
 	"context"
 	"encoding/json"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -45,7 +46,7 @@ func (l *LogEvent) Consume(key, val string) error {
 	var info = logs_model.LogModel{
 		LogType: req.LogType,
 		IP:      req.IP,
-		Addr:    "内网地址",
+		Addr:    addr.GetAddr(req.IP),
 		UserID:  req.UserID,
 		Level:   req.Level,
 		Title:   req.Title,
