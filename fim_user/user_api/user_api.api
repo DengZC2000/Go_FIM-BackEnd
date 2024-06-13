@@ -195,3 +195,17 @@ service user {
 }
 
 // goctl api go -api user_api.api -dir .
+@server (
+middleware: AdminMiddleware
+group: Admin
+)
+service users{
+	@handler user_list
+	get /api/user/userList (FriendValidResquest) returns (FriendValidResponse)
+
+	@handler user_restrict
+	get /api/user/user_restrict (FriendValidResquest) returns (FriendValidResponse)
+
+	@handler user_delete
+	get /api/user/user_valid_list (FriendValidResquest) returns (FriendValidResponse)
+}
