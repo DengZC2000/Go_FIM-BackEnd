@@ -1,10 +1,55 @@
 syntax = "v1"
 
-type LogListRequest {}
+type LogListRequest {
+	Page  int `form:"page,optional"`
+	Limit int `form:"limit,optional"`
+	Key   int `form:"key,optional"`
+}
 
-type LogListResponse {}
+type LogInfoResponse {
+	ID           uint   `json:"id"`
+	CreatedAt    string `json:"created_at"`
+	LogType      int8   `json:"log_type"` // 日志类型 2 操作日志 3 运行日志
+	IP           string `json:"ip"`
+	Addr         string `json:"addr"`
+	UserID       uint   `json:"user_id"`
+	UserNickname string `json:"user_nickname"`
+	UserAvatar   string `json:"user_avatar"`
+	Level        string `json:"level"`
+	Title        string `json:"title"`
+	Content      string `json:"content"` // 日志详情
+	Service      string `json:"service"` // 服务 记录微服务的名称
+	IsRead       bool   `json:"is_read"`
+}
 
+type LogListResponse {
+	List  []LogInfoResponse `json:"list"`
+	Count int               `json:"count"`
+}
+
+type LogReadRequest {
+	ID uint `path:"id"`
+}
+
+type LogReadResponse {}
+
+type LogDeleteRequest {
+	IdList []uint `json:"id_list"`
+}
+
+type LogDeleteResponse {}
+
+// 声明中间件，做日志操作的鉴权
+@server (
+	middleware: AdminMiddleware
+)
 service logs {
+	@handler log_read
+	get /api/logs/log_read/:id (LogReadRequest) returns (LogReadResponse)
+
+	@handler log_delete
+	delete /api/logs/log_delete (LogDeleteRequest) returns (LogDeleteResponse)
+
 	@handler log_list
 	get /api/logs/log_list (LogListRequest) returns (LogListResponse)
 }

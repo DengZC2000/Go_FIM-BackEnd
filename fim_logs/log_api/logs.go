@@ -38,7 +38,7 @@ func main() {
 	}
 	server.Use(middleware.LogMiddleware)
 	etcd.DeliveryAddress(c.Etcd, c.Name+"_api", fmt.Sprintf("%s:%d", c.Host, c.Port))
-	serviceGroup.Start()
+	go serviceGroup.Start()
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 }
