@@ -5,20 +5,23 @@ import (
 	"FIM/fim_chat/chat_rpc/chat"
 	"FIM/fim_chat/chat_rpc/types/chat_rpc"
 	"FIM/fim_user/user_api/internal/config"
+	"FIM/fim_user/user_api/internal/middleware"
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"FIM/fim_user/user_rpc/users"
 	"github.com/redis/go-redis/v9"
 	"github.com/zeromicro/go-zero/zrpc"
 	"gorm.io/gorm"
 	"log"
+	"net/http"
 )
 
 type ServiceContext struct {
-	Config  config.Config
-	DB      *gorm.DB
-	Redis   *redis.Client
-	UserRpc user_rpc.UsersClient
-	ChatRpc chat_rpc.ChatClient
+	Config          config.Config
+	DB              *gorm.DB
+	Redis           *redis.Client
+	UserRpc         user_rpc.UsersClient
+	ChatRpc         chat_rpc.ChatClient
+	AdminMiddleware func(next http.HandlerFunc) http.HandlerFunc
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -28,10 +31,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		log.Println("redis连接失败")
 	}
 	return &ServiceContext{
-		Config:  c,
-		DB:      mysqlDb,
-		Redis:   redisDb,
-		UserRpc: users.NewUsers(zrpc.MustNewClient(c.UserRpc)),
-		ChatRpc: chat.NewChat(zrpc.MustNewClient(c.ChatRpc)),
+		Config:          c,
+		DB:              mysqlDb,
+		Redis:           redisDb,
+		UserRpc:         users.NewUsers(zrpc.MustNewClient(c.UserRpc)),
+		ChatRpc:         chat.NewChat(zrpc.MustNewClient(c.ChatRpc)),
+		AdminMiddleware: middleware.NewAdminMiddleware().Handle,
 	}
 }

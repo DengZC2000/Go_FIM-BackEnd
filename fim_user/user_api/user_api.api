@@ -159,6 +159,45 @@ type DeleteFriendRequest {
 
 type DeleteFriendResponse {}
 
+type UserListResquest {
+	Page  int `json:"page,optional"`
+	Limit int `json:"limit,optional"`
+	Key   int `json:"key,optional"`
+}
+
+type UserListInfoResponse {
+	ID              uint   `json:"id"`
+	CreatedAt       string `json:"created_at"`
+	Nickname        string `json:"nickname"`
+	Avatar          string `json:"avatar"`
+	IP              string `json:"ip"`
+	Addr            string `json:"addr"`
+	IsOnline        bool   `json:"is_online"`
+	SendMsgCount    int    `json:"send_msg_count"` // 发送消息个数
+	GroupAdminCount int    `json:"group_admin_count"` // 建群数量
+	GroupCount      int    `json:"group_count"` // 进群数量
+}
+
+type UserListResponse {
+	List  []UserListInfoResponse `json:"list"`
+	Count int                    `json:"count"`
+}
+
+type UserRestrictResquest {
+	RestrictChat        bool `json:"restrict_chat"` // 限制聊天
+	RestrictAddUser     bool `json:"restrict_add_user"` // 限制加入
+	RestrictCreateGroup bool `json:"restrict_create_group"` // 限制建群
+	RestrictInGroupChat bool `json:"restrict_in_group_chat"` // 限制进群
+}
+
+type UserRestrictResponse {}
+
+type UserDeleteResquest {
+	IdList []uint `json:"id_list"`
+}
+
+type UserDeleteResponse {}
+
 service user {
 	@handler user_info
 	get /api/user/user_info (UserInfoRequest) returns (UserInfoResponse) //获取用户信息
@@ -194,18 +233,18 @@ service user {
 	delete /api/user/delete_friend (DeleteFriendRequest) returns (DeleteFriendResponse) //验证状态更改
 }
 
-// goctl api go -api user_api.api -dir .
 @server (
-middleware: AdminMiddleware
-group: Admin
+	middleware: AdminMiddleware
+	group:      Admin
 )
-service users{
+service user {
 	@handler user_list
-	get /api/user/userList (FriendValidResquest) returns (FriendValidResponse)
+	get /api/user/userList (UserListResquest) returns (UserListResponse)
 
 	@handler user_restrict
-	get /api/user/user_restrict (FriendValidResquest) returns (FriendValidResponse)
+	post /api/user/user_restrict (UserRestrictResquest) returns (UserRestrictResponse)
 
 	@handler user_delete
-	get /api/user/user_valid_list (FriendValidResquest) returns (FriendValidResponse)
-}
+	delete /api/user/user_delete (UserDeleteResquest) returns (UserDeleteResponse)
+} // goctl api go -api user_api.api -dir .
+
