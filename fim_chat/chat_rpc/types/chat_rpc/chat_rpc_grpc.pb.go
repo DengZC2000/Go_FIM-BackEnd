@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChatClient interface {
 	UserChatCreate(ctx context.Context, in *UserChatRequest, opts ...grpc.CallOption) (*UserChatResponse, error)
+	UserListChatCount(ctx context.Context, in *UserListChatCountRequest, opts ...grpc.CallOption) (*UserListChatCountResponse, error)
 }
 
 type chatClient struct {
@@ -42,11 +43,21 @@ func (c *chatClient) UserChatCreate(ctx context.Context, in *UserChatRequest, op
 	return out, nil
 }
 
+func (c *chatClient) UserListChatCount(ctx context.Context, in *UserListChatCountRequest, opts ...grpc.CallOption) (*UserListChatCountResponse, error) {
+	out := new(UserListChatCountResponse)
+	err := c.cc.Invoke(ctx, "/chat_rpc.Chat/UserListChatCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ChatServer is the server API for Chat service.
 // All implementations must embed UnimplementedChatServer
 // for forward compatibility
 type ChatServer interface {
 	UserChatCreate(context.Context, *UserChatRequest) (*UserChatResponse, error)
+	UserListChatCount(context.Context, *UserListChatCountRequest) (*UserListChatCountResponse, error)
 	mustEmbedUnimplementedChatServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedChatServer struct {
 
 func (UnimplementedChatServer) UserChatCreate(context.Context, *UserChatRequest) (*UserChatResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserChatCreate not implemented")
+}
+func (UnimplementedChatServer) UserListChatCount(context.Context, *UserListChatCountRequest) (*UserListChatCountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserListChatCount not implemented")
 }
 func (UnimplementedChatServer) mustEmbedUnimplementedChatServer() {}
 
@@ -88,6 +102,24 @@ func _Chat_UserChatCreate_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Chat_UserListChatCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserListChatCountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServer).UserListChatCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/chat_rpc.Chat/UserListChatCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServer).UserListChatCount(ctx, req.(*UserListChatCountRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Chat_ServiceDesc is the grpc.ServiceDesc for Chat service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var Chat_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UserChatCreate",
 			Handler:    _Chat_UserChatCreate_Handler,
+		},
+		{
+			MethodName: "UserListChatCount",
+			Handler:    _Chat_UserListChatCount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

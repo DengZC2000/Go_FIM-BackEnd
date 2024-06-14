@@ -3,6 +3,7 @@ package Admin
 import (
 	"FIM/common/list_query"
 	"FIM/common/models"
+	"FIM/fim_chat/chat_rpc/types/chat_rpc"
 	"FIM/fim_group/group_rpc/types/group_rpc"
 	"FIM/fim_user/user_models"
 	"FIM/fim_user/user_rpc/types/user_rpc"
@@ -69,6 +70,12 @@ func (l *User_listLogic) User_list(req *types.UserListResquest) (resp *types.Use
 		logx.Error(err3)
 	}
 	//查用户发送的消息个数
+	chatResponse, err4 := l.svcCtx.ChatRpc.UserListChatCount(l.ctx, &chat_rpc.UserListChatCountRequest{
+		UserIdList: userIDList,
+	})
+	if err4 != nil {
+		logx.Error(err)
+	}
 	for _, model := range list {
 		info := types.UserListInfoResponse{
 			ID:              model.ID,
@@ -80,6 +87,10 @@ func (l *User_listLogic) User_list(req *types.UserListResquest) (resp *types.Use
 			IsOnline:        userOnlineMap[model.ID],
 			GroupAdminCount: int(groupResponse.Result[int32(model.ID)]),
 			GroupCount:      int(groupResponse2.Result[int32(model.ID)]),
+		}
+		if chatResponse.Result[uint32(model.ID)] != nil {
+			info.SendMsgCount = int(chatResponse.Result[uint32(model.ID)].SendMsgCount)
+			info.RevMsgCount = int(chatResponse.Result[uint32(model.ID)].RevMsgCount)
 		}
 		resp.List = append(resp.List, info)
 	}
