@@ -174,19 +174,19 @@ type UserListResponse struct {
 }
 
 type UserListResquest struct {
-	Page  int `json:"page,optional"`
-	Limit int `json:"limit,optional"`
-	Key   int `json:"key,optional"`
+	Page  int    `json:"page,optional"`
+	Limit int    `json:"limit,optional"`
+	Key   string `json:"key,optional"`
 }
 
 type UserRestrictResponse struct {
 }
 
 type UserRestrictResquest struct {
-	RestrictChat        bool `json:"restrict_chat"`          // 限制聊天
-	RestrictAddUser     bool `json:"restrict_add_user"`      // 限制加入
-	RestrictCreateGroup bool `json:"restrict_create_group"`  // 限制建群
-	RestrictInGroupChat bool `json:"restrict_in_group_chat"` // 限制进群
+	RestrictChat        bool `json:"restrict_chat,optional"`          // 限制聊天
+	RestrictAddUser     bool `json:"restrict_add_user,optional"`      // 限制加入
+	RestrictCreateGroup bool `json:"restrict_create_group,optional"`  // 限制建群
+	RestrictInGroupChat bool `json:"restrict_in_group_chat,optional"` // 限制进群
 }
 
 type UserValidRequest struct {
