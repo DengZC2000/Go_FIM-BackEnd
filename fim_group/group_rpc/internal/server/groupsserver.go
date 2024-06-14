@@ -26,3 +26,8 @@ func (s *GroupsServer) IsInGroup(ctx context.Context, in *group_rpc.IsInGroupReq
 	l := logic.NewIsInGroupLogic(ctx, s.svcCtx)
 	return l.IsInGroup(in)
 }
+
+func (s *GroupsServer) UserGroupSearch(ctx context.Context, in *group_rpc.UserGroupSearchRequest) (*group_rpc.UserGroupSearchResponse, error) {
+	l := logic.NewUserGroupSearchLogic(ctx, s.svcCtx)
+	return l.UserGroupSearch(in)
+}

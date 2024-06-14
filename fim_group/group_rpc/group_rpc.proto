@@ -11,8 +11,18 @@ message IsInGroupRequest{
 message IsInGroupResponse{
   bool is_in_group = 1;
 }
-
+message UserGroupSearchRequest{
+  repeated uint32 user_id_list = 1;
+  uint32 mode = 2; // 模式 1.创建群聊的个数   2.加入群聊的个数
+}
+message UserGroupSearchResponse{
+  map<int32,int32> result = 1;// 结果
+}
 service Groups{
-  rpc IsInGroup (IsInGroupRequest)returns(IsInGroupResponse);
+
+  rpc IsInGroup (IsInGroupRequest)returns(IsInGroupResponse);// 是否在群里
+
+  rpc UserGroupSearch (UserGroupSearchRequest)returns(UserGroupSearchResponse);// 用户群查询
+
 }
 //goctl rpc protoc group_rpc.proto --go_out=./types --go-grpc_out=./types --zrpc_out=.

@@ -4,6 +4,8 @@ import (
 	"FIM/core"
 	"FIM/fim_chat/chat_rpc/chat"
 	"FIM/fim_chat/chat_rpc/types/chat_rpc"
+	"FIM/fim_group/group_rpc/groups"
+	"FIM/fim_group/group_rpc/types/group_rpc"
 	"FIM/fim_user/user_api/internal/config"
 	"FIM/fim_user/user_api/internal/middleware"
 	"FIM/fim_user/user_rpc/types/user_rpc"
@@ -21,6 +23,7 @@ type ServiceContext struct {
 	Redis           *redis.Client
 	UserRpc         user_rpc.UsersClient
 	ChatRpc         chat_rpc.ChatClient
+	GroupRpc        group_rpc.GroupsClient
 	AdminMiddleware func(next http.HandlerFunc) http.HandlerFunc
 }
 
@@ -36,6 +39,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Redis:           redisDb,
 		UserRpc:         users.NewUsers(zrpc.MustNewClient(c.UserRpc)),
 		ChatRpc:         chat.NewChat(zrpc.MustNewClient(c.ChatRpc)),
+		GroupRpc:        groups.NewGroups(zrpc.MustNewClient(c.GroupRpc)),
 		AdminMiddleware: middleware.NewAdminMiddleware().Handle,
 	}
 }
