@@ -18,7 +18,9 @@ type GroupModel struct {
 	IsTemporarySession   bool                        `json:"is_temporary_session"`        //是否开启临时会话
 	IsProhibition        bool                        `json:"is_prohibition"`              //是否开启全员禁言
 	Size                 int                         `json:"size"`                        //群规模 20 100 1000 2000
-	MemberList           []GroupMemberModel          `gorm:"foreignKey:GroupID" json:"-"` //群成员
+	MemberList           []GroupMemberModel          `gorm:"foreignKey:GroupID" json:"-"` //群成员列表
+	GroupMsgList         []GroupMsgModel             `gorm:"foreignKey:GroupID" json:"-"` //群消息列表
+
 }
 
 func (uc GroupModel) GetQuestionCount() (count int) {
