@@ -104,6 +104,37 @@ type GroupInfoResponse struct {
 	ProhibitionTime   *int       `json:"prohibition_time"`    //自己的禁言时间，单位 min
 }
 
+type GroupListInfoResponse struct {
+	ID                uint       `json:"id"`
+	CreatedAt         string     `json:"created_at"`
+	Title             string     `json:"title"`
+	Abstract          string     `json:"abstract"`
+	Avatar            string     `json:"avatar"`
+	Creater           UserInfo   `json:"creater"`            // 群主
+	AdminList         []UserInfo `json:"admin_list"`         // 管理员列表
+	MessageCount      int        `json:"message_count"`      // 消息数量
+	MemberCount       int        `json:"member_count"`       // 成员数量
+	MemberOnlineCount int        `json:"member_online_ount"` // 成员在线数量
+}
+
+type GroupListRemoveRequest struct {
+	IdList []uint `json:"id_list"`
+}
+
+type GroupListRemoveResponse struct {
+}
+
+type GroupListRequest struct {
+	Page  int    `form:"page,optional"`
+	Limit int    `form:"limit,optional"`
+	Key   string `form:"key,optional"`
+}
+
+type GroupListResponse struct {
+	List  []GroupListInfoResponse `json:"list"`
+	Count int                     `json:"count"`
+}
+
 type GroupMemberInfo struct {
 	UserID         uint   `json:"user_id"`
 	UserNickname   string `json:"user_nickname"`
@@ -126,6 +157,30 @@ type GroupMemberRequest struct {
 type GroupMemberResponse struct {
 	List  []GroupMemberInfo `json:"list"`
 	Count int               `json:"count"`
+}
+
+type GroupMessageListInfoResponse struct {
+}
+
+type GroupMessageListRequest struct {
+	Page  int    `form:"page,optional"`
+	Limit int    `form:"limit,optional"`
+	Key   string `form:"key,optional"`
+}
+
+type GroupMessageListResponse struct {
+	List  []GroupMessageListInfoResponse `json:"list"`
+	Count int                            `json:"count"`
+}
+
+type GroupMessageRemoveInfoResponse struct {
+}
+
+type GroupMessageRemoveRequest struct {
+	IdList []uint `json:"id_list"`
+}
+
+type GroupMessageRemoveResponse struct {
 }
 
 type GroupMineListResponse struct {

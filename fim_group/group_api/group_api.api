@@ -368,4 +368,73 @@ service group {
 	get /api/group/ws_chat (GroupChatRequest) returns (GroupChatResponse) //群聊
 }
 
+type GroupListRequest {
+	Page  int    `form:"page,optional"`
+	Limit int    `form:"limit,optional"`
+	Key   string `form:"key,optional"`
+}
+
+type GroupListInfoResponse {
+	ID                uint       `json:"id"`
+	CreatedAt         string     `json:"created_at"`
+	Title             string     `json:"title"`
+	Abstract          string     `json:"abstract"`
+	Avatar            string     `json:"avatar"`
+	Creater           UserInfo   `json:"creater"` // 群主
+	AdminList         []UserInfo `json:"admin_list"` // 管理员列表
+	MessageCount      int        `json:"message_count"` // 消息数量
+	MemberCount       int        `json:"member_count"` // 成员数量
+	MemberOnlineCount int        `json:"member_online_ount"` // 成员在线数量
+}
+
+type GroupListResponse {
+	List  []GroupListInfoResponse `json:"list"`
+	Count int                     `json:"count"`
+}
+
+type GroupListRemoveRequest {
+	IdList []uint `json:"id_list"`
+}
+
+type GroupListRemoveResponse {}
+
+type GroupMessageListRequest {
+	Page  int    `form:"page,optional"`
+	Limit int    `form:"limit,optional"`
+	Key   string `form:"key,optional"`
+}
+
+type GroupMessageListInfoResponse {}
+
+type GroupMessageListResponse {
+	List  []GroupMessageListInfoResponse `json:"list"`
+	Count int                            `json:"count"`
+}
+
+type GroupMessageRemoveRequest {
+	IdList []uint `json:"id_list"`
+}
+
+type GroupMessageRemoveInfoResponse {}
+
+type GroupMessageRemoveResponse {}
+
+@server (
+	group:      Admin
+	middleware: AdminMiddleware
+)
+service group {
+	@handler group_list
+	get /api/group/group_list (GroupListRequest) returns (GroupListResponse)
+
+	@handler group_list_remove
+	delete /api/group/group_list_remove (GroupListRemoveRequest) returns (GroupListRemoveResponse)
+
+	@handler group_message_list
+	get /api/group/group_message_list (GroupMessageListRequest) returns (GroupMessageListResponse)
+
+	@handler group_message_remove
+	delete /api/group/group_message_remove (GroupMessageRemoveRequest) returns (GroupMessageRemoveResponse)
+}
+
 //goctl api go -api group_api.api -dir .
