@@ -198,12 +198,6 @@ type UserRestrictResquest {
 
 type UserRestrictResponse {}
 
-type UserDeleteResquest {
-	IdList []uint `json:"id_list"`
-}
-
-type UserDeleteResponse {}
-
 service user {
 	@handler user_info
 	get /api/user/user_info (UserInfoRequest) returns (UserInfoResponse) //获取用户信息
@@ -249,8 +243,5 @@ service user {
 
 	@handler user_restrict
 	post /api/user/user_restrict (UserRestrictResquest) returns (UserRestrictResponse)
-
-	@handler user_delete
-	delete /api/user/user_delete (UserDeleteResquest) returns (UserDeleteResponse)
 } // goctl api go -api user_api.api -dir .
 

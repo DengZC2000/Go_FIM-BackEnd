@@ -81,11 +81,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: Admin.User_listHandler(serverCtx),
 				},
 				{
-					Method:  http.MethodDelete,
-					Path:    "/api/user/user_delete",
-					Handler: Admin.User_deleteHandler(serverCtx),
-				},
-				{
 					Method:  http.MethodPost,
 					Path:    "/api/user/user_restrict",
 					Handler: Admin.User_restrictHandler(serverCtx),

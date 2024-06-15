@@ -109,13 +109,6 @@ type SearchResponse struct {
 	Count int64        `json:"count"`
 }
 
-type UserDeleteResponse struct {
-}
-
-type UserDeleteResquest struct {
-	IdList []uint `json:"id_list"`
-}
-
 type UserInfoRequest struct {
 	UserID uint `header:"User-ID"`
 	Role   int8 `header:"User-Role"`
