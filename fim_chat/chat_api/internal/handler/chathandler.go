@@ -149,6 +149,14 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				fmt.Println(err)
 				break
 			}
+			// 目前这里没做实时更新
+			// 要做到实时更新，把用户的这些配置放到缓存里去
+			// 用户聊天之前向缓存中去拿用户的相关配置信息，拿不到的情况下，去调用户rpc返回信息，顺便把这些信息放到缓存中
+			// 在后台，用户的配置更新之后，就让这条缓存失效
+			if userInfo.UserConfModel.RestrictChat {
+				SendTipErrMsg(conn, "当前用户被限制聊天")
+				continue
+			}
 			var request ChatRequest
 			err1 := json.Unmarshal(p, &request)
 			if err1 != nil {

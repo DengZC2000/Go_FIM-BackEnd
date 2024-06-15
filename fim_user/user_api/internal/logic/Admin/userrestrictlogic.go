@@ -1,7 +1,9 @@
 package Admin
 
 import (
+	"FIM/fim_user/user_models"
 	"context"
+	"errors"
 
 	"FIM/fim_user/user_api/internal/svc"
 	"FIM/fim_user/user_api/internal/types"
@@ -24,7 +26,18 @@ func NewUser_restrictLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Use
 }
 
 func (l *User_restrictLogic) User_restrict(req *types.UserRestrictResquest) (resp *types.UserRestrictResponse, err error) {
-	// todo: add your logic here and delete this line
+	var user user_models.UserModel
+	err = l.svcCtx.DB.Preload("UserConfModel").Take(&user, req.UserID).Error
+	if err != nil {
+		// 没找到
+		return nil, errors.New("用户不存在")
+	}
+	l.svcCtx.DB.Model(&user.UserConfModel).Updates(map[string]any{
+		"restrict_chat":          req.RestrictChat,
+		"restrict_add_user":      req.RestrictAddUser,
+		"restrict_create_group":  req.RestrictCreateGroup,
+		"restrict_in_group_chat": req.RestrictInGroupChat,
+	})
 
 	return
 }

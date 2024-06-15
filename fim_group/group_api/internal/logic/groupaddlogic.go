@@ -3,7 +3,10 @@ package logic
 import (
 	"FIM/common/models/ctype"
 	"FIM/fim_group/group_models"
+	"FIM/fim_user/user_models"
+	"FIM/fim_user/user_rpc/types/user_rpc"
 	"context"
+	"encoding/json"
 	"errors"
 
 	"FIM/fim_group/group_api/internal/svc"
@@ -27,12 +30,20 @@ func NewGroup_addLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Group_a
 }
 
 func (l *Group_addLogic) Group_add(req *types.AddGroupRequest) (resp *types.AddGroupResponse, err error) {
+	userResponse, err := l.svcCtx.UserRpc.UserInfo(l.ctx, &user_rpc.UserInfoRequest{UserId: uint32(req.UserID)})
+	if err != nil {
+		return nil, errors.New("用户服务错误")
+	}
+	var userinfo user_models.UserModel
+	json.Unmarshal(userResponse.Data, &userinfo)
+	if userinfo.UserConfModel.RestrictCreateGroup {
+		return nil, errors.New("该用户被限制加入群聊")
+	}
 	var group group_models.GroupModel
 	err = l.svcCtx.DB.Take(&group, req.GroupID).Error
 	if err != nil {
 		return nil, errors.New("群不存在")
 	}
-
 	var member group_models.GroupMemberModel
 	err1 := l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.GroupID, req.UserID).Error
 	if err1 == nil {

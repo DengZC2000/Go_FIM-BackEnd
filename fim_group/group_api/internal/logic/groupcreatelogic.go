@@ -2,9 +2,11 @@ package logic
 
 import (
 	"FIM/fim_group/group_models"
+	"FIM/fim_user/user_models"
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"FIM/utils/set"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -39,6 +41,16 @@ func (l *Group_createLogic) Group_create(req *types.GroupCreateRequest) (resp *t
 		Verification: 2,
 		Size:         50,
 	}
+	userResponse, err := l.svcCtx.UserRpc.UserInfo(l.ctx, &user_rpc.UserInfoRequest{UserId: uint32(req.UserID)})
+	if err != nil {
+		return nil, errors.New("用户服务错误")
+	}
+	var userinfo user_models.UserModel
+	json.Unmarshal(userResponse.Data, &userinfo)
+	if userinfo.UserConfModel.RestrictCreateGroup {
+		return nil, errors.New("该用户被限制创建群聊")
+	}
+
 	groupUserList := []uint{req.UserID}
 	switch req.Mode {
 	case 1: //直接创建模式

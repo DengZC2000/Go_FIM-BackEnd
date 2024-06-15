@@ -28,6 +28,14 @@ func NewAdd_friendLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Add_fr
 
 func (l *Add_friendLogic) Add_friend(req *types.AddFriendRequest) (resp *types.AddFriendResponse, err error) {
 	var userConf user_models.UserConfModel
+	var userInfo user_models.UserModel
+	err = l.svcCtx.DB.Preload("UserConfModel").Take(&userInfo, req.UserID).Error
+	if err != nil {
+		return nil, errors.New("用户不存在，非法操作")
+	}
+	if userInfo.UserConfModel.RestrictAddUser {
+		return nil, errors.New("该用户被限制加好友")
+	}
 	err = l.svcCtx.DB.Take(&userConf, "user_id = ?", req.FriendID).Error
 	if err != nil {
 		return nil, errors.New("没有此人")

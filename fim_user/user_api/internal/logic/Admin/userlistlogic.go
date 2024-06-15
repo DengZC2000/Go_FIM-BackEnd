@@ -36,7 +36,8 @@ func (l *User_listLogic) User_list(req *types.UserListResquest) (resp *types.Use
 			Limit: req.Limit,
 			Key:   req.Key,
 		},
-		Likes: []string{"nickname", "ip"},
+		Preloads: []string{"UserConfModel"},
+		Likes:    []string{"nickname", "ip"},
 	})
 	resp = &types.UserListResponse{}
 	var userIDList []uint32
@@ -78,15 +79,19 @@ func (l *User_listLogic) User_list(req *types.UserListResquest) (resp *types.Use
 	}
 	for _, model := range list {
 		info := types.UserListInfoResponse{
-			ID:              model.ID,
-			CreatedAt:       model.CreatedAt.String(),
-			Nickname:        model.NickName,
-			Avatar:          model.Avatar,
-			IP:              model.IP,
-			Addr:            model.Address,
-			IsOnline:        userOnlineMap[model.ID],
-			GroupAdminCount: int(groupResponse.Result[int32(model.ID)]),
-			GroupCount:      int(groupResponse2.Result[int32(model.ID)]),
+			ID:                  model.ID,
+			CreatedAt:           model.CreatedAt.String(),
+			Nickname:            model.NickName,
+			Avatar:              model.Avatar,
+			IP:                  model.IP,
+			Addr:                model.Address,
+			IsOnline:            userOnlineMap[model.ID],
+			GroupAdminCount:     int(groupResponse.Result[int32(model.ID)]),
+			GroupCount:          int(groupResponse2.Result[int32(model.ID)]),
+			RestrictChat:        model.UserConfModel.RestrictChat,
+			RestrictAddUser:     model.UserConfModel.RestrictAddUser,
+			RestrictCreateGroup: model.UserConfModel.RestrictCreateGroup,
+			RestrictInGroupChat: model.UserConfModel.RestrictInGroupChat,
 		}
 		if chatResponse.Result[uint32(model.ID)] != nil {
 			info.SendMsgCount = int(chatResponse.Result[uint32(model.ID)].SendMsgCount)

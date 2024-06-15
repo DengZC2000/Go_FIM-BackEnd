@@ -156,17 +156,21 @@ type UserInfoUpdateResponse struct {
 }
 
 type UserListInfoResponse struct {
-	ID              uint   `json:"id"`
-	CreatedAt       string `json:"created_at"`
-	Nickname        string `json:"nickname"`
-	Avatar          string `json:"avatar"`
-	IP              string `json:"ip"`
-	Addr            string `json:"addr"`
-	IsOnline        bool   `json:"is_online"`
-	SendMsgCount    int    `json:"send_msg_count"`    // 发送消息个数
-	RevMsgCount     int    `json:"rev_msg_count"`     // 发送消息个数
-	GroupAdminCount int    `json:"group_admin_count"` // 建群数量
-	GroupCount      int    `json:"group_count"`       // 进群数量
+	ID                  uint   `json:"id"`
+	CreatedAt           string `json:"created_at"`
+	Nickname            string `json:"nickname"`
+	Avatar              string `json:"avatar"`
+	IP                  string `json:"ip"`
+	Addr                string `json:"addr"`
+	IsOnline            bool   `json:"is_online"`
+	SendMsgCount        int    `json:"send_msg_count"`                  // 发送消息个数
+	RevMsgCount         int    `json:"rev_msg_count"`                   // 发送消息个数
+	GroupAdminCount     int    `json:"group_admin_count"`               // 建群数量
+	GroupCount          int    `json:"group_count"`                     // 进群数量
+	RestrictChat        bool   `json:"restrict_chat,optional"`          // 限制聊天
+	RestrictAddUser     bool   `json:"restrict_add_user,optional"`      // 限制加入
+	RestrictCreateGroup bool   `json:"restrict_create_group,optional"`  // 限制建群
+	RestrictInGroupChat bool   `json:"restrict_in_group_chat,optional"` // 限制进群
 }
 
 type UserListResponse struct {
@@ -184,6 +188,7 @@ type UserRestrictResponse struct {
 }
 
 type UserRestrictResquest struct {
+	UserID              uint `json:"user_id"`                         // 限制谁
 	RestrictChat        bool `json:"restrict_chat,optional"`          // 限制聊天
 	RestrictAddUser     bool `json:"restrict_add_user,optional"`      // 限制加入
 	RestrictCreateGroup bool `json:"restrict_create_group,optional"`  // 限制建群
