@@ -71,4 +71,40 @@ service chat {
 	get /api/chat/ws/chat (ChatRequest) returns (ChatResponse) //ws的对话
 }
 
+type ChatAdminHistoryRequest {
+	SendUserID uint `form:"send_user_id"`
+	RevUserID  uint `form:"rev_user_id"`
+	Page       int  `form:"page,optional"`
+	Limit      int  `form:"limit,optional"`
+}
+
+type ChatAdminHistoryResponse {}
+
+type ChatAdminSessionRequest {
+	RevUserId uint `form:"rev_user_id"`
+}
+
+type UserInfo {
+	UserID   uint   `json:"user_id"`
+	Avatar   string `json:"avatar"`
+	Nickname string `json:"nickname"`
+}
+
+type ChatAdminSessionResponse {
+	List  []UserInfo `json:"list"`
+	Count int        `json:"count"`
+}
+
+@server (
+	middleware: AdminMiddleware
+	group:      Admin
+)
+service chat {
+	@handler chat_admin_history
+	get /api/chat/admin/history (ChatAdminHistoryRequest) returns (ChatAdminHistoryResponse) //用户与用户聊天记录
+
+	@handler chat_admin_session
+	get /api/chat/admin/session (ChatAdminSessionRequest) returns (ChatAdminSessionResponse) // 作为接受者，哪些人和他聊过天
+}
+
 //goctl api go -api chat_api.api -dir .

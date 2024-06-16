@@ -4,6 +4,7 @@ package handler
 import (
 	"net/http"
 
+	Admin "FIM/fim_chat/chat_api/internal/handler/Admin"
 	"FIM/fim_chat/chat_api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -38,5 +39,23 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: chat_Handler(serverCtx),
 			},
 		},
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AdminMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/api/chat/admin/history",
+					Handler: Admin.Chat_admin_historyHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/api/chat/admin/session",
+					Handler: Admin.Chat_admin_sessionHandler(serverCtx),
+				},
+			}...,
+		),
 	)
 }
