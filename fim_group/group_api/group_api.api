@@ -404,18 +404,11 @@ type GroupMessageListRequest {
 	Limit int  `form:"limit,optional"`
 }
 
-type GroupMessageListInfoResponse {}
-
-type GroupMessageListResponse {
-	List  []GroupMessageListInfoResponse `json:"list"`
-	Count int                            `json:"count"`
-}
+type GroupMessageListResponse {}
 
 type GroupMessageRemoveRequest {
 	IdList []uint `json:"id_list"`
 }
-
-type GroupMessageRemoveInfoResponse {}
 
 type GroupMessageRemoveResponse {}
 

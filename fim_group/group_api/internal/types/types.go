@@ -159,9 +159,6 @@ type GroupMemberResponse struct {
 	Count int               `json:"count"`
 }
 
-type GroupMessageListInfoResponse struct {
-}
-
 type GroupMessageListRequest struct {
 	ID    uint `path:"id"`
 	Page  int  `form:"page,optional"`
@@ -169,11 +166,6 @@ type GroupMessageListRequest struct {
 }
 
 type GroupMessageListResponse struct {
-	List  []GroupMessageListInfoResponse `json:"list"`
-	Count int                            `json:"count"`
-}
-
-type GroupMessageRemoveInfoResponse struct {
 }
 
 type GroupMessageRemoveRequest struct {
