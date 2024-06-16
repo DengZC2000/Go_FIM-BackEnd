@@ -142,7 +142,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodGet,
-					Path:    "/api/group/group_message_list",
+					Path:    "/api/group/group_message_list/:id",
 					Handler: Admin.Group_message_listHandler(serverCtx),
 				},
 				{

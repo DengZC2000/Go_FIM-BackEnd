@@ -163,9 +163,9 @@ type GroupMessageListInfoResponse struct {
 }
 
 type GroupMessageListRequest struct {
-	Page  int    `form:"page,optional"`
-	Limit int    `form:"limit,optional"`
-	Key   string `form:"key,optional"`
+	ID    uint `path:"id"`
+	Page  int  `form:"page,optional"`
+	Limit int  `form:"limit,optional"`
 }
 
 type GroupMessageListResponse struct {

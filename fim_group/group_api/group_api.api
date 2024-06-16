@@ -399,9 +399,9 @@ type GroupListRemoveRequest {
 type GroupListRemoveResponse {}
 
 type GroupMessageListRequest {
-	Page  int    `form:"page,optional"`
-	Limit int    `form:"limit,optional"`
-	Key   string `form:"key,optional"`
+	ID    uint `path:"id"`
+	Page  int  `form:"page,optional"`
+	Limit int  `form:"limit,optional"`
 }
 
 type GroupMessageListInfoResponse {}
@@ -431,7 +431,7 @@ service group {
 	delete /api/group/group_list_remove (GroupListRemoveRequest) returns (GroupListRemoveResponse)
 
 	@handler group_message_list
-	get /api/group/group_message_list (GroupMessageListRequest) returns (GroupMessageListResponse)
+	get /api/group/group_message_list/:id (GroupMessageListRequest) returns (GroupMessageListResponse)
 
 	@handler group_message_remove
 	delete /api/group/group_message_remove (GroupMessageRemoveRequest) returns (GroupMessageRemoveResponse)
