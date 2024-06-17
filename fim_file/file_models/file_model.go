@@ -3,6 +3,9 @@ package file_models
 import (
 	"FIM/common/models"
 	"github.com/google/uuid"
+	"github.com/zeromicro/go-zero/core/logx"
+	"gorm.io/gorm"
+	"os"
 )
 
 type FileModel struct {
@@ -17,4 +20,16 @@ type FileModel struct {
 
 func (file *FileModel) WebPath() string {
 	return "/api/file/" + file.Uid.String()
+}
+func (file *FileModel) BeforeDelete(tx *gorm.DB) (err error) {
+	if file.Path != "" {
+		err1 := os.Remove(file.Path)
+		if err1 != nil {
+			logx.Error(err1)
+		} else {
+			logx.Infof("删除文件 %s", file.FileName)
+			logx.Infof("文件源地址删除 %s", file.Path)
+		}
+	}
+	return
 }

@@ -4,6 +4,7 @@ package handler
 import (
 	"net/http"
 
+	Admin "FIM/fim_file/file_api/internal/handler/Admin"
 	"FIM/fim_file/file_api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -28,5 +29,23 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: imageHandler(serverCtx),
 			},
 		},
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AdminMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/api/file/list",
+					Handler: Admin.File_listHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/api/file/list/remove",
+					Handler: Admin.File_list_removeHandler(serverCtx),
+				},
+			}...,
+		),
 	)
 }

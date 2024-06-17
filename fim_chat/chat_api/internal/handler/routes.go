@@ -51,6 +51,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: Admin.Chat_admin_historyHandler(serverCtx),
 				},
 				{
+					Method:  http.MethodDelete,
+					Path:    "/api/chat/admin/history/remove",
+					Handler: Admin.Chat_admin_history_removeHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodGet,
 					Path:    "/api/chat/admin/session",
 					Handler: Admin.Chat_admin_sessionHandler(serverCtx),

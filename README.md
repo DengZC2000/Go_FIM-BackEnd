@@ -1,6 +1,7 @@
 # FIM即时通讯BackEnd
 # 使用Go语言为后端
 # 使用Go-Zero为微服务框架
+# 使用ETCD作为服务注册发现中间件
 # 使用GORM为ORM(对象关系映射)框架操作Mysql
 # 使用Redis中间件做缓存
 ## - 用户注销后JWT的存储

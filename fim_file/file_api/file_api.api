@@ -29,4 +29,42 @@ service file {
 	get /api/file/:FileName (FileShowRequest) //文件预览
 }
 
+type FileListRequest {
+	Page  int    `form:"page,optional"`
+	Limit int    `form:"limit,optional"`
+	Key   string `form:"key,optional"`
+}
+
+type FileListInfoResponse {
+	FileName  string `json:"file_name"` // 文件名称
+	Size      int64  `json:"size"` // 文件大小
+	Path      string `json:"path"` // 文件的实际路径
+	CreatedAt string `json:"created_at"`
+	ID        uint   `json:"id"`
+	WebPath   string `json:"web_path"` //访问路径
+}
+
+type FileListResponse {
+	List  []FileListInfoResponse `json:"list"`
+	Count int                    `json:"count"`
+}
+
+type FileListRemoveRequest {
+	IDList []uint `json:"id_list"`
+}
+
+type FileListRemoveResponse {}
+
+@server (
+	middleware: AdminMiddleware
+	group:      Admin
+)
+service file {
+	@handler file_list
+	get /api/file/list (FileListRequest) returns (FileListResponse)
+
+	@handler file_list_remove
+	delete /api/file/list/remove (FileListRemoveRequest) returns (FileListRemoveResponse)
+}
+
 // goctl api go -api file_api.api -dir .
