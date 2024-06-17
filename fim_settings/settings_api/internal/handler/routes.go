@@ -14,6 +14,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodGet,
+				Path:    "/api/settings/info",
+				Handler: settings_infoHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
 				Path:    "/api/settings/open_login",
 				Handler: open_login_infoHandler(serverCtx),
 			},

@@ -3,6 +3,7 @@ package main
 import (
 	"FIM/common/etcd"
 	"FIM/common/middleware"
+	"FIM/fim_settings/settings_api/internal/service"
 	"flag"
 	"fmt"
 
@@ -26,6 +27,9 @@ func main() {
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)
+	// 查一下网站配置是不是有且仅有一条记录
+	service.InitSettings(ctx)
+
 	handler.RegisterHandlers(server, ctx)
 	server.Use(middleware.LogMiddleware)
 	etcd.DeliveryAddress(c.Etcd, c.Name+"_api", fmt.Sprintf("%s:%d", c.Host, c.Port))

@@ -8,12 +8,23 @@ info (
 
 type OpenLoginInfoResponse {
 	Name string `json:"name"` //
-	Icon string `json:"icon"`//
-	Href string `json:"href"`//
+	Icon string `json:"icon"` //
+	Href string `json:"href"` //
+}
+
+type SettingsInfoRequest {}
+
+type SettingsInfoResponse {
+	Site string `json:"site"`
+	QQ   string `json:"qq"`
 }
 
 service settings {
 	@handler open_login_info
 	get /api/settings/open_login returns ([]OpenLoginInfoResponse)
-} //goctl api go -api settings_api.api -dir .
 
+	@handler settings_info
+	get /api/settings/info (SettingsInfoRequest) returns (SettingsInfoResponse)
+}
+
+//goctl api go -api settings_api.api -dir .

@@ -6,6 +6,7 @@ import (
 	"FIM/fim_file/file_models"
 	"FIM/fim_group/group_models"
 	"FIM/fim_logs/logs_model"
+	"FIM/fim_settings/settings_model"
 	"FIM/fim_user/user_models"
 	"flag"
 	"fmt"
@@ -43,6 +44,8 @@ func main() {
 			&file_models.FileModel{},
 
 			&logs_model.LogModel{},
+
+			&settings_model.SettingsModel{},
 		)
 		if err != nil {
 			log.Fatal("表结构生成失败！")
