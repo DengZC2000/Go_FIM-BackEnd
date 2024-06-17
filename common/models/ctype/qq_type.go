@@ -7,9 +7,11 @@ import (
 )
 
 type QQType struct {
+	Enable   bool   `json:"enable"` //是否启用
 	AppID    string `json:"app_id"`
 	Key      string `json:"key"`
 	Redirect string `json:"redirect"`
+	WebPath  string `json:"web_path"` // 跳转的地址，但是不存,用↓下面这个方法算出来的
 }
 
 func (qq *QQType) GetPath() string {

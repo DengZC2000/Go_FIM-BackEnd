@@ -25,13 +25,10 @@ type Config struct {
 		Icon string
 		Href string
 	}
-	QQ struct {
-		AppID    string
-		AppKey   string
-		Redirect string
-	}
+
 	Etcd         string
 	UserRpc      zrpc.RpcClientConf
+	SettingsRpc  zrpc.RpcClientConf
 	WhiteList    []string //白名单
 	KqPusherConf struct {
 		Brokers []string

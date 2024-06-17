@@ -1,14 +1,17 @@
 package logic
 
 import (
+	"FIM/common/models/ctype"
 	"FIM/fim_auth/auth_api/internal/svc"
 	"FIM/fim_auth/auth_api/internal/types"
 	"FIM/fim_auth/auth_models"
+	"FIM/fim_settings/settings_rpc/types/settings_rpc"
 	"FIM/fim_user/user_models"
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"FIM/utils/jwt"
 	"FIM/utils/open_login"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -35,13 +38,26 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 		Avatar   string
 	}
 	var info OpenInfo
-
+	openLoginResponse, err := l.svcCtx.SettingRpc.SettingsInfo(l.ctx, &settings_rpc.SettingsInfoRequest{})
+	if err != nil {
+		logx.Error(err)
+		return nil, errors.New("系统配置服务异常")
+	}
+	type OpenLoginInfo struct {
+		QQ ctype.QQType `json:"qq"`
+	}
+	var openLoginInfo OpenLoginInfo
+	err = json.Unmarshal(openLoginResponse.Data, &openLoginInfo)
+	if err != nil {
+		logx.Error(err)
+		return nil, errors.New("系统配置服务响应异常")
+	}
 	switch req.Flag {
 	case "qq":
 		QQInfo, openError := open_login.NewQQLogin(req.Code, open_login.QQConfig{
-			AppID:    l.svcCtx.Config.QQ.AppID,
-			AppKey:   l.svcCtx.Config.QQ.AppKey,
-			Redirect: l.svcCtx.Config.QQ.Redirect,
+			AppID:    openLoginInfo.QQ.AppID,
+			AppKey:   openLoginInfo.QQ.Key,
+			Redirect: openLoginInfo.QQ.Redirect,
 		})
 		info = OpenInfo{
 			Nickname: QQInfo.Nickname,

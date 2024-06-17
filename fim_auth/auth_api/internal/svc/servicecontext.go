@@ -5,6 +5,8 @@ import (
 	"FIM/common/zprc_interceptor"
 	"FIM/core"
 	"FIM/fim_auth/auth_api/internal/config"
+	"FIM/fim_settings/settings_rpc/settings"
+	"FIM/fim_settings/settings_rpc/types/settings_rpc"
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"FIM/fim_user/user_rpc/users"
 	"github.com/redis/go-redis/v9"
@@ -19,6 +21,7 @@ type ServiceContext struct {
 	DB             *gorm.DB
 	Redis          *redis.Client
 	UserRpc        user_rpc.UsersClient
+	SettingRpc     settings_rpc.SettingsClient
 	KqPusherClient *kq.Pusher
 	ActionPusher   *log_stash.Pusher
 	RuntimePusher  *log_stash.Pusher
@@ -36,6 +39,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		DB:             mysqlDb,
 		Redis:          redisDb,
 		UserRpc:        users.NewUsers(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(zprc_interceptor.ClientInfoInterceptor))),
+		SettingRpc:     settings.NewSettings(zrpc.MustNewClient(c.SettingsRpc, zrpc.WithUnaryClientInterceptor(zprc_interceptor.ClientInfoInterceptor))),
 		KqPusherClient: Kq,
 		ActionPusher:   log_stash.NewActionPusher(Kq, c.Name),
 		RuntimePusher:  log_stash.NewRuntimePusher(Kq, c.Name),

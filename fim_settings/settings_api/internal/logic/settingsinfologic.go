@@ -31,5 +31,6 @@ func (l *Settings_infoLogic) Settings_info(req *types.SettingsInfoRequest) (resp
 	resp = &settings_model.SettingsModel{}
 	l.svcCtx.DB.First(resp)
 	resp.QQ.Key = "******"
+	resp.QQ.WebPath = resp.QQ.GetPath()
 	return
 }

@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package settings_rpc;
+option go_package = "./settings_rpc";
+
+message SettingsInfoRequest{
+
+}
+message SettingsInfoResponse{
+  bytes data =1 ; //返回json数据
+}
+service Settings {
+  rpc SettingsInfo(SettingsInfoRequest)returns(SettingsInfoResponse);
+}
+// goctl rpc protoc settings_rpc.proto --go_out=./types --go-grpc_out=./types --zrpc_out=.
