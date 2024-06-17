@@ -4,6 +4,7 @@ package handler
 import (
 	"net/http"
 
+	Admin "FIM/fim_settings/settings_api/internal/handler/Admin"
 	"FIM/fim_settings/settings_api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -23,5 +24,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: open_login_infoHandler(serverCtx),
 			},
 		},
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AdminMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPut,
+					Path:    "/api/settings/info/update",
+					Handler: Admin.Settings_info_updateHandler(serverCtx),
+				},
+			}...,
+		),
 	)
 }

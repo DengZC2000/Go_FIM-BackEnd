@@ -14,3 +14,9 @@ type SettingsInfoResponse struct {
 	Site string `json:"site"`
 	QQ   string `json:"qq"`
 }
+
+type SettingsInfoUpdateRequest struct {
+}
+
+type SettingsInfoUpdateResponse struct {
+}

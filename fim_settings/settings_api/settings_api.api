@@ -27,4 +27,17 @@ service settings {
 	get /api/settings/info (SettingsInfoRequest) returns (SettingsInfoResponse)
 }
 
+type SettingsInfoUpdateRequest {}
+
+type SettingsInfoUpdateResponse {}
+
+@server (
+	middleware: AdminMiddleware
+	group:      Admin
+)
+service settings {
+	@handler settings_info_update
+	put /api/settings/info/update (SettingsInfoUpdateRequest) returns (SettingsInfoUpdateResponse) // 系统管理员更改site配置
+}
+
 //goctl api go -api settings_api.api -dir .
