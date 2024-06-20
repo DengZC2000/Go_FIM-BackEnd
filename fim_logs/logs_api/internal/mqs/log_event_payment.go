@@ -1,7 +1,7 @@
 package mqs
 
 import (
-	"FIM/fim_logs/log_api/internal/svc"
+	"FIM/fim_logs/logs_api/internal/svc"
 	"FIM/fim_logs/logs_model"
 	"FIM/fim_user/user_rpc/types/user_rpc"
 	"FIM/utils/addr"

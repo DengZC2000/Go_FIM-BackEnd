@@ -3,15 +3,15 @@ package main
 import (
 	"FIM/common/etcd"
 	"FIM/common/middleware"
-	"FIM/fim_logs/log_api/internal/handler"
-	"FIM/fim_logs/log_api/internal/mqs"
-	"FIM/fim_logs/log_api/internal/svc"
+	"FIM/fim_logs/logs_api/internal/handler"
+	"FIM/fim_logs/logs_api/internal/mqs"
+	"FIM/fim_logs/logs_api/internal/svc"
 	"context"
 	"flag"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/service"
 
-	"FIM/fim_logs/log_api/internal/config"
+	"FIM/fim_logs/logs_api/internal/config"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
 )

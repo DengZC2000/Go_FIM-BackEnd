@@ -4,8 +4,8 @@ import (
 	"FIM/fim_logs/logs_model"
 	"context"
 
-	"FIM/fim_logs/log_api/internal/svc"
-	"FIM/fim_logs/log_api/internal/types"
+	"FIM/fim_logs/logs_api/internal/svc"
+	"FIM/fim_logs/logs_api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

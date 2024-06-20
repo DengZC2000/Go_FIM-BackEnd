@@ -54,4 +54,4 @@ service logs {
 	get /api/logs/log_list (LogListRequest) returns (LogListResponse)
 }
 
-// goctl api go -api log_api.api -dir .
+// goctl api go -api logs_api.api -dir .

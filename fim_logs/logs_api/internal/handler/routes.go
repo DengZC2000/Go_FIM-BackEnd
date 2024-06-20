@@ -4,7 +4,7 @@ package handler
 import (
 	"net/http"
 
-	"FIM/fim_logs/log_api/internal/svc"
+	"FIM/fim_logs/logs_api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )

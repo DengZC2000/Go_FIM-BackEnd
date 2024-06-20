@@ -2,9 +2,9 @@ package handler
 
 import (
 	"FIM/common/response"
-	"FIM/fim_logs/log_api/internal/logic"
-	"FIM/fim_logs/log_api/internal/svc"
-	"FIM/fim_logs/log_api/internal/types"
+	"FIM/fim_logs/logs_api/internal/logic"
+	"FIM/fim_logs/logs_api/internal/svc"
+	"FIM/fim_logs/logs_api/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"net/http"
 )

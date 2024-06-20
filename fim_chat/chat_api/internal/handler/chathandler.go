@@ -43,6 +43,7 @@ type UserWsInfo struct {
 }
 
 var UserOnlineWsMap = map[uint]*UserWsInfo{}
+var VideoCallStartTime = map[string]time.Time{}
 
 func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -347,6 +348,121 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				request.Msg.QuoteMsg.UserID = msgModel.SendUserID
 				request.Msg.QuoteMsg.UserNickName = SendBaseInfo.Nickname
 				request.Msg.QuoteMsg.OriginMsgDate = msgModel.CreatedAt
+			case ctype.VideoCallMsgType:
+				data := request.Msg.VideoCallMsg
+				//先判断对方是否在线
+				_, ok2 := UserOnlineWsMap[request.RevUserID]
+				if !ok2 {
+					SendTipErrMsg(conn, "对方不在线")
+					continue
+				}
+				key := fmt.Sprintf("%d_%d", userInfo.ID, request.RevUserID)
+				switch data.Flag {
+				case 0:
+					// 给自己的页面展示一个等待对方接听的弹框
+					conn.WriteJSON(ChatResponse{
+						Msg: ctype.Msg{
+							VideoCallMsg: &ctype.VideoCallMsg{
+								Flag: 1,
+							},
+						},
+					})
+					// 给对方的页面展示一个等待对方接听的弹框
+					sendRevUserMsg(request.RevUserID, ctype.Msg{
+						VideoCallMsg: &ctype.VideoCallMsg{
+							Flag: 2,
+						},
+					})
+				case 1: // 自己挂断
+					sendRevUserMsg(request.RevUserID, ctype.Msg{
+						VideoCallMsg: &ctype.VideoCallMsg{
+							Flag: 3,
+							Msg:  "发起者已挂断",
+						},
+					})
+				case 2: // 对方挂断
+					// 对方点击挂断，那么它的目标就是revUserID，也就是上面的conn
+					sendRevUserMsg(request.RevUserID, ctype.Msg{
+						VideoCallMsg: &ctype.VideoCallMsg{
+							Flag: 3,
+							Msg:  "接收者已挂断",
+						},
+					})
+				case 3: //对方接受
+					// 让发起者准备去发offer
+					sendRevUserMsg(request.RevUserID, ctype.Msg{
+						VideoCallMsg: &ctype.VideoCallMsg{
+							Flag: 5, // 让发起者准备去发offer
+							Type: "create_offer",
+						},
+					})
+				case 4:
+					// 我方正常挂断
+					// 算你们的通话时长
+					// 从发offer开始，算一个开始时间，到这里算一个结束时间，就是视频通话的时间
+					fmt.Println("用户正常挂断")
+					startTime, ok3 := VideoCallStartTime[key]
+					if !ok3 {
+						fmt.Println("没有开始时间")
+						continue
+					}
+					CallTime := time.Now().Sub(startTime)
+					fmt.Printf("通话时长 %s", CallTime.String())
+				case 5:
+					// 对方挂断
+					key = fmt.Sprintf("%d_%d", request.RevUserID, userInfo.ID)
+					startTime, ok3 := VideoCallStartTime[key]
+					if !ok3 {
+						fmt.Println("没有开始时间")
+						continue
+					}
+					CallTime := time.Now().Sub(startTime)
+					fmt.Printf("通话时长 %s", CallTime.String())
+				}
+				switch data.Type {
+				case "offer":
+					sendRevUserMsg(request.RevUserID, ctype.Msg{
+						VideoCallMsg: &ctype.VideoCallMsg{
+							Flag: 5, // 让发起者准备去发offer
+							Type: "offer",
+							Data: data.Data,
+						},
+					})
+					VideoCallStartTime[key] = time.Now()
+				case "answer":
+					conn.WriteJSON(ChatResponse{
+						Msg: ctype.Msg{
+							VideoCallMsg: &ctype.VideoCallMsg{
+								Type: "answer",
+								Data: data.Data,
+							},
+						},
+					})
+				case "offer_ice":
+					sendRevUserMsg(request.RevUserID, ctype.Msg{
+						VideoCallMsg: &ctype.VideoCallMsg{
+							Flag: 5, // 让发起者准备去发offer
+							Type: "offer_ice",
+							Data: data.Data,
+						},
+					})
+				case "answer_ice":
+					conn.WriteJSON(ChatResponse{
+						Msg: ctype.Msg{
+							VideoCallMsg: &ctype.VideoCallMsg{
+								Type: "answer_ice",
+								Data: data.Data,
+							},
+						},
+					})
+				}
+				// 自己这方可以挂断
+
+				// 对方也可以挂断
+
+				// 如果对方开了多个浏览器，只用找其中的一个，找第一个
+				continue
+
 			}
 			//入库,里面有撤回消息是不入库的逻辑
 			chatID := ChatMsgIntoDataBase(svcCtx.DB, req.UserID, request.RevUserID, &request.Msg)
@@ -366,6 +482,27 @@ func chat_Handler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 func DistributeWsMsgMap(wsMap map[string]*websocket.Conn, byteData []byte) {
 	for _, conn := range wsMap {
 		conn.WriteMessage(websocket.TextMessage, byteData)
+	}
+}
+
+// sendRevUserMsg 给目标客户端发消息
+func sendRevUserMsg(revUserID uint, msg ctype.Msg) {
+	userRes, ok := UserOnlineWsMap[revUserID]
+	if !ok {
+		return
+	}
+	for _, conn := range userRes.WsClientMap {
+		conn.WriteJSON(ChatResponse{
+			SendUser: ctype.UserInfo{},
+			RevUser: ctype.UserInfo{
+				ID:       userRes.UserInfo.ID,
+				Nickname: userRes.UserInfo.NickName,
+				Avatar:   userRes.UserInfo.Avatar,
+			},
+			Msg:       msg,
+			CreatedAt: time.Now().String(),
+		})
+		break
 	}
 }
 

@@ -74,6 +74,10 @@ type VideoCallMsg struct {
 	StartTime time.Time `json:"start_time"` //开始时间
 	EndTime   time.Time `json:"end_time"`   //结束时间
 	EndReason int8      `json:"end_reason"` //结束原因 0 发起方挂断 1 接收方挂断 2 网络原因挂断 3 未打通
+	Flag      int8      `json:"flag"`       //表示客户端弹框的模式
+	Msg       string    `json:"msg"`
+	Type      string    `json:"type"`
+	Data      any       `json:"data"`
 }
 type WithdrawMsg struct {
 	Content   string `json:"content"`              //撤回的提示符

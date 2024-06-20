@@ -18,6 +18,7 @@ func checkStart() {
 		})
 	}
 }
+
 func wsHandler(w http.ResponseWriter, r *http.Request) {
 	var upGrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
@@ -32,12 +33,14 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error upgrading to Websocket:", err)
 		return
 	}
+	defer conn.Close()
+
 	for {
-		var obj map[string]any
+		var obj map[string]interface{}
 		err := conn.ReadJSON(&obj)
 		if err != nil {
-			log.Println("error reading json:", err)
-			return
+			log.Println("Error reading json:", err)
+			break
 		}
 		log.Println("recv:", obj)
 		switch obj["type"] {
@@ -65,6 +68,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 					"message": "connect failed",
 				})
 				conn.Close()
+				return
 			}
 		case "offer":
 			if answerClient != nil {
@@ -74,8 +78,17 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			if offerClient != nil {
 				offerClient.WriteJSON(obj)
 			}
+		case "offer_ice":
+			if answerClient != nil {
+				answerClient.WriteJSON(obj)
+			}
+		case "answer_ice":
+			if offerClient != nil {
+				offerClient.WriteJSON(obj)
+			}
 		}
 	}
+
 	if conn == offerClient {
 		log.Println("remove offerClient")
 		offerClient = nil
@@ -84,8 +97,8 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		answerClient = nil
 	}
 }
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("dzc")
 	byteData, err := os.ReadFile("index.html")
 	if err != nil {
 		fmt.Println(err)
@@ -93,6 +106,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(byteData)
 }
+
 func main() {
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/ws", wsHandler)

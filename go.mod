@@ -3,8 +3,14 @@ module FIM
 go 1.21.4
 
 require (
+	github.com/cc14514/go-geoip2 v0.0.0-20190105051856-0a1854480a11
+	github.com/cc14514/go-geoip2-db v0.0.0-20190106063142-7b6408a9812a
 	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/google/uuid v1.6.0
+	github.com/gorilla/websocket v1.5.1
 	github.com/redis/go-redis/v9 v9.4.0
+	github.com/segmentio/kafka-go v0.4.47
+	github.com/zeromicro/go-queue v1.2.1
 	github.com/zeromicro/go-zero v1.6.4
 	go.etcd.io/etcd/client/v3 v3.5.13
 	golang.org/x/crypto v0.22.0
@@ -17,8 +23,6 @@ require (
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/cc14514/go-geoip2 v0.0.0-20190105051856-0a1854480a11 // indirect
-	github.com/cc14514/go-geoip2-db v0.0.0-20190106063142-7b6408a9812a // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
@@ -39,8 +43,6 @@ require (
 	github.com/google/gnostic-models v0.6.8 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
-	github.com/google/uuid v1.6.0 // indirect
-	github.com/gorilla/websocket v1.5.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
@@ -62,9 +64,7 @@ require (
 	github.com/prometheus/common v0.45.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/rakyll/statik v0.1.7 // indirect
-	github.com/segmentio/kafka-go v0.4.47 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
-	github.com/zeromicro/go-queue v1.2.1 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.13 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.13 // indirect
 	go.opentelemetry.io/otel v1.19.0 // indirect

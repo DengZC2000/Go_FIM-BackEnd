@@ -3,8 +3,8 @@ package logic
 import (
 	"FIM/common/list_query"
 	"FIM/common/models"
-	"FIM/fim_logs/log_api/internal/svc"
-	"FIM/fim_logs/log_api/internal/types"
+	"FIM/fim_logs/logs_api/internal/svc"
+	"FIM/fim_logs/logs_api/internal/types"
 	"FIM/fim_logs/logs_model"
 	"context"
 

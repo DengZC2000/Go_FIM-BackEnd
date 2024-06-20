@@ -1,8 +1,8 @@
 package mqs
 
 import (
-	"FIM/fim_logs/log_api/internal/config"
-	"FIM/fim_logs/log_api/internal/svc"
+	"FIM/fim_logs/logs_api/internal/config"
+	"FIM/fim_logs/logs_api/internal/svc"
 	"context"
 
 	"github.com/zeromicro/go-queue/kq"
