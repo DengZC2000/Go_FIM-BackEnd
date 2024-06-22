@@ -2,7 +2,7 @@
 
 
 
-##  使用Go语言为后端（本地部署时使用Docker运行ETCD及Kafka、Redis，并使用Dockerfile完成本地部署。）
+##  使用Go语言为后端（本地部署时使用Docker运行ETCD及Kafka、Redis，并使用Dockerfile完成本地部署。最后将打包好的镜像上传到我的Docker hub私有仓库中）
 
 ## 集成QQ第三方登录API
 
@@ -83,3 +83,7 @@
 
 ### 可以curl一个不需要JwtToken（也就是不要求一定先经过网关请求auth的服务，也可以直接curl IP：端口号就行）的Get请求接口看看，这里请求第三方登录信息配置接口，可以看到没问题的：
 ![curl不需要jwt的get请求](https://github.com/DengZC2000/Go_FIM-BackEnd/assets/153356545/1b279508-7b3d-4160-b87a-078d50882e91)
+
+### 将镜像上传到我的 Docker hub 私有仓库，想用的时候直接登录pull就太方便了
+![镜像上传到dockerhub私有仓库](https://github.com/DengZC2000/Go_FIM-BackEnd/assets/153356545/aa37c9bd-e2a2-4663-9725-a2c7465d17a0)
+![私有dockerhub仓库](https://github.com/DengZC2000/Go_FIM-BackEnd/assets/153356545/ca44181e-788c-45b8-ac7d-a0cd8d8cb523)
