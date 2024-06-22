@@ -2,7 +2,7 @@
 
 
 
-##  使用Go语言为后端，使用Docker运行ETCD及Kafka、Redis，并使用Dockerfile完成本地部署。
+##  使用Go语言为后端（本地部署时使用Docker运行ETCD及Kafka、Redis，并使用Dockerfile完成本地部署。）
 
 ## 集成QQ第三方登录API
 
@@ -14,7 +14,7 @@
 
 ## 使用GORM为ORM(对象关系映射)框架操作Mysql
 
-## 使用Redis中间件做缓存(Redis在wsl中启动，详见：[Windows使用Redis](https://www.blog.dzcs.online/windows%E5%AE%89%E8%A3%85%E5%B9%B6%E4%BD%BF%E7%94%A8redis))
+## 使用Redis中间件做缓存(Redis在wsl中启动（部署时docker启动），详见：[Windows使用Redis](https://www.blog.dzcs.online/windows%E5%AE%89%E8%A3%85%E5%B9%B6%E4%BD%BF%E7%94%A8redis))
 
 ### - 用户注销后JWT的存储
 
