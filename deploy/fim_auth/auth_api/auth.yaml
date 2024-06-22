@@ -1,0 +1,43 @@
+Name: auth
+Host: 0.0.0.0
+Port: 20021
+Mysql:
+  DataSource: root:1310138359@tcp(172.29.224.1:3306)/fim_server_db?charset=utf8mb4&parseTime=True&loc=Local
+Auth:
+  AccessSecret: Dzc2000
+  AccessExpire: 2
+Log:
+  Encoding: plain
+  TimeFormat: 2006-01-02 15:04:05
+  Stat: false
+Redis:
+  Addr: 172.29.224.1:6379
+  Password:
+  DB: 0
+  PoolSize: 100
+OpenLoginList:
+  - name: QQ登录
+    icon: https://www.blog.dzcs.online/_next/image?url=https%3A%2F%2Fwww.notion.so%2Fimage%2Fhttps%253A%252F%252Fwiki.connect.qq.com%252Fwp-content%252Fuploads%252F2016%252F12%252FConnect_logo_5.png%3Ftable%3Dblock%26id%3D1fe86715-e4f5-4c7b-beae-a9d382d0e6ce%26cache%3Dv2&w=2048&q=75
+    href: https://graph.qq.com/oauth2.0/show?which=Login&display=pc&response_type=code&client_id=102107572&redirect_uri=https://www.blog.dzcs.online/login/callback/qq
+Etcd: 172.29.224.1:2379
+UserRpc:
+  Etcd:
+    Hosts:
+      - 172.29.224.1:2379
+    Key: userrpc.rpc
+SettingsRpc:
+  Etcd:
+    Hosts:
+      - 172.29.224.1:2379
+    Key: settingsrpc.rpc
+WhiteList:
+  - /api/auth/login
+  - /api/auth/open_login
+  - /api/auth/authentication
+  - /api/auth/logout
+  - /api/settings/open_login
+  - /api/file/.{8}-.{4}-.{4}-.{4}-.{12}
+KqPusherConf:
+  Brokers:
+    - 172.29.224.1:9092
+  Topic: log-topic

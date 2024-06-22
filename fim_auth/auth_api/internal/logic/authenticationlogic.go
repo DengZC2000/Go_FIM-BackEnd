@@ -44,7 +44,15 @@ func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (
 	}
 
 	result := l.svcCtx.Redis.Exists(context.Background(), fmt.Sprintf("logout_%s", req.Token))
-	if result.Val() == 1 || result.Err() != nil {
+	if result.Err() != nil {
+		// 处理Redis操作中的错误，可能不是用户已注销
+		// 例如，你可以记录错误并返回一个通用的错误消息
+		err = errors.New(result.Err().Error())
+		return
+	}
+
+	if result.Val() == 1 {
+		// 键存在，表示用户已注销
 		err = errors.New("用户已注销，认证失败")
 		return
 	}

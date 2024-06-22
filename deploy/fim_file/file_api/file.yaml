@@ -1,0 +1,28 @@
+Name: file
+Host: 0.0.0.0
+Port: 20025
+Etcd: 172.29.224.1:2379
+Mysql:
+  DataSource: root:1310138359@tcp(172.29.224.1:3306)/fim_server_db?charset=utf8mb4&parseTime=True&loc=Local
+Log:
+  Encoding: plain
+  TimeFormat: 2006-01-02 15:04:05
+  Stat: false
+MaxBytes: 1083741824 #设置go-zero实际文件上传大小限制大概1个G多一点
+ImageSize : 3 # 实际3MB
+FileSize : 1024 # 其他文件为1024MB
+WriteList:
+  - png
+  - jpg
+  - jpeg
+  - gif
+  - icon
+  - webp
+BlackList:
+  - exe
+UpLoadDir: uploads
+UserRpc:
+  Etcd:
+    Hosts:
+      - 172.29.224.1:2379
+    Key: userrpc.rpc

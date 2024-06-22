@@ -129,5 +129,8 @@ func main() {
 	fmt.Printf("gateway running %s\n", config.Addr)
 	proxy := Proxy{}
 	//绑定服务
-	http.ListenAndServe(config.Addr, proxy)
+	err := http.ListenAndServe(config.Addr, proxy)
+	if err != nil {
+		logx.Error(err)
+	}
 }

@@ -1,0 +1,6 @@
+Addr: 0.0.0.0:1234
+Etcd: 172.29.224.1:2379
+Log:
+  Encoding: plain
+  TimeFormat: 2006-01-02 15:04:05
+  Stat: false
