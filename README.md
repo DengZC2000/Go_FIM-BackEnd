@@ -81,5 +81,5 @@
 
 ### 本地部署完成后，就可以一摸一样像开发时一样使用Apifox进行测试
 
-### 可以curl一个不需要JwtToken（也就是不需要先经过网关请求auth的服务，直接curl IP：端口号就行）的Get请求接口看看，这里请求第三方登录信息配置接口，可以看到没问题的：
+### 可以curl一个不需要JwtToken（也就是不要求一定先经过网关请求auth的服务，也可以直接curl IP：端口号就行）的Get请求接口看看，这里请求第三方登录信息配置接口，可以看到没问题的：
 ![curl不需要jwt的get请求](https://github.com/DengZC2000/Go_FIM-BackEnd/assets/153356545/1b279508-7b3d-4160-b87a-078d50882e91)
